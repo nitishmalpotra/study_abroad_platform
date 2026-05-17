@@ -1,0 +1,15 @@
+[server]
+headless = true
+port = 8501
+maxUploadSize = 10
+enableCORS = true
+enableXsrfProtection = true
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
+
+[runner]
+magicEnabled = false

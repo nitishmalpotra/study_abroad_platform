@@ -1,0 +1,186 @@
+export interface Country {
+  id: string;
+  name: string;
+  flag: string;
+  heroImage: string;
+  tagline: string;
+  overview: string;
+  avgTuition: string;
+  avgLiving: string;
+  currency: string;
+  popularCourses: string[];
+  visaHighlights: string[];
+  costBreakdown: { item: string; cost: string }[];
+  topUniversities: string[];
+}
+
+export const countries: Country[] = [
+  {
+    id: 'usa',
+    name: 'United States',
+    flag: 'US',
+    heroImage: 'https://images.pexels.com/photos/290386/pexels-photo-290386.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750',
+    tagline: 'Home to the world\'s top-ranked universities and unmatched research opportunities.',
+    overview: 'The United States hosts over 1 million international students annually, offering world-class education across 4,000+ accredited institutions. From Ivy League research universities to innovative tech hubs, the US provides unparalleled academic diversity and career prospects.',
+    avgTuition: '$20,000 - $55,000/year',
+    avgLiving: '$12,000 - $18,000/year',
+    currency: 'USD',
+    popularCourses: ['Computer Science', 'MBA', 'Data Science', 'Mechanical Engineering', 'Electrical Engineering', 'Biotechnology'],
+    visaHighlights: [
+      'F-1 Student Visa required for full-time study',
+      'OPT allows 12 months of post-study work (36 months for STEM)',
+      'Visa interview at US Embassy required',
+      'I-20 form from university needed before application',
+      'Proof of financial support mandatory',
+    ],
+    costBreakdown: [
+      { item: 'Tuition (Public University)', cost: '$20,000 - $35,000/year' },
+      { item: 'Tuition (Private University)', cost: '$35,000 - $55,000/year' },
+      { item: 'Accommodation', cost: '$8,000 - $14,000/year' },
+      { item: 'Food & Groceries', cost: '$3,000 - $5,000/year' },
+      { item: 'Health Insurance', cost: '$1,500 - $2,500/year' },
+      { item: 'Transportation', cost: '$1,000 - $2,000/year' },
+    ],
+    topUniversities: ['MIT', 'Stanford University', 'Harvard University', 'Caltech', 'University of Chicago', 'Columbia University'],
+  },
+  {
+    id: 'uk',
+    name: 'United Kingdom',
+    flag: 'GB',
+    heroImage: 'https://images.pexels.com/photos/460672/pexels-photo-460672.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750',
+    tagline: 'Centuries of academic excellence with globally recognized degrees.',
+    overview: 'The UK is home to some of the oldest and most prestigious universities in the world. With shorter program durations (1-year Master\'s), world-class research facilities, and a multicultural environment, the UK remains one of the top destinations for Indian students.',
+    avgTuition: '£12,000 - £38,000/year',
+    avgLiving: '£9,000 - £15,000/year',
+    currency: 'GBP',
+    popularCourses: ['Business Analytics', 'Finance', 'Artificial Intelligence', 'Law', 'Public Health', 'Architecture'],
+    visaHighlights: [
+      'Student Route Visa (formerly Tier 4) required',
+      'Graduate Route allows 2 years post-study work',
+      'CAS (Confirmation of Acceptance) from university needed',
+      'IELTS/TOEFL scores required',
+      'Proof of funds for tuition + living costs',
+    ],
+    costBreakdown: [
+      { item: 'Tuition (Taught Masters)', cost: '£12,000 - £28,000/year' },
+      { item: 'Tuition (MBA)', cost: '£20,000 - £38,000/year' },
+      { item: 'Accommodation', cost: '£5,000 - £10,000/year' },
+      { item: 'Food & Groceries', cost: '£2,500 - £4,000/year' },
+      { item: 'Health Surcharge (IHS)', cost: '£470/year' },
+      { item: 'Transportation', cost: '£1,000 - £2,000/year' },
+    ],
+    topUniversities: ['University of Oxford', 'University of Cambridge', 'Imperial College London', 'UCL', 'University of Edinburgh', 'King\'s College London'],
+  },
+  {
+    id: 'canada',
+    name: 'Canada',
+    flag: 'CA',
+    heroImage: 'https://images.pexels.com/photos/1519088/pexels-photo-1519088.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750',
+    tagline: 'Affordable education with a clear pathway to permanent residency.',
+    overview: 'Canada is one of the most welcoming countries for international students, offering high-quality education at relatively affordable costs. With its Post-Graduation Work Permit (PGWP) and Express Entry immigration system, Canada provides a clear pathway from student to permanent resident.',
+    avgTuition: 'CAD 15,000 - 40,000/year',
+    avgLiving: 'CAD 10,000 - 15,000/year',
+    currency: 'CAD',
+    popularCourses: ['Computer Science', 'Business Administration', 'Engineering', 'Health Sciences', 'Environmental Science', 'Data Analytics'],
+    visaHighlights: [
+      'Study Permit required for programs over 6 months',
+      'Post-Graduation Work Permit (PGWP) for 1-3 years',
+      'Express Entry pathway to permanent residency',
+      'Letter of Acceptance from DLI needed',
+      'Biometrics required as part of application',
+    ],
+    costBreakdown: [
+      { item: 'Tuition (Undergraduate)', cost: 'CAD 15,000 - 30,000/year' },
+      { item: 'Tuition (Graduate)', cost: 'CAD 18,000 - 40,000/year' },
+      { item: 'Accommodation', cost: 'CAD 6,000 - $12,000/year' },
+      { item: 'Food & Groceries', cost: 'CAD 3,000 - 5,000/year' },
+      { item: 'Health Insurance', cost: 'CAD 600 - 1,000/year' },
+      { item: 'Transportation', cost: 'CAD 1,200 - 2,000/year' },
+    ],
+    topUniversities: ['University of Toronto', 'McGill University', 'University of British Columbia', 'University of Waterloo', 'University of Alberta', 'McMaster University'],
+  },
+  {
+    id: 'australia',
+    name: 'Australia',
+    flag: 'AU',
+    heroImage: 'https://images.pexels.com/photos/1878293/pexels-photo-1878293.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750',
+    tagline: 'World-class universities with excellent post-study work rights.',
+    overview: 'Australia is the third most popular destination for international students globally. Known for its research-intensive universities, multicultural cities, and generous post-study work visas, Australia offers an exceptional balance of education quality and lifestyle.',
+    avgTuition: 'AUD 20,000 - 45,000/year',
+    avgLiving: 'AUD 12,000 - 20,000/year',
+    currency: 'AUD',
+    popularCourses: ['Information Technology', 'Nursing', 'Engineering', 'Accounting', 'Marine Biology', 'Cybersecurity'],
+    visaHighlights: [
+      'Student Visa (Subclass 500) required',
+      'Post-Study Work Visa for 2-4 years',
+      'Genuine Temporary Entrant (GTE) requirement',
+      'OSHC health insurance mandatory',
+      'Can work up to 48 hours per fortnight during studies',
+    ],
+    costBreakdown: [
+      { item: 'Tuition (Undergraduate)', cost: 'AUD 20,000 - 35,000/year' },
+      { item: 'Tuition (Postgraduate)', cost: 'AUD 22,000 - 45,000/year' },
+      { item: 'Accommodation', cost: 'AUD 8,000 - 16,000/year' },
+      { item: 'Food & Groceries', cost: 'AUD 4,000 - 6,000/year' },
+      { item: 'OSHC Insurance', cost: 'AUD 500 - 700/year' },
+      { item: 'Transportation', cost: 'AUD 1,500 - 3,000/year' },
+    ],
+    topUniversities: ['University of Melbourne', 'University of Sydney', 'UNSW Sydney', 'Australian National University', 'Monash University', 'University of Queensland'],
+  },
+  {
+    id: 'ireland',
+    name: 'Ireland',
+    flag: 'IE',
+    heroImage: 'https://images.pexels.com/photos/2416653/pexels-photo-2416653.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750',
+    tagline: 'Europe\'s tech hub with a thriving job market for graduates.',
+    overview: 'Ireland has emerged as a top study destination thanks to its booming tech industry, English-speaking environment, and welcoming culture. Home to European headquarters of Google, Facebook, Apple, and more, Ireland offers students unmatched networking and career opportunities.',
+    avgTuition: 'EUR 10,000 - 25,000/year',
+    avgLiving: 'EUR 7,000 - 12,000/year',
+    currency: 'EUR',
+    popularCourses: ['Data Science', 'Pharmaceutical Sciences', 'Software Engineering', 'Business', 'Biotechnology', 'Digital Marketing'],
+    visaHighlights: [
+      'Study Visa / Stamp 2 immigration permission',
+      'Stay Back Option: 1-2 years post-study work',
+      'Can work 20 hrs/week during term, 40 hrs during holidays',
+      'No visa interview required for Indian students',
+      'Proof of EUR 10,000 in funds required',
+    ],
+    costBreakdown: [
+      { item: 'Tuition (Undergraduate)', cost: 'EUR 10,000 - 18,000/year' },
+      { item: 'Tuition (Postgraduate)', cost: 'EUR 12,000 - 25,000/year' },
+      { item: 'Accommodation', cost: 'EUR 5,000 - 10,000/year' },
+      { item: 'Food & Groceries', cost: 'EUR 2,500 - 4,000/year' },
+      { item: 'Health Insurance', cost: 'EUR 500 - 1,000/year' },
+      { item: 'Transportation', cost: 'EUR 1,000 - 1,500/year' },
+    ],
+    topUniversities: ['Trinity College Dublin', 'University College Dublin', 'NUI Galway', 'University College Cork', 'Dublin City University', 'University of Limerick'],
+  },
+  {
+    id: 'new-zealand',
+    name: 'New Zealand',
+    flag: 'NZ',
+    heroImage: 'https://images.pexels.com/photos/1659438/pexels-photo-1659438.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750',
+    tagline: 'Safe, innovative education in one of the world\'s most beautiful countries.',
+    overview: 'New Zealand offers a unique combination of high-quality education, stunning natural beauty, and a safe, welcoming environment. With its practical, research-driven approach to education and post-study work opportunities, New Zealand is an increasingly popular choice for Indian students.',
+    avgTuition: 'NZD 18,000 - 35,000/year',
+    avgLiving: 'NZD 12,000 - 18,000/year',
+    currency: 'NZD',
+    popularCourses: ['Agriculture', 'Environmental Science', 'Hospitality', 'Engineering', 'Information Technology', 'Film & Media'],
+    visaHighlights: [
+      'Student Visa required for full-time study',
+      'Post-Study Work Visa for 1-3 years',
+      'Can work up to 20 hours/week during studies',
+      'Partner work visa available for postgraduate students',
+      'Pathway to skilled migrant residency',
+    ],
+    costBreakdown: [
+      { item: 'Tuition (Undergraduate)', cost: 'NZD 18,000 - 28,000/year' },
+      { item: 'Tuition (Postgraduate)', cost: 'NZD 20,000 - 35,000/year' },
+      { item: 'Accommodation', cost: 'NZD 8,000 - 14,000/year' },
+      { item: 'Food & Groceries', cost: 'NZD 3,000 - 5,000/year' },
+      { item: 'Health Insurance', cost: 'NZD 500 - 700/year' },
+      { item: 'Transportation', cost: 'NZD 1,000 - 2,000/year' },
+    ],
+    topUniversities: ['University of Auckland', 'University of Otago', 'Victoria University of Wellington', 'University of Canterbury', 'Massey University', 'AUT University'],
+  },
+];

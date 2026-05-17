@@ -1,0 +1,36 @@
+[project]
+name = "college-admission-predictor"
+version = "0.2.0"
+description = "Production-grade Streamlit app for Master's admission chance prediction using LangChain + Gemini."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+authors = [
+  { name = "Principal Python Architect", email = "architect@example.com" }
+]
+dependencies = [
+  "streamlit>=1.42.0,<2.0.0",
+  "langchain>=0.3.18,<0.4.0",
+  "langchain-google-genai>=2.0.9,<3.0.0",
+  "python-dotenv>=1.0.1,<2.0.0",
+  "pydantic>=2.10.6,<3.0.0",
+  "plotly>=6.0.0,<7.0.0",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3.4,<9.0.0",
+  "ruff>=0.9.4,<1.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=69.5.1", "wheel>=0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["app"]
+
+[tool.uv]
+default-groups = ["dev"]
+
+[tool.ruff.lint]
+ignore = ["E402"]

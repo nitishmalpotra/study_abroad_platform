@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "University of Toronto",
+    "country": "Canada",
+    "intakes": ["Fall", "Winter"]
+  },
+  {
+    "id": 2,
+    "name": "Monash University",
+    "country": "Australia",
+    "intakes": ["Feb", "Jul"]
+  },
+  {
+    "id": 3,
+    "name": "University of Melbourne",
+    "country": "Australia",
+    "intakes": ["Feb", "Jul"]
+  },
+  {
+    "id": 4,
+    "name": "University of British Columbia",
+    "country": "Canada",
+    "intakes": ["Fall", "Winter"]
+  },
+  {
+    "id": 5,
+    "name": "Arizona State University",
+    "country": "United States",
+    "intakes": ["Fall", "Spring", "Summer"]
+  },
+  {
+    "id": 6,
+    "name": "University of Leeds",
+    "country": "United Kingdom",
+    "intakes": ["Sep", "Jan"]
+  }
+]
