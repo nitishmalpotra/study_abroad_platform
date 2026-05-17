@@ -26,15 +26,17 @@ npm run build
 cd services/admissions
 uv sync --locked
 uv run ruff check app.py
+uv run pytest
 uv run python -m py_compile app.py
 
 # SOP review service
 cd services/sop_review
 uv sync --locked
+uv run python -m unittest discover -s tests
 uv run python -m py_compile app.py
 ```
 
-Automated tests are not yet established across the repo. New tests are welcome when they accompany new behavior or bug fixes.
+Automated service tests now exist for both Python tools. API, frontend, contract, and end-to-end coverage are still planned later in the migration.
 
 ## Pull requests
 

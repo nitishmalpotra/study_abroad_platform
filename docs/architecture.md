@@ -9,7 +9,7 @@ The repository is a transitional monorepo:
 - `services/admissions`: Streamlit admissions predictor using Gemini and local SQLite persistence
 - `docs/MIGRATION_BLUEPRINT.md`: approved migration target and phase plan
 
-There is no shared public API, no FastAPI app, no provider abstraction, and no unified mock/demo mode yet.
+There is no shared public API, no FastAPI app, no shared AI runtime, and no unified mock/demo mode yet. Both extracted services now expose provider protocols so orchestration is no longer tied to Streamlit, but vendor-specific provider implementations are still duplicated per service.
 
 ## Migration target
 
@@ -17,8 +17,9 @@ The migration blueprint targets:
 
 - a Next.js frontend that preserves the current KlassFin visual theme
 - a FastAPI backend as the only public backend entry point
-- reusable domain packages for SOP review and admissions prediction
-- a provider abstraction with DeepSeek for real requests and mock providers for demo mode
+- a shared AI runtime for provider clients, retries, response parsing/repair, logging, and redaction
+- separate task-specific domain modules for SOP review and admissions prediction
+- DeepSeek for real requests and mock providers for demo mode
 - shared contracts, centralized persistence, stronger rate limiting, and explicit retention workflows
 
 Those target components are planned, not present in the current codebase.

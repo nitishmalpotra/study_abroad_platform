@@ -67,10 +67,40 @@ export default function ToolsPage() {
           <div className="grid md:grid-cols-2 gap-8">
             {tools.map((tool, i) => {
               const isComingSoon = 'comingSoon' in tool && tool.comingSoon;
-              const Wrapper = isComingSoon ? 'div' : Link;
-              const wrapperProps = isComingSoon
-                ? { className: 'card block p-6 h-full group relative overflow-hidden cursor-default' }
-                : { to: tool.path, className: 'card block p-6 h-full group' };
+              const content = (
+                <>
+                  {isComingSoon && (
+                    <div className="absolute top-4 right-4 px-3 py-1 bg-brand-900 text-white text-xs font-semibold rounded-full">
+                      Coming Soon
+                    </div>
+                  )}
+                  <div className={`w-14 h-14 rounded-2xl ${tool.color} flex items-center justify-center mb-5`}>
+                    <tool.icon className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-xl font-bold text-brand-900 mb-2 group-hover:text-accent-700 transition-colors">
+                    {tool.title}
+                  </h3>
+                  <p className="text-sm text-slate-500 leading-relaxed mb-5">{tool.desc}</p>
+                  <ul className="space-y-2 mb-6">
+                    {tool.features.map((f) => (
+                      <li key={f} className="flex items-center gap-2 text-sm text-slate-600">
+                        <div className="w-1.5 h-1.5 bg-accent-500 rounded-full shrink-0" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  {isComingSoon ? (
+                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-400">
+                      Launching Soon
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 group-hover:text-accent-600 transition-colors">
+                      Open Tool
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  )}
+                </>
+              );
 
               return (
                 <motion.div
@@ -81,40 +111,11 @@ export default function ToolsPage() {
                   whileInView="visible"
                   viewport={{ once: true }}
                 >
-                  {/* @ts-expect-error dynamic wrapper */}
-                  <Wrapper {...wrapperProps}>
-                    {isComingSoon && (
-                      <div className="absolute top-4 right-4 px-3 py-1 bg-brand-900 text-white text-xs font-semibold rounded-full">
-                        Coming Soon
-                      </div>
-                    )}
-                    <div className={`w-14 h-14 rounded-2xl ${tool.color} flex items-center justify-center mb-5`}>
-                      <tool.icon className="w-7 h-7" />
-                    </div>
-                    <h3 className="text-xl font-bold text-brand-900 mb-2 group-hover:text-accent-700 transition-colors">
-                      {tool.title}
-                    </h3>
-                    <p className="text-sm text-slate-500 leading-relaxed mb-5">{tool.desc}</p>
-                    <ul className="space-y-2 mb-6">
-                      {tool.features.map((f) => (
-                        <li key={f} className="flex items-center gap-2 text-sm text-slate-600">
-                          <div className="w-1.5 h-1.5 bg-accent-500 rounded-full shrink-0" />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                    {isComingSoon ? (
-                      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-400">
-                        Launching Soon
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 group-hover:text-accent-600 transition-colors">
-                        Open Tool
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </span>
-                    )}
-                  {/* @ts-expect-error dynamic wrapper */}
-                  </Wrapper>
+                  {isComingSoon ? (
+                    <div className="card block p-6 h-full group relative overflow-hidden cursor-default">{content}</div>
+                  ) : (
+                    <Link to={tool.path} className="card block p-6 h-full group">{content}</Link>
+                  )}
                 </motion.div>
               );
             })}

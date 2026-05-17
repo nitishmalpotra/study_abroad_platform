@@ -12,13 +12,14 @@ Both Python services call Gemini through LangChain today.
 
 The migration blueprint proposes:
 
-- a provider abstraction
+- one shared AI runtime for provider clients, retries, response parsing/repair, logging, and redaction
+- separate task-specific modules for SOP review and admissions prediction
 - DeepSeek for real production requests
 - mock providers for demo mode
 - shared domain logic outside UI frameworks
 - common API contracts for SOP and admissions responses
 
-These are planned architecture changes; DeepSeek is not wired into the current repo yet.
+The service extraction is already underway through provider protocols in each domain service. The shared runtime and DeepSeek implementation are planned next; DeepSeek is not wired into the current repo yet.
 
 ## Design guardrails
 

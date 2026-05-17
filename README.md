@@ -1,6 +1,6 @@
 # Study Abroad Platform
 
-Study Abroad Platform is a public monorepo in transition. It currently contains a KlassFin-themed Vite frontend, a Streamlit SOP review tool, and a Streamlit admissions predictor. The approved migration target is a cleaner monorepo with a shared backend, reusable domain packages, and public-repo-grade operations; that work is still in progress.
+Study Abroad Platform is a public monorepo in transition. It currently contains a KlassFin-themed Vite frontend, a Streamlit SOP review tool, and a Streamlit admissions predictor. The approved migration target is a cleaner monorepo with a shared backend, a shared AI runtime, reusable task-specific domain modules, and public-repo-grade operations; that work is still in progress.
 
 ## Current layout
 
@@ -51,11 +51,13 @@ npm run build
 # Admissions service
 cd services/admissions
 uv run ruff check app.py
+uv run pytest
 uv run python -m py_compile app.py
 
 # SOP review service
 cd services/sop_review
+uv run python -m unittest discover -s tests
 uv run python -m py_compile app.py
 ```
 
-Automated tests are planned but not yet established across the repo.
+Automated service tests now exist for both Python tools. API, frontend, contract, and end-to-end coverage are still planned later in the migration.

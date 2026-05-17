@@ -7,7 +7,7 @@ A comprehensive web platform designed to help Indian students navigate their stu
 This platform provides students with essential tools and resources for studying abroad, including:
 - University and destination exploration
 - Education loan EMI calculator
-- Statement of Purpose (SOP) review service
+- Mock-only Statement of Purpose (SOP) review experience
 - Comprehensive blog with expert guidance
 - Lead capture for personalized assistance
 
@@ -16,7 +16,7 @@ This platform provides students with essential tools and resources for studying 
 - **Destination Guides**: Detailed information about popular study abroad destinations (USA, UK, Canada, Australia, Germany, Ireland)
 - **University Database**: Explore top universities with program details, rankings, and admission requirements
 - **EMI Calculator**: Calculate education loan EMIs with adjustable parameters
-- **SOP Review Tool**: Professional review service for statement of purpose documents
+- **SOP Review Tool**: Mock-only SOP experience pending backend integration
 - **Resource Center**: Downloadable guides, checklists, and templates
 - **Blog**: Expert articles on loans, visas, test prep, scholarships, and more
 - **Lead Management**: Integrated lead capture system with Supabase backend
@@ -69,7 +69,7 @@ The project uses Supabase for data persistence. Migration files are located in `
 - `20260214163845_add_target_intake_to_tool_leads.sql` - Adds target intake field
 - `20260214170543_add_target_course_to_tool_leads.sql` - Adds target course field
 
-These migrations will be automatically applied to your Supabase project.
+Apply these migrations to your Supabase project before using lead capture.
 
 ## Development
 
@@ -169,10 +169,6 @@ The application supports all modern browsers:
 - Safari (latest)
 - Edge (latest)
 
-## License
+## Monorepo note
 
-This project is proprietary and confidential.
-
-## Support
-
-For questions or issues, please contact the development team.
+This package now lives inside the public Study Abroad Platform monorepo. See the root README and `docs/MIGRATION_BLUEPRINT.md` for the current migration plan.

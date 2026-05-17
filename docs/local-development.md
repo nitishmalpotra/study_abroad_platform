@@ -57,11 +57,13 @@ npm run build
 # Admissions service
 cd services/admissions
 uv run ruff check app.py
+uv run pytest
 uv run python -m py_compile app.py
 
 # SOP review service
 cd services/sop_review
+uv run python -m unittest discover -s tests
 uv run python -m py_compile app.py
 ```
 
-Automated repo-wide tests are not yet in place. The migration blueprint calls for frontend, backend, and integration coverage later in the migration.
+Automated service tests now exist for both Python tools. Frontend, API, contract, and integration coverage are still planned later in the migration.
