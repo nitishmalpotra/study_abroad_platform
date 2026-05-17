@@ -1,8 +1,9 @@
-from .v1 import (
+from .v2 import (
     GATEKEEPER_HUMAN,
     GATEKEEPER_SYSTEM,
     GRADING_HUMAN,
     GRADING_SYSTEM,
+    PROMPT_METADATA,
     PROMPT_VERSION,
 )
 
@@ -11,5 +12,6 @@ __all__ = [
     "GATEKEEPER_SYSTEM",
     "GRADING_HUMAN",
     "GRADING_SYSTEM",
+    "PROMPT_METADATA",
     "PROMPT_VERSION",
 ]

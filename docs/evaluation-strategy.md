@@ -2,7 +2,7 @@
 
 ## Current state
 
-There is no established automated evaluation suite yet for model quality, frontend flows, or cross-service contracts.
+An initial automated evaluation suite now exists for SOP prompt behavior. It uses sanitized synthetic fixtures plus golden outputs to check schema validity, exact rubric ordering, concise output shape, and coarse qualitative tendencies across strong, average, weak/generic, and invalid non-SOP cases. Admissions, frontend flows, and cross-service contract evaluations are still not established.
 
 ## What should be evaluated during migration
 
@@ -16,9 +16,10 @@ There is no established automated evaluation suite yet for model quality, fronte
 
 ## Practical next steps
 
-1. Capture representative, sanitized fixtures.
-2. Add deterministic schema and parsing tests first.
+1. Expand sanitized fixtures only when they add distinct failure modes.
+2. Keep deterministic schema and parsing tests as the first regression layer.
 3. Add provider-contract tests before changing vendors.
-4. Add regression examples for SOP and admissions outputs once target contracts are fixed.
+4. Add admissions regression examples once that target contract is fixed.
+5. Add periodic human review of live model outputs for judgment quality, calibration, and factual restraint.
 
 Raw user submissions must not be committed as fixtures.

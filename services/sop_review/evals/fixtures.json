@@ -1,0 +1,133 @@
+[
+  {
+    "id": "strong",
+    "kind": "grading",
+    "input": {
+      "university": "University of Edinburgh",
+      "country": "UK",
+      "sop_text": "During my BSc in Computer Science, I built a multilingual retrieval system for public-health records and published a workshop paper on low-resource evaluation. That work led me to pursue the MSc in Artificial Intelligence at the University of Edinburgh because its NLP pathway, the Informatics Forum research community, and the course on Text Technologies align with my goal of building clinical language tools for underserved populations. After graduation, I plan to work as an applied NLP engineer in healthcare before leading responsible language-technology products in India."
+    },
+    "golden_output": {
+      "overall_score": 9.1,
+      "criteria_breakdown": [
+        {
+          "name": "Academic Fit",
+          "score": 9.2,
+          "feedback": "Prior CS study, a multilingual retrieval project, and published NLP work directly support the proposed AI focus."
+        },
+        {
+          "name": "University Specificity",
+          "score": 9.0,
+          "feedback": "The essay cites a named pathway, research community, and course, giving concrete evidence of fit with Edinburgh rather than generic prestige-seeking."
+        },
+        {
+          "name": "Career Clarity",
+          "score": 9.0,
+          "feedback": "The applicant connects the degree to a plausible near-term NLP engineering role and a longer-term healthcare product goal."
+        },
+        {
+          "name": "Narrative Flow",
+          "score": 9.0,
+          "feedback": "The essay moves cleanly from preparation to program choice to future use of the degree, with each step supporting the next."
+        },
+        {
+          "name": "Language & Tone",
+          "score": 9.2,
+          "feedback": "The language is precise and professional, with specific claims and no obvious filler or inflated rhetoric."
+        }
+      ],
+      "summary": "This is a strong, specific SOP with clear preparation, real university fit, and credible goals. Its main risk is limited detail on broader academic development beyond the highlighted NLP work. Adding one brief line on the applicant's wider technical foundation would make the case even fuller."
+    }
+  },
+  {
+    "id": "average",
+    "kind": "grading",
+    "input": {
+      "university": "University of Manchester",
+      "country": "UK",
+      "sop_text": "I studied electronics engineering and became interested in data science after using Python for a final-year project on energy demand. I now want to pursue a master's degree because data is transforming many industries, and the University of Manchester has a strong reputation and good learning environment. In the future, I hope to work as a data analyst and later contribute to smart-city projects in my country."
+    },
+    "golden_output": {
+      "overall_score": 6.1,
+      "criteria_breakdown": [
+        {
+          "name": "Academic Fit",
+          "score": 6.6,
+          "feedback": "The engineering background and Python project provide some relevant preparation, but the academic case remains thin beyond one example."
+        },
+        {
+          "name": "University Specificity",
+          "score": 4.8,
+          "feedback": "Manchester is praised for reputation and environment, but the essay gives no concrete program, course, faculty, or research detail."
+        },
+        {
+          "name": "Career Clarity",
+          "score": 6.2,
+          "feedback": "The data-analyst goal is plausible, though the later smart-city ambition is broad and not yet well connected to the degree."
+        },
+        {
+          "name": "Narrative Flow",
+          "score": 6.5,
+          "feedback": "The progression from past project to master's study to future work is understandable, but lightly developed."
+        },
+        {
+          "name": "Language & Tone",
+          "score": 6.4,
+          "feedback": "The writing is clear enough, but phrases such as 'data is transforming many industries' are generic and reduce distinctiveness."
+        }
+      ],
+      "summary": "This SOP is credible but underdeveloped. The strongest evidence is the final-year project, while the largest admissions risk is generic university fit. The highest-leverage improvement is replacing broad praise with specific Manchester resources tied to the applicant's goals."
+    }
+  },
+  {
+    "id": "weak_generic",
+    "kind": "grading",
+    "input": {
+      "university": "University of Leeds",
+      "country": "UK",
+      "sop_text": "Since childhood I have always dreamed of studying abroad because education is the key to success. I am hardworking, passionate, and eager to learn new things. Your esteemed university is world class and will help me achieve my dreams. After my master's degree, I want to get a good job and make my family proud."
+    },
+    "golden_output": {
+      "overall_score": 3.2,
+      "criteria_breakdown": [
+        {
+          "name": "Academic Fit",
+          "score": 2.5,
+          "feedback": "The essay provides no academic background, field-specific preparation, or evidence explaining readiness for the proposed study."
+        },
+        {
+          "name": "University Specificity",
+          "score": 2.0,
+          "feedback": "The reference to an 'esteemed university' is fully generic and gives no concrete reason for Leeds fit."
+        },
+        {
+          "name": "Career Clarity",
+          "score": 2.8,
+          "feedback": "Wanting 'a good job' is too vague to show a credible or program-linked career direction."
+        },
+        {
+          "name": "Narrative Flow",
+          "score": 4.0,
+          "feedback": "The paragraph is readable, but it is a sequence of broad claims rather than a persuasive admissions narrative."
+        },
+        {
+          "name": "Language & Tone",
+          "score": 4.5,
+          "feedback": "The tone is earnest but cliché-heavy, with phrases such as 'education is the key to success' weakening credibility."
+        }
+      ],
+      "summary": "This SOP is too generic to support an admissions decision. It lacks academic evidence, concrete university fit, and a usable career rationale. The priority is to replace slogans with specific preparation, program reasons, and a defined post-degree direction."
+    }
+  },
+  {
+    "id": "invalid_non_sop",
+    "kind": "gatekeeper",
+    "input": {
+      "sop_text": "Ingredients: 2 cups flour, 1 cup sugar, 2 eggs. Mix well, bake at 180C for 30 minutes, and let the cake cool before serving."
+    },
+    "golden_output": {
+      "is_valid": false,
+      "reason": "The text is a recipe, not a university admissions statement."
+    }
+  }
+]

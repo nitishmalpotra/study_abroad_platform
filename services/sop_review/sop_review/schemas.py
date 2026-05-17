@@ -58,9 +58,9 @@ class SOPGrade(BaseModel):
         cls, value: List[CriterionFeedback]
     ) -> List[CriterionFeedback]:
         names = [item.name for item in value]
-        missing = [name for name in EXPECTED_CRITERIA if name not in names]
-        if missing:
+        if names != EXPECTED_CRITERIA:
             raise ValueError(
-                f"Missing required criteria in criteria_breakdown: {', '.join(missing)}"
+                "criteria_breakdown must contain the expected criteria in exact order: "
+                + ", ".join(EXPECTED_CRITERIA)
             )
         return value
