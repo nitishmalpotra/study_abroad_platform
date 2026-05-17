@@ -1,6 +1,6 @@
 # SOP Review & Grader
 
-Production-hardened Streamlit application for reviewing and grading Statement of Purpose (SOP) submissions using Google Gemini + LangChain, with SQLite persistence.
+Streamlit-backed SOP review service with reusable backend modules, Google Gemini integration, and SQLite persistence.
 
 ## Production Features
 
@@ -8,8 +8,8 @@ Production-hardened Streamlit application for reviewing and grading Statement of
 - SOP input via paste or upload (`.pdf`, `.docx`, `.txt`) with upload-size guardrails.
 - Two-step gatekeeper:
   - Word count validation (`100-2500` words by default).
-  - Gemini-based SOP validity check in English.
-- Strict grading pipeline using `PydanticOutputParser`.
+  - Provider-backed SOP validity check in English (currently Gemini).
+- Strict grading pipeline using structured Pydantic schemas.
 - SQLite persistence of metadata + full raw SOP text + full AI feedback JSON.
 - LLM resilience:
   - Model fallback across configurable Gemini model IDs.
