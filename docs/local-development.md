@@ -45,6 +45,17 @@ uv run streamlit run app.py
 
 This service currently requires a DeepSeek key via `DEEPSEEK_API_KEY`.
 
+## API
+
+```bash
+cd apps/api
+uv sync
+uv run uvicorn app.main:app --reload
+```
+
+Generated docs are available at `/docs`; the OpenAPI schema is available at `/openapi.json`.
+Live endpoints require `DEEPSEEK_API_KEY`; mock endpoints do not call DeepSeek.
+
 ## Quality commands
 
 ```bash
@@ -64,6 +75,12 @@ uv run python -m py_compile app.py
 cd services/sop_review
 uv run python -m unittest discover -s tests
 uv run python -m py_compile app.py
+
+# API
+cd apps/api
+uv run pytest
+uv run ruff check .
+uv run mypy app
 ```
 
-Automated service tests now exist for both Python tools. Frontend, API, contract, and integration coverage are still planned later in the migration.
+Automated tests now exist for both Python tools and the API. Frontend, generated-contract, and integration coverage are still planned later in the migration.

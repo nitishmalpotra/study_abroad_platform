@@ -1,0 +1,15 @@
+[project]
+name = "study-abroad-contracts"
+version = "0.1.0"
+description = "Shared API contracts for the study abroad platform."
+requires-python = ">=3.11"
+dependencies = [
+  "pydantic>=2.10.0,<3.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=69.5.1", "wheel>=0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["study_abroad_contracts"]

@@ -3,7 +3,7 @@ name = "college-admission-predictor"
 version = "0.2.0"
 description = "Production-grade Streamlit app for Master's admission chance prediction using DeepSeek."
 readme = "README.md"
-requires-python = ">=3.11,<3.13"
+requires-python = ">=3.11"
 authors = [
   { name = "Principal Python Architect", email = "architect@example.com" }
 ]
@@ -30,7 +30,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["admissions", "admissions.prompts"]
-py-modules = ["app"]
 
 [tool.uv]
 default-groups = ["dev"]

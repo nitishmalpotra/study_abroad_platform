@@ -5,6 +5,7 @@ Study Abroad Platform is a public monorepo in transition. It currently contains 
 ## Current layout
 
 - `apps/web` — Vite + React frontend with static marketing pages, Supabase-backed lead capture, and a mock-only SOP page
+- `apps/api` — FastAPI backend exposing health, live SOP/admissions endpoints, and deterministic mock endpoints
 - `services/sop_review` — DeepSeek-backed Streamlit SOP review tool with local SQLite persistence
 - `services/admissions` — DeepSeek-backed Streamlit admissions predictor with local SQLite persistence
 - `docs` — architecture, development, deployment, security, and migration documentation
@@ -21,7 +22,7 @@ See `docs/local-development.md` for setup and commands for each app.
 
 - Current services require a bring-your-own DeepSeek API key via `DEEPSEEK_API_KEY`.
 - Bring-your-own DeepSeek API key support is planned in the migration blueprint but is not implemented yet.
-- Mock/demo mode exists only as the current hard-coded frontend SOP experience; a unified mock/demo mode for both tools is planned.
+- Mock/demo endpoints now exist in `apps/api`; the frontend still has only its older hard-coded SOP demo flow.
 
 ## Deployment overview
 
@@ -58,6 +59,12 @@ uv run python -m py_compile app.py
 cd services/sop_review
 uv run python -m unittest discover -s tests
 uv run python -m py_compile app.py
+
+# API
+cd apps/api
+uv run pytest
+uv run ruff check .
+uv run mypy app
 ```
 
-Automated service tests now exist for both Python tools. API, frontend, contract, and end-to-end coverage are still planned later in the migration.
+Automated tests now exist for both Python services and the API. Frontend, contract-generation, and end-to-end coverage are still planned later in the migration.

@@ -1,0 +1,43 @@
+[project]
+name = "study-abroad-api"
+version = "0.1.0"
+description = "FastAPI backend for the study abroad platform."
+requires-python = ">=3.11"
+dependencies = [
+  "ai-runtime",
+  "college-admission-predictor",
+  "fastapi>=0.115.0,<1.0.0",
+  "httpx>=0.27.0,<1.0.0",
+  "pydantic>=2.10.0,<3.0.0",
+  "sop-review-grader",
+  "study-abroad-contracts",
+  "uvicorn>=0.34.0,<1.0.0",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3.4,<9.0.0",
+  "ruff>=0.9.4,<1.0.0",
+  "mypy>=1.15.0,<2.0.0",
+]
+
+[tool.uv.sources]
+ai-runtime = { path = "../../packages/ai_runtime", editable = true }
+college-admission-predictor = { path = "../../services/admissions", editable = true }
+sop-review-grader = { path = "../../services/sop_review", editable = true }
+study-abroad-contracts = { path = "../../packages/contracts", editable = true }
+
+[build-system]
+requires = ["setuptools>=69.5.1", "wheel>=0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["app", "app.api", "app.api.routes", "app.core"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+strict = true

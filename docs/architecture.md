@@ -5,11 +5,12 @@
 The repository is a transitional monorepo:
 
 - `apps/web`: Vite + React marketing frontend with Supabase-backed lead capture and a mock-only SOP page
+- `apps/api`: FastAPI public API for health, SOP review, admissions prediction, and deterministic demo endpoints
 - `services/sop_review`: Streamlit SOP review tool using DeepSeek through the shared AI runtime, local SQLite persistence, file uploads, and runtime logs
 - `services/admissions`: Streamlit admissions predictor using DeepSeek through the shared AI runtime and local SQLite persistence
 - `docs/MIGRATION_BLUEPRINT.md`: approved migration target and phase plan
 
-There is no shared public API, no FastAPI app, no shared AI runtime, and no unified mock/demo mode yet. Both extracted services now expose provider protocols so orchestration is no longer tied to Streamlit, but vendor-specific provider implementations are still duplicated per service.
+The shared AI runtime and first public FastAPI surface now exist. The API exposes live endpoints through the runtime and deterministic mock endpoints without provider calls. Production persistence, generated client artifacts, and frontend integration are still pending.
 
 ## Migration target
 
@@ -22,13 +23,14 @@ The migration blueprint targets:
 - DeepSeek for real requests and mock providers for demo mode
 - shared contracts, centralized persistence, stronger rate limiting, and explicit retention workflows
 
-Those target components are planned, not present in the current codebase.
+The API and shared runtime parts of that target now exist; the remaining target components are still in progress.
 
 ## Data flow today
 
 ```mermaid
 flowchart LR
   A["Vite frontend"] --> B["Supabase lead table"]
+  H["FastAPI API"] --> D["Shared AI runtime"]
   C["SOP Streamlit app"] --> D["Shared AI runtime"]
   D --> E["DeepSeek"]
   C --> E["Local SQLite"]

@@ -28,8 +28,9 @@ This document is the authoritative migration plan for the repository.
 | Shared AI runtime and DeepSeek migration | Completed | `packages/ai_runtime` plus DeepSeek-backed SOP/admissions adapters and tests |
 | SOP prompt quality redesign | Completed | Versioned `v2` SOP prompts, prompt metadata, synthetic eval fixtures, and regression tests |
 | Admissions prompt quality redesign | Completed | Versioned `v2` admissions prompts, prompt metadata, synthetic eval fixtures, and regression tests |
+| FastAPI backend public surface | Completed | `apps/api` with health, live, and deterministic mock endpoints plus API tests |
 
-### Current repo reality after prompt eight
+### Current repo reality after prompt nine
 
 - The repo is now a monorepo rooted at:
   - `apps/web`
@@ -41,6 +42,7 @@ This document is the authoritative migration plan for the repository.
   - `infra`
   - `tests`
 - `apps/web` is still the original Vite + React frontend.
+- `apps/api` now exposes the first public FastAPI surface for SOP review and admissions prediction.
 - `services/sop_review` now contains reusable service modules plus a temporary Streamlit adapter.
 - `services/admissions` now contains reusable service modules plus a temporary Streamlit adapter.
 - `packages/ai_runtime` now owns shared provider clients, retries, timeout handling, response normalization, JSON parsing helpers, and secret redaction.
@@ -122,7 +124,7 @@ This document is the authoritative migration plan for the repository.
 
 | Area | Missing / only implied |
 |---|---|
-| Backend architecture | No FastAPI backend, no public API contract |
+| Backend architecture | FastAPI backend exists for the first public release surface; persistence hardening and production deployment work remain |
 | AI provider | DeepSeek is active through `packages/ai_runtime`; service-level provider protocols remain in place |
 | Frontend integration | No real AI-backed SOP page, no admit predictor page, no frontend API client layer |
 | Mocking | Mock SOP exists only as hard-coded frontend behavior; no unified mock mode for both tools |
@@ -379,10 +381,14 @@ study-abroad-platform/
 - Normalize prompt modules under `prompts/v1.py` before provider migration.
 
 #### Phase 3 — Build FastAPI backend
+
+Status: Completed for the first public API surface; persistence and production-hardening follow-up remain.
 - Implement:
-  - `/healthz`
-  - `/v1/sop/reviews`
-  - `/v1/admissions/predictions`
+  - `GET /health`
+  - `POST /api/v1/sop/review`
+  - `POST /api/v1/sop/review/mock`
+  - `POST /api/v1/admissions/predict`
+  - `POST /api/v1/admissions/predict/mock`
 - Add:
   - provider selection
   - request IDs
