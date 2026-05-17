@@ -16,7 +16,11 @@ class FakeProvider:
                     )
                 ],
                 profile_strengths=["Strong GPA", "Research", "Work experience"],
-                profile_weaknesses=["Few publications", "Limited leadership", "No GMAT"],
+                profile_weaknesses=[
+                    "Few publications",
+                    "Limited leadership",
+                    "No GMAT",
+                ],
                 actionable_roadmap=["Improve SOP", "Add projects", "Apply early"],
                 recommended_universities=[
                     "Georgia Tech MS CS: overlaps with target.",
@@ -46,7 +50,11 @@ def test_service_is_callable_without_streamlit() -> None:
     )
     assert errors == []
 
-    result = AdmissionsPredictionService(FakeProvider()).predict(profile, target_programs)
+    result = AdmissionsPredictionService(FakeProvider()).predict(
+        profile, target_programs
+    )
 
-    assert [item.program_name for item in result.prediction.target_predictions] == target_programs
+    assert [
+        item.program_name for item in result.prediction.target_predictions
+    ] == target_programs
     assert result.raw_output == '{"ok": true}'

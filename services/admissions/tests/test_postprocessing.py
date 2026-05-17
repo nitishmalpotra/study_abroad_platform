@@ -1,4 +1,7 @@
-from admissions.postprocessing import align_predictions_to_targets, enforce_alternative_recommendations
+from admissions.postprocessing import (
+    align_predictions_to_targets,
+    enforce_alternative_recommendations,
+)
 from admissions.schemas import AdmissionPrediction, ProgramPrediction
 
 

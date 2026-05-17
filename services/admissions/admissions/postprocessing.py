@@ -4,13 +4,24 @@ from .utils import sanitize_text
 
 
 def _program_tokens(value: str) -> set[str]:
-    return {token for token in sanitize_text(value).lower().replace("(", " ").replace(")", " ").split() if token not in {"at", "in"}}
+    return {
+        token
+        for token in sanitize_text(value)
+        .lower()
+        .replace("(", " ")
+        .replace(")", " ")
+        .split()
+        if token not in {"at", "in"}
+    }
 
 
 def align_predictions_to_targets(
     prediction: AdmissionPrediction, target_programs: list[str]
 ) -> AdmissionPrediction:
-    mapped_predictions = {sanitize_text(item.program_name).lower(): item for item in prediction.target_predictions}
+    mapped_predictions = {
+        sanitize_text(item.program_name).lower(): item
+        for item in prediction.target_predictions
+    }
     aligned_predictions: list[ProgramPrediction] = []
 
     for target in target_programs:

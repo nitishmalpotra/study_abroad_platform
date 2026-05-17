@@ -32,7 +32,10 @@ def prediction_messages() -> list[tuple[str, str]]:
 
 def repair_messages() -> list[tuple[str, str]]:
     return [
-        ("system", "You are a strict JSON formatter. Return only valid JSON. Do not add prose."),
+        (
+            "system",
+            "You are a strict JSON formatter. Return only valid JSON. Do not add prose.",
+        ),
         (
             "human",
             (

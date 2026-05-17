@@ -9,7 +9,9 @@ from .utils import sanitize_text
 
 
 class PredictionRepository(Protocol):
-    def save(self, profile: StudentProfile, target_programs: list[str], raw_ai_output: str) -> None: ...
+    def save(
+        self, profile: StudentProfile, target_programs: list[str], raw_ai_output: str
+    ) -> None: ...
 
 
 class SQLitePredictionRepository:
@@ -49,7 +51,9 @@ class SQLitePredictionRepository:
         except sqlite3.Error as exc:
             raise RuntimeError("Failed to initialize SQLite database.") from exc
 
-    def save(self, profile: StudentProfile, target_programs: list[str], raw_ai_output: str) -> None:
+    def save(
+        self, profile: StudentProfile, target_programs: list[str], raw_ai_output: str
+    ) -> None:
         try:
             with self.get_connection() as connection:
                 cursor = connection.cursor()
@@ -78,4 +82,6 @@ class SQLitePredictionRepository:
                 )
                 connection.commit()
         except sqlite3.Error as exc:
-            raise RuntimeError("Prediction was generated but could not be saved to SQLite.") from exc
+            raise RuntimeError(
+                "Prediction was generated but could not be saved to SQLite."
+            ) from exc

@@ -47,7 +47,9 @@ class AdmissionPrediction(BaseModel):
 
     @field_validator("target_predictions")
     @classmethod
-    def validate_unique_programs(cls, predictions: list[ProgramPrediction]) -> list[ProgramPrediction]:
+    def validate_unique_programs(
+        cls, predictions: list[ProgramPrediction]
+    ) -> list[ProgramPrediction]:
         names = [sanitize_text(item.program_name).lower() for item in predictions]
         if len(names) != len(set(names)):
             raise ValueError("target_predictions must contain distinct programs.")

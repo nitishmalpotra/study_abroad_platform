@@ -4,7 +4,9 @@ from .schemas import StudentProfile
 from .utils import sanitize_text
 
 
-def parse_optional_int(raw_value: str, field_name: str) -> tuple[int | None, str | None]:
+def parse_optional_int(
+    raw_value: str, field_name: str
+) -> tuple[int | None, str | None]:
     text = sanitize_text(raw_value)
     if not text:
         return None, None
@@ -14,7 +16,9 @@ def parse_optional_int(raw_value: str, field_name: str) -> tuple[int | None, str
         return None, f"{field_name} must be a whole number."
 
 
-def parse_optional_float(raw_value: str, field_name: str) -> tuple[float | None, str | None]:
+def parse_optional_float(
+    raw_value: str, field_name: str
+) -> tuple[float | None, str | None]:
     text = sanitize_text(raw_value)
     if not text:
         return None, None
@@ -86,7 +90,9 @@ def validate_submission(
         if sanitize_text(english_score_raw):
             errors.append("Select IELTS or TOEFL when providing an English score.")
     else:
-        english_score, english_error = parse_optional_float(english_score_raw, "English score")
+        english_score, english_error = parse_optional_float(
+            english_score_raw, "English score"
+        )
         if english_error:
             errors.append(english_error)
         if english_score is None:
@@ -111,7 +117,9 @@ def validate_submission(
                 errors.append(f"Target Program {index} must be at most 200 characters.")
             sanitized_programs.append(clean_program)
 
-    if sanitized_programs and len(sanitized_programs) != len({item.lower() for item in sanitized_programs}):
+    if sanitized_programs and len(sanitized_programs) != len(
+        {item.lower() for item in sanitized_programs}
+    ):
         errors.append("Target programs must be distinct.")
 
     profile = StudentProfile(
