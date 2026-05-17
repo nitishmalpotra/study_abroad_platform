@@ -1,0 +1,251 @@
+[
+  {
+    "id": "strong",
+    "profile": {
+      "full_name": "Riya Sharma",
+      "target_intake": "Fall 2027",
+      "target_country": "United States",
+      "undergrad_degree_name": "BTech Computer Science",
+      "cgpa": 9.3,
+      "cgpa_scale": 10,
+      "gre_score": 329,
+      "gmat_score": null,
+      "english_test": "IELTS",
+      "english_score": 8.0,
+      "work_experience_months": 24,
+      "research_publications": 2
+    },
+    "target_programs": [
+      "MS CS at Northeastern University",
+      "MS CS at Purdue University",
+      "MS CS at Carnegie Mellon University"
+    ],
+    "golden_output": {
+      "target_predictions": [
+        {
+          "program_name": "MS CS at Northeastern University",
+          "chance_category": "Safe",
+          "estimated_probability_percentage": 78,
+          "brief_reasoning": "A 9.3/10 CS CGPA, 329 GRE, two publications, and 24 months of experience make this a comfortably competitive option on the supplied evidence."
+        },
+        {
+          "program_name": "MS CS at Purdue University",
+          "chance_category": "Target",
+          "estimated_probability_percentage": 58,
+          "brief_reasoning": "The CS degree, 9.3 CGPA, 329 GRE, and research output support a credible application, but Purdue is selective enough that this is not a safe bet."
+        },
+        {
+          "program_name": "MS CS at Carnegie Mellon University",
+          "chance_category": "Reach",
+          "estimated_probability_percentage": 28,
+          "brief_reasoning": "The profile is strong, but even with a 329 GRE and two publications, CMU remains a reach without evidence of unusually distinguished research or specialization."
+        }
+      ],
+      "profile_strengths": [
+        "9.3/10 CGPA in Computer Science shows strong academic preparation.",
+        "329 GRE and IELTS 8.0 remove obvious testing concerns.",
+        "Two publications plus 24 months of work experience add evidence beyond coursework."
+      ],
+      "profile_weaknesses": [
+        "No standout research distinction is provided beyond publication count.",
+        "The profile gives no detail on specialization fit for the most selective targets.",
+        "The target list is top-heavy, with only one clearly safer option."
+      ],
+      "actionable_roadmap": [
+        "Use the SOP to connect publications and work experience to a specific CS direction.",
+        "Add at least one more lower-risk program to balance the portfolio.",
+        "Document research depth and technical ownership rather than listing publication count alone."
+      ],
+      "recommended_universities": [
+        "University of Southern California (MS CS): a strong profile with 9.3 CGPA and 329 GRE should be competitive while adding portfolio breadth.",
+        "University of Wisconsin-Madison (MS CS): the research record makes this a sensible ambitious alternative short of the very top tier.",
+        "Arizona State University (MS CS): it provides a more conservative option for an otherwise selective list."
+      ]
+    }
+  },
+  {
+    "id": "borderline",
+    "profile": {
+      "full_name": "Arjun Mehta",
+      "target_intake": "Fall 2027",
+      "target_country": "United States",
+      "undergrad_degree_name": "BTech Electronics and Communication",
+      "cgpa": 8.1,
+      "cgpa_scale": 10,
+      "gre_score": 316,
+      "gmat_score": null,
+      "english_test": "IELTS",
+      "english_score": 7.0,
+      "work_experience_months": 18,
+      "research_publications": 0
+    },
+    "target_programs": [
+      "MS Data Science at Indiana University Bloomington",
+      "MS CS at Stony Brook University",
+      "MS CS at University of Illinois Urbana-Champaign"
+    ],
+    "golden_output": {
+      "target_predictions": [
+        {
+          "program_name": "MS Data Science at Indiana University Bloomington",
+          "chance_category": "Target",
+          "estimated_probability_percentage": 52,
+          "brief_reasoning": "An 8.1 CGPA, 316 GRE, and 18 months of experience make this plausible, but the non-CS degree means the application must prove data-science readiness."
+        },
+        {
+          "program_name": "MS CS at Stony Brook University",
+          "chance_category": "Reach",
+          "estimated_probability_percentage": 32,
+          "brief_reasoning": "The profile is credible, but no publications and an Electronics background leave a material gap for a selective CS program."
+        },
+        {
+          "program_name": "MS CS at University of Illinois Urbana-Champaign",
+          "chance_category": "Unrealistic",
+          "estimated_probability_percentage": 12,
+          "brief_reasoning": "With an 8.1 CGPA, 316 GRE, non-CS degree, and no publications, the supplied evidence is well below what this target likely demands."
+        }
+      ],
+      "profile_strengths": [
+        "18 months of work experience gives the application practical substance.",
+        "316 GRE is usable and does not create a major application weakness by itself.",
+        "The profile can plausibly support data-science applications if coursework and projects are strong."
+      ],
+      "profile_weaknesses": [
+        "Electronics and Communication is less direct preparation for CS targets.",
+        "Zero publications leaves little research signal for selective programs.",
+        "IELTS 7.0 is acceptable but does not add differentiation."
+      ],
+      "actionable_roadmap": [
+        "Use projects and coursework to prove CS or data-science readiness explicitly.",
+        "Shift part of the list toward data-science or applied-computing programs with better fit.",
+        "Avoid planning around UIUC unless the rest of the application contains exceptional evidence not shown here."
+      ],
+      "recommended_universities": [
+        "Northeastern University (MS Data Science): practical experience and a plausible applied profile make this a more balanced alternative.",
+        "Arizona State University (MS CS): it offers a more realistic CS option for an applicant with an 8.1 CGPA and non-CS degree.",
+        "University at Buffalo, SUNY (MS Data Science): it better matches the current profile while keeping a US data-science path open."
+      ]
+    }
+  },
+  {
+    "id": "weak",
+    "profile": {
+      "full_name": "Neha Rao",
+      "target_intake": "Fall 2027",
+      "target_country": "Canada",
+      "undergrad_degree_name": "BCom",
+      "cgpa": 6.8,
+      "cgpa_scale": 10,
+      "gre_score": null,
+      "gmat_score": null,
+      "english_test": "IELTS",
+      "english_score": 6.5,
+      "work_experience_months": 0,
+      "research_publications": 0
+    },
+    "target_programs": [
+      "MSc Computer Science at University of Waterloo",
+      "MSc Computer Science at University of Toronto"
+    ],
+    "golden_output": {
+      "target_predictions": [
+        {
+          "program_name": "MSc Computer Science at University of Waterloo",
+          "chance_category": "Unrealistic",
+          "estimated_probability_percentage": 8,
+          "brief_reasoning": "A BCom degree, 6.8/10 CGPA, no tests beyond IELTS 6.5, and no work or research evidence leave a very large gap for this CS target."
+        },
+        {
+          "program_name": "MSc Computer Science at University of Toronto",
+          "chance_category": "Unrealistic",
+          "estimated_probability_percentage": 6,
+          "brief_reasoning": "The supplied profile shows no direct CS preparation, no research, and a 6.8 CGPA, so this target should not anchor the application plan."
+        }
+      ],
+      "profile_strengths": [
+        "IELTS 6.5 provides a basic English-language result.",
+        "The applicant has a completed undergraduate degree.",
+        "The profile leaves room to reposition toward better-aligned programs."
+      ],
+      "profile_weaknesses": [
+        "BCom is not direct academic preparation for graduate Computer Science.",
+        "6.8/10 CGPA is weak for selective graduate study.",
+        "No GRE, work experience, or publications are provided to offset the academic mismatch."
+      ],
+      "actionable_roadmap": [
+        "Target conversion, bridge, analytics, or information-systems programs instead of research-heavy CS programs.",
+        "Build formal CS evidence through accredited coursework and substantial technical projects before reapplying to CS.",
+        "Create a realistic list first; the current targets are too far from the supplied profile."
+      ],
+      "recommended_universities": [
+        "University of Windsor (Master of Applied Computing): it is more aligned with applicants needing a practical computing pathway.",
+        "Concordia University (Applied Computer Science): it is a more realistic computing alternative than Waterloo or Toronto CS.",
+        "York University (Master of Management in Artificial Intelligence): it may better bridge the business background with technical study."
+      ]
+    }
+  },
+  {
+    "id": "unrealistic_target",
+    "profile": {
+      "full_name": "Kabir Singh",
+      "target_intake": "Fall 2027",
+      "target_country": "United States",
+      "undergrad_degree_name": "BTech Mechanical Engineering",
+      "cgpa": 7.2,
+      "cgpa_scale": 10,
+      "gre_score": 301,
+      "gmat_score": null,
+      "english_test": "TOEFL",
+      "english_score": 92.0,
+      "work_experience_months": 6,
+      "research_publications": 0
+    },
+    "target_programs": [
+      "MS CS at Stanford University",
+      "MS CS at Carnegie Mellon University",
+      "MS CS at Massachusetts Institute of Technology"
+    ],
+    "golden_output": {
+      "target_predictions": [
+        {
+          "program_name": "MS CS at Stanford University",
+          "chance_category": "Unrealistic",
+          "estimated_probability_percentage": 4,
+          "brief_reasoning": "A Mechanical Engineering degree, 7.2 CGPA, 301 GRE, and no publications provide too little CS evidence for this target."
+        },
+        {
+          "program_name": "MS CS at Carnegie Mellon University",
+          "chance_category": "Unrealistic",
+          "estimated_probability_percentage": 5,
+          "brief_reasoning": "The supplied profile lacks direct CS preparation and research depth, and the 301 GRE does not offset that gap for this program."
+        },
+        {
+          "program_name": "MS CS at Massachusetts Institute of Technology",
+          "chance_category": "Unrealistic",
+          "estimated_probability_percentage": 3,
+          "brief_reasoning": "With a 7.2 CGPA, 301 GRE, six months of experience, and no research, the application is not realistically supported by the evidence shown."
+        }
+      ],
+      "profile_strengths": [
+        "TOEFL 92 clears a basic language hurdle.",
+        "Mechanical Engineering can support some quantitative transition stories.",
+        "Six months of experience provides at least one applied signal to build from."
+      ],
+      "profile_weaknesses": [
+        "There is no direct CS degree, publication, or substantial work record.",
+        "7.2/10 CGPA is not competitive for the chosen targets.",
+        "301 GRE is weak relative to the ambition of the target list."
+      ],
+      "actionable_roadmap": [
+        "Replace the current list with realistic transition programs before adding any elite reaches.",
+        "Build verifiable CS preparation through coursework, projects, and longer relevant experience.",
+        "Do not spend application slots on Stanford, CMU, or MIT CS with only the evidence provided here."
+      ],
+      "recommended_universities": [
+        "Stevens Institute of Technology (MS CS): it is a more realistic transition option for a mechanical-engineering applicant.",
+        "University of Texas at Arlington (MS CS): it better matches the current academic profile while keeping a US CS path open.",
+        "Illinois Institute of Technology (MS CS): it offers a more plausible alternative than the current elite-only list."
+      ]
+    }
+  }
+]

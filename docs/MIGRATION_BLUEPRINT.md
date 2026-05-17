@@ -27,8 +27,9 @@ This document is the authoritative migration plan for the repository.
 | Admissions service extraction | Completed | Reusable modules under `services/admissions/admissions` plus tests |
 | Shared AI runtime and DeepSeek migration | Completed | `packages/ai_runtime` plus DeepSeek-backed SOP/admissions adapters and tests |
 | SOP prompt quality redesign | Completed | Versioned `v2` SOP prompts, prompt metadata, synthetic eval fixtures, and regression tests |
+| Admissions prompt quality redesign | Completed | Versioned `v2` admissions prompts, prompt metadata, synthetic eval fixtures, and regression tests |
 
-### Current repo reality after prompt seven
+### Current repo reality after prompt eight
 
 - The repo is now a monorepo rooted at:
   - `apps/web`
@@ -47,8 +48,9 @@ This document is the authoritative migration plan for the repository.
 - Both Python services now expose provider protocols so domain orchestration is no longer inherently tied to Streamlit.
 - Prompt organization is now normalized across both Python services:
   - SOP: active `services/sop_review/sop_review/prompts/v2.py` with historical `v1.py` retained
-  - Admissions: `services/admissions/admissions/prompts/v1.py`
+  - Admissions: active `services/admissions/admissions/prompts/v2.py` with historical `v1.py` retained
 - SOP prompt evaluation now has sanitized synthetic fixtures and regression checks for schema validity, rubric order, concise outputs, and broad quality calibration.
+- Admissions prompt evaluation now has sanitized synthetic fixtures and regression checks for schema validity, concise grounded reasoning, and broad category calibration across strong, borderline, weak, and unrealistic-target profiles.
 - Automated tests now exist for both Python services.
 - Frontend baseline linting, type-checking, and build verification are green.
 

@@ -64,6 +64,19 @@ def inject_custom_css() -> None:
         <style>
         [data-testid="stAppViewContainer"] {
             background: linear-gradient(160deg, #f8fafc 0%, #ecfeff 45%, #f1f5f9 100%);
+            color: #0f172a;
+        }
+        [data-testid="stAppViewContainer"] h1,
+        [data-testid="stAppViewContainer"] h2,
+        [data-testid="stAppViewContainer"] h3,
+        [data-testid="stAppViewContainer"] h4,
+        [data-testid="stAppViewContainer"] h5,
+        [data-testid="stAppViewContainer"] h6,
+        [data-testid="stAppViewContainer"] p,
+        [data-testid="stAppViewContainer"] label,
+        [data-testid="stAppViewContainer"] li,
+        [data-testid="stAppViewContainer"] span {
+            color: #0f172a;
         }
         .block-container {
             max-width: 1120px;
@@ -87,6 +100,26 @@ def inject_custom_css() -> None:
             color: #e2e8f0;
             margin: 0.4rem 0 0 0;
             font-size: 0.95rem;
+        }
+        [data-testid="stSidebar"] {
+            background: #0f172a;
+        }
+        [data-testid="stSidebar"] h1,
+        [data-testid="stSidebar"] h2,
+        [data-testid="stSidebar"] h3,
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] p,
+        [data-testid="stSidebar"] span {
+            color: #f8fafc;
+        }
+        [data-testid="stMetric"] {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 0.55rem 0.7rem;
+        }
+        [data-testid="stAlert"] {
+            color: #0f172a;
         }
         .badge {
             display: inline-block;
@@ -167,13 +200,22 @@ def render_probability_chart(predictions: list[ProgramPrediction]) -> None:
 
     fig.update_layout(
         height=max(300, len(predictions) * 85),
-        margin=dict(l=10, r=10, t=10, b=10),
+        margin=dict(l=10, r=10, t=10, b=20),
         xaxis_title="Estimated Probability (%)",
         yaxis_title="",
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#0f172a"),
     )
-    fig.update_xaxes(range=[0, 100], ticksuffix="%")
+    fig.update_xaxes(
+        range=[0, 100],
+        ticksuffix="%",
+        gridcolor="#cbd5e1",
+        zerolinecolor="#94a3b8",
+        tickfont=dict(color="#334155"),
+        title_font=dict(color="#334155"),
+    )
+    fig.update_yaxes(tickfont=dict(color="#334155"))
 
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
