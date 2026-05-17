@@ -10,11 +10,12 @@ import streamlit as st
 from dotenv import load_dotenv
 from pydantic import ValidationError
 
+from ai_runtime import AIRuntime, DeepSeekProvider, load_runtime_settings
 from sop_review.catalog import build_university_lookup, load_university_catalog
 from sop_review.config import AppSettings, load_settings
 from sop_review.ingestion import extract_text_from_bytes
 from sop_review.persistence import SQLiteSubmissionRepository
-from sop_review.providers import GeminiReviewProvider
+from sop_review.providers import RuntimeReviewProvider
 from sop_review.schemas import EXPECTED_CRITERIA, SOPGrade
 from sop_review.service import SOPReviewService
 from sop_review.validation import validate_profile
@@ -124,8 +125,7 @@ def enforce_rate_limit(settings: AppSettings) -> None:
 def display_sidebar_health(settings: AppSettings) -> None:
     st.caption(f"Environment: `{settings.app_env}`")
     st.caption(f"DB Path: `{settings.db_path}`")
-    st.caption(f"API Key Loaded: `{'yes' if os.getenv('GOOGLE_API_KEY') else 'no'}`")
-    st.caption("Model Order: `" + " -> ".join(settings.model_candidates) + "`")
+    st.caption(f"API Key Loaded: `{'yes' if os.getenv('DEEPSEEK_API_KEY') else 'no'}`")
 
 
 def safe_user_error(
@@ -140,10 +140,16 @@ def safe_user_error(
 def main() -> None:
     load_dotenv()
     settings = load_settings()
+    runtime_settings = load_runtime_settings()
     logger = setup_logger()
     repository = SQLiteSubmissionRepository(settings)
     repository.init_db()
-    service = SOPReviewService(settings, GeminiReviewProvider(settings, logger), repository)
+    runtime = AIRuntime(
+        runtime_settings,
+        DeepSeekProvider(runtime_settings.api_key, runtime_settings.base_url),
+        logger,
+    )
+    service = SOPReviewService(settings, RuntimeReviewProvider(runtime), repository)
 
     st.set_page_config(page_title="SOP Review & Grader", page_icon=":mortar_board:", layout="wide")
     st.title("SOP Review & Grader")

@@ -1,12 +1,11 @@
 # College Admission Predictor
 
-Production-grade Streamlit application that predicts admission chances for up to five target Master's programs using LangChain + Google Gemini, with SQLite persistence.
+Production-grade Streamlit application that predicts admission chances for up to five target Master's programs using DeepSeek through the shared AI runtime, with SQLite persistence.
 
 ## Tech Stack
 - Frontend: Streamlit
-- LLM: Google Gemini via `ChatGoogleGenerativeAI`
-- Orchestration: LangChain
-- Validation: Pydantic (`PydanticOutputParser` + strict nested schema)
+- LLM: DeepSeek via shared AI runtime
+- Validation: Pydantic strict nested schema
 - Storage: SQLite (`admissions_app.db`)
 - Config: `.env` with `python-dotenv`
 - Visualization: Plotly + Streamlit components
@@ -15,7 +14,7 @@ Production-grade Streamlit application that predicts admission chances for up to
 ## Prerequisites
 - Python 3.10 to 3.12
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
-- Google AI Studio API key (`GOOGLE_API_KEY`)
+- DeepSeek API key (`DEEPSEEK_API_KEY`)
 
 ## Install With uv (Recommended)
 
@@ -50,8 +49,9 @@ cp .env.example .env
 
 Notes:
 - `.env` is intentionally gitignored. Do not commit real API keys.
-- `GEMINI_MODEL` can be any model id your Google API key is allowed to access.
-- Example values: `gemini-1.5-pro`, `gemini-3-flash-preview`, `gemini-2.0-flash`.
+- `DEEPSEEK_MODEL` selects the primary model.
+- `DEEPSEEK_MODELS` optionally defines a comma-separated fallback order.
+- `DEEPSEEK_BASE_URL` defaults to `https://api.deepseek.com`.
 - Keep `temperature=0.0` for deterministic outputs.
 
 ## Run The App

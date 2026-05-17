@@ -9,10 +9,10 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync
 ```
 
-2. Ensure `.env` contains a valid Gemini API key:
+2. Ensure `.env` contains a valid DeepSeek API key:
 
 ```env
-GOOGLE_API_KEY=your_google_api_key_here
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
 ```
 
 3. Start app:

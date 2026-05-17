@@ -5,8 +5,8 @@ Study Abroad Platform is a public monorepo in transition. It currently contains 
 ## Current layout
 
 - `apps/web` — Vite + React frontend with static marketing pages, Supabase-backed lead capture, and a mock-only SOP page
-- `services/sop_review` — Gemini-backed Streamlit SOP review tool with local SQLite persistence
-- `services/admissions` — Gemini-backed Streamlit admissions predictor with local SQLite persistence
+- `services/sop_review` — DeepSeek-backed Streamlit SOP review tool with local SQLite persistence
+- `services/admissions` — DeepSeek-backed Streamlit admissions predictor with local SQLite persistence
 - `docs` — architecture, development, deployment, security, and migration documentation
 
 ## Architecture
@@ -19,7 +19,7 @@ See `docs/local-development.md` for setup and commands for each app.
 
 ## AI provider status
 
-- Current services require a bring-your-own Gemini API key via `GOOGLE_API_KEY`.
+- Current services require a bring-your-own DeepSeek API key via `DEEPSEEK_API_KEY`.
 - Bring-your-own DeepSeek API key support is planned in the migration blueprint but is not implemented yet.
 - Mock/demo mode exists only as the current hard-coded frontend SOP experience; a unified mock/demo mode for both tools is planned.
 

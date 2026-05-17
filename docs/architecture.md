@@ -5,8 +5,8 @@
 The repository is a transitional monorepo:
 
 - `apps/web`: Vite + React marketing frontend with Supabase-backed lead capture and a mock-only SOP page
-- `services/sop_review`: Streamlit SOP review tool using Gemini, local SQLite persistence, file uploads, and runtime logs
-- `services/admissions`: Streamlit admissions predictor using Gemini and local SQLite persistence
+- `services/sop_review`: Streamlit SOP review tool using DeepSeek through the shared AI runtime, local SQLite persistence, file uploads, and runtime logs
+- `services/admissions`: Streamlit admissions predictor using DeepSeek through the shared AI runtime and local SQLite persistence
 - `docs/MIGRATION_BLUEPRINT.md`: approved migration target and phase plan
 
 There is no shared public API, no FastAPI app, no shared AI runtime, and no unified mock/demo mode yet. Both extracted services now expose provider protocols so orchestration is no longer tied to Streamlit, but vendor-specific provider implementations are still duplicated per service.
@@ -29,7 +29,8 @@ Those target components are planned, not present in the current codebase.
 ```mermaid
 flowchart LR
   A["Vite frontend"] --> B["Supabase lead table"]
-  C["SOP Streamlit app"] --> D["Gemini"]
+  C["SOP Streamlit app"] --> D["Shared AI runtime"]
+  D --> E["DeepSeek"]
   C --> E["Local SQLite"]
   F["Admissions Streamlit app"] --> D
   F --> G["Local SQLite"]

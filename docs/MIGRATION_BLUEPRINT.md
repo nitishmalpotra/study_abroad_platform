@@ -25,8 +25,9 @@ This document is the authoritative migration plan for the repository.
 | Public-repo baseline docs and CI scaffold | Completed | Root docs, `.editorconfig`, `.github/workflows/ci.yml` |
 | SOP service extraction | Completed | Reusable modules under `services/sop_review/sop_review` plus tests |
 | Admissions service extraction | Completed | Reusable modules under `services/admissions/admissions` plus tests |
+| Shared AI runtime and DeepSeek migration | Completed | `packages/ai_runtime` plus DeepSeek-backed SOP/admissions adapters and tests |
 
-### Current repo reality after prompt five
+### Current repo reality after prompt six
 
 - The repo is now a monorepo rooted at:
   - `apps/web`
@@ -40,6 +41,8 @@ This document is the authoritative migration plan for the repository.
 - `apps/web` is still the original Vite + React frontend.
 - `services/sop_review` now contains reusable service modules plus a temporary Streamlit adapter.
 - `services/admissions` now contains reusable service modules plus a temporary Streamlit adapter.
+- `packages/ai_runtime` now owns shared provider clients, retries, timeout handling, response normalization, JSON parsing helpers, and secret redaction.
+- Both Python services use DeepSeek through thin task-specific adapters over the shared AI runtime.
 - Both Python services now expose provider protocols so domain orchestration is no longer inherently tied to Streamlit.
 - Prompt organization is now normalized across both Python services:
   - SOP: `services/sop_review/sop_review/prompts/v1.py`
@@ -105,8 +108,8 @@ This document is the authoritative migration plan for the repository.
 
 | Area | Implemented today |
 |---|---|
-| SOP review | Streamlit app; paste/upload support; PDF/DOCX/TXT extraction; word-count gate; Gemini validity check; Gemini grading; strict Pydantic parsing; SQLite persistence; per-session rate limiting; rotating logs; model fallback |
-| Admit prediction | Streamlit app; full profile form; Gemini prompt; strict nested schema; JSON repair pass; SQLite persistence; validation; result charts |
+| SOP review | Streamlit app; paste/upload support; PDF/DOCX/TXT extraction; word-count gate; DeepSeek validity check; DeepSeek grading; strict Pydantic parsing; SQLite persistence; per-session rate limiting; rotating logs; model fallback |
+| Admit prediction | Streamlit app; full profile form; DeepSeek prompt; strict nested schema; JSON repair pass; SQLite persistence; validation; result charts |
 | Frontend | Vite + React marketing site with strong KlassFin theme, static content, EMI calculator, resources, lead capture, mock SOP page |
 | Lead capture | Supabase-backed inserts into `tool_leads`; UI flows for phone, fake OTP step, and details capture |
 | Data | Local SQLite for both Python apps; Supabase/Postgres only for frontend lead capture |
@@ -116,7 +119,7 @@ This document is the authoritative migration plan for the repository.
 | Area | Missing / only implied |
 |---|---|
 | Backend architecture | No FastAPI backend, no public API contract |
-| AI provider | No DeepSeek support and no shared AI runtime yet; service-level provider protocols now exist |
+| AI provider | DeepSeek is active through `packages/ai_runtime`; service-level provider protocols remain in place |
 | Frontend integration | No real AI-backed SOP page, no admit predictor page, no frontend API client layer |
 | Mocking | Mock SOP exists only as hard-coded frontend behavior; no unified mock mode for both tools |
 | Production data | No Neon Postgres path, no shared schema, no centralized migrations |
@@ -390,6 +393,8 @@ study-abroad-platform/
   - retention/deletion behavior once the final retention decision is fixed
 
 #### Phase 4 — Introduce the shared AI runtime and replace Gemini with DeepSeek
+
+Status: Completed.
 - Add `packages/ai_runtime` as the single home for provider clients, retries, timeout handling, response normalization, JSON parsing/repair, logging, and redaction.
 - Implement `DeepSeekProvider` in the shared runtime.
 - Keep SOP review and admissions prediction as separate task modules that plug into the shared runtime.
@@ -448,7 +453,7 @@ study-abroad-platform/
 
 | Topic | Risk / decision |
 |---|---|
-| DeepSeek migration | Current prompts and parsing are tuned around Gemini behavior; DeepSeek parity must be validated, not assumed. |
+| DeepSeek migration | Legacy prompts and parsing were tuned around Gemini behavior; DeepSeek parity must be validated, not assumed. |
 | Shared AI runtime | SOP and admissions now expose compatible provider boundaries, but shared runtime behavior still needs to be centralized deliberately rather than duplicated across services. |
 | Upload retention | Persisting original SOP files introduces privacy, storage, deletion, and access-control obligations. |
 | Rate limiting | Existing Streamlit per-session rate limit is not sufficient for a public multi-instance service. |

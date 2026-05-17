@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
+from ai_runtime import AIRuntime, DeepSeekProvider, load_runtime_settings
 
 
 def _parse_bool_env(value: str) -> bool:
@@ -32,7 +33,7 @@ from pydantic import ValidationError
 
 from admissions.config import AppSettings, load_settings
 from admissions.persistence import SQLitePredictionRepository
-from admissions.providers import GeminiPredictionProvider, safe_error_message
+from admissions.providers import RuntimePredictionProvider, safe_error_message
 from admissions.schemas import AdmissionPrediction, ProgramPrediction
 from admissions.service import AdmissionsPredictionService
 from admissions.utils import sanitize_text
@@ -152,9 +153,14 @@ def render_probability_chart(predictions: list[ProgramPrediction]) -> None:
                 x=[item.estimated_probability_percentage for item in predictions],
                 y=[item.program_name for item in predictions],
                 orientation="h",
-                text=[f"{item.estimated_probability_percentage}%" for item in predictions],
+                text=[
+                    f"{item.estimated_probability_percentage}%" for item in predictions
+                ],
                 textposition="auto",
-                marker_color=[color_map.get(item.chance_category, "#64748b") for item in predictions],
+                marker_color=[
+                    color_map.get(item.chance_category, "#64748b")
+                    for item in predictions
+                ],
             )
         ]
     )
@@ -184,7 +190,9 @@ def render_results(result: AdmissionPrediction) -> None:
             with metric_col:
                 st.metric("Chance", f"{prediction.estimated_probability_percentage}%")
 
-            st.markdown(get_category_badge(prediction.chance_category), unsafe_allow_html=True)
+            st.markdown(
+                get_category_badge(prediction.chance_category), unsafe_allow_html=True
+            )
             st.progress(prediction.estimated_probability_percentage / 100)
             st.write(prediction.brief_reasoning)
 
@@ -240,9 +248,11 @@ def main() -> None:
         st.stop()
 
     settings: Optional[AppSettings] = None
+    runtime_settings = None
     settings_error: Optional[str] = None
     try:
         settings = load_settings()
+        runtime_settings = load_runtime_settings()
     except RuntimeError as config_error:
         settings_error = safe_error_message(config_error)
 
@@ -267,14 +277,16 @@ def main() -> None:
     with st.sidebar:
         st.header("Profile Builder")
         if settings:
-            st.caption(f"Model: `{settings.gemini_model}` | Temp: `0.0`")
+            st.caption(f"Model: `{runtime_settings.model_candidates[0]}` | Temp: `0.0`")
         elif settings_error:
             st.error(f"Configuration issue: {settings_error}")
 
         with st.form("admission_profile_form", clear_on_submit=False):
             st.markdown("### Personal")
             full_name = st.text_input("Full Name *", placeholder="e.g., Priya Sharma")
-            target_intake = st.selectbox("Target Intake *", options=build_intake_options())
+            target_intake = st.selectbox(
+                "Target Intake *", options=build_intake_options()
+            )
 
             country_options = [
                 "United States",
@@ -291,10 +303,15 @@ def main() -> None:
             custom_country = ""
             if selected_country == "Other":
                 custom_country = st.text_input("Specify Target Country *")
-            target_country = custom_country if selected_country == "Other" else selected_country
+            target_country = (
+                custom_country if selected_country == "Other" else selected_country
+            )
 
             st.markdown("### Academics")
-            undergrad_degree = st.text_input("Undergrad Degree Name *", placeholder="e.g., B.Tech in Computer Science")
+            undergrad_degree = st.text_input(
+                "Undergrad Degree Name *",
+                placeholder="e.g., B.Tech in Computer Science",
+            )
             cgpa_scale = st.radio("CGPA Scale *", options=[10, 4], horizontal=True)
             cgpa = st.number_input(
                 "Current CGPA *",
@@ -308,7 +325,9 @@ def main() -> None:
             st.markdown("### Test Scores (Optional)")
             gre_raw = st.text_input("GRE Score (260-340)")
             gmat_raw = st.text_input("GMAT Score (200-805)")
-            english_test = st.selectbox("English Proficiency Test", options=["None", "IELTS", "TOEFL"])
+            english_test = st.selectbox(
+                "English Proficiency Test", options=["None", "IELTS", "TOEFL"]
+            )
             english_score_raw = st.text_input("English Score (IELTS 0-9 | TOEFL 0-120)")
 
             st.markdown("### Experience")
@@ -328,18 +347,24 @@ def main() -> None:
             )
 
             st.markdown("### Target Programs (Up to 5)")
-            program_1 = st.text_input("Target Program 1 *", placeholder="MS in Computer Science at Georgia Tech")
+            program_1 = st.text_input(
+                "Target Program 1 *",
+                placeholder="MS in Computer Science at Georgia Tech",
+            )
             program_2 = st.text_input("Target Program 2")
             program_3 = st.text_input("Target Program 3")
             program_4 = st.text_input("Target Program 4")
             program_5 = st.text_input("Target Program 5")
 
-            submitted = st.form_submit_button("Predict Admission Chances", use_container_width=True)
+            submitted = st.form_submit_button(
+                "Predict Admission Chances", use_container_width=True
+            )
 
     if submitted:
         if settings is None:
             submission_errors.append(
-                settings_error or "Runtime configuration is invalid. Add GOOGLE_API_KEY and restart."
+                settings_error
+                or "Runtime configuration is invalid. Add DEEPSEEK_API_KEY and restart."
             )
         else:
             profile, target_programs, submission_errors = validate_submission(
@@ -359,27 +384,42 @@ def main() -> None:
             )
 
             if not submission_errors:
-                with st.spinner("Analyzing profile with Gemini..."):
+                with st.spinner("Analyzing profile with DeepSeek..."):
                     try:
-                        service = AdmissionsPredictionService(GeminiPredictionProvider(settings))
+                        runtime = AIRuntime(
+                            runtime_settings,
+                            DeepSeekProvider(
+                                runtime_settings.api_key, runtime_settings.base_url
+                            ),
+                            LOGGER,
+                        )
+                        service = AdmissionsPredictionService(
+                            RuntimePredictionProvider(runtime)
+                        )
                         result = service.predict(profile, target_programs)
                         prediction = result.prediction
                         raw_ai_output = result.raw_output
                         st.session_state.prediction_result = prediction.model_dump()
                         st.session_state.raw_ai_output = raw_ai_output
-                        st.session_state.last_updated_at = datetime.now(timezone.utc).strftime(
-                            "%Y-%m-%d %H:%M:%S UTC"
-                        )
+                        st.session_state.last_updated_at = datetime.now(
+                            timezone.utc
+                        ).strftime("%Y-%m-%d %H:%M:%S UTC")
 
                         try:
                             repository.save(profile, target_programs, raw_ai_output)
-                            submission_success = "Prediction generated and saved to admissions_app.db."
+                            submission_success = (
+                                "Prediction generated and saved to admissions_app.db."
+                            )
                         except RuntimeError as db_error:
-                            submission_success = "Prediction generated, but database persistence failed."
+                            submission_success = (
+                                "Prediction generated, but database persistence failed."
+                            )
                             submission_errors.append(safe_error_message(db_error))
                     except Exception as error:
                         LOGGER.exception("Prediction pipeline failed")
-                        submission_errors.append(f"Prediction failed: {safe_error_message(error)}")
+                        submission_errors.append(
+                            f"Prediction failed: {safe_error_message(error)}"
+                        )
 
     if submission_errors:
         for error in submission_errors:
@@ -397,7 +437,9 @@ def main() -> None:
             with st.expander("Raw AI JSON Output"):
                 st.code(st.session_state.get("raw_ai_output", ""), language="json")
         except ValidationError:
-            st.error("Stored prediction output is invalid. Please resubmit the profile.")
+            st.error(
+                "Stored prediction output is invalid. Please resubmit the profile."
+            )
     else:
         st.info("Submit the profile form to generate admission predictions.")
 

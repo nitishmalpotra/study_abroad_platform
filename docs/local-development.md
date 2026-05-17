@@ -32,7 +32,7 @@ uv sync --locked
 uv run streamlit run app.py
 ```
 
-This service currently requires a Gemini key via `GOOGLE_API_KEY`.
+This service currently requires a DeepSeek key via `DEEPSEEK_API_KEY`.
 
 ## Admissions service
 
@@ -43,7 +43,7 @@ uv sync --locked
 uv run streamlit run app.py
 ```
 
-This service currently requires a Gemini key via `GOOGLE_API_KEY`.
+This service currently requires a DeepSeek key via `DEEPSEEK_API_KEY`.
 
 ## Quality commands
 

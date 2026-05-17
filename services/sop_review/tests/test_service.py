@@ -13,12 +13,9 @@ def settings() -> AppSettings:
         max_words=20,
         max_upload_mb=10,
         max_sop_chars=1000,
-        llm_retries=1,
-        llm_retry_backoff_sec=0.5,
         max_requests_per_window=6,
         rate_limit_window_minutes=60,
         app_env="test",
-        model_candidates=("test-model",),
     )
 
 

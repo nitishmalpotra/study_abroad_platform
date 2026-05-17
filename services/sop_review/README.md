@@ -1,6 +1,6 @@
 # SOP Review & Grader
 
-Streamlit-backed SOP review service with reusable backend modules, Google Gemini integration, and SQLite persistence.
+Streamlit-backed SOP review service with reusable backend modules, DeepSeek integration through the shared AI runtime, and SQLite persistence.
 
 ## Production Features
 
@@ -8,11 +8,11 @@ Streamlit-backed SOP review service with reusable backend modules, Google Gemini
 - SOP input via paste or upload (`.pdf`, `.docx`, `.txt`) with upload-size guardrails.
 - Two-step gatekeeper:
   - Word count validation (`100-2500` words by default).
-  - Provider-backed SOP validity check in English (currently Gemini).
+  - Provider-backed SOP validity check in English (currently DeepSeek).
 - Strict grading pipeline using structured Pydantic schemas.
 - SQLite persistence of metadata + full raw SOP text + full AI feedback JSON.
 - LLM resilience:
-  - Model fallback across configurable Gemini model IDs.
+  - Model fallback across configurable DeepSeek model IDs.
   - Retry with backoff.
 - Ops hardening:
   - Session rate limiting.
@@ -63,7 +63,7 @@ cp .env.example .env
 7. Set your API key in `.env`:
 
 ```env
-GOOGLE_API_KEY=your_google_api_key_here
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
 ```
 
 8. Run the app:
@@ -96,18 +96,21 @@ docker build -t sop-review-grader .
 
 Supported environment variables:
 
-- `GOOGLE_API_KEY` (required)
+- `DEEPSEEK_API_KEY` (required)
+- `DEEPSEEK_MODEL` (default `deepseek-chat`)
+- `DEEPSEEK_MODELS` (optional comma-separated fallback order)
+- `DEEPSEEK_BASE_URL` (default `https://api.deepseek.com`)
 - `APP_ENV` (`prod` or `dev`; default `prod`)
 - `SOP_DB_PATH` (default `sop_app.db`)
 - `SOP_MIN_WORDS` (default `100`)
 - `SOP_MAX_WORDS` (default `2500`)
 - `SOP_MAX_UPLOAD_MB` (default `10`)
 - `SOP_MAX_CHARS` (default `30000`)
-- `SOP_LLM_RETRIES` (default `2`)
-- `SOP_LLM_RETRY_BACKOFF_SEC` (default `1.5`)
+- `LLM_TIMEOUT_SECONDS` (default `45`)
+- `LLM_RETRY_ATTEMPTS` (default `2`)
+- `LLM_RETRY_BACKOFF_SECONDS` (default `1.0`)
 - `SOP_RATE_LIMIT_COUNT` (default `6`)
 - `SOP_RATE_LIMIT_WINDOW_MIN` (default `60`)
-- `SOP_GEMINI_MODELS` (comma-separated fallback order; Gemini model IDs only)
 
 ## Docker Deployment
 
@@ -130,4 +133,4 @@ Table: `submissions`
 - `country` (TEXT)
 - `sop_text` (TEXT) -> full raw SOP text
 - `overall_score` (REAL)
-- `ai_feedback_json` (TEXT) -> full JSON response from Gemini
+- `ai_feedback_json` (TEXT) -> full JSON response from DeepSeek

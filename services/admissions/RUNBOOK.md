@@ -7,7 +7,7 @@ Validate that:
 3. Data is persisted in SQLite.
 
 ## 1. Pre-Run Checks
-1. Confirm `.env` has `GOOGLE_API_KEY`.
+1. Confirm `.env` has `DEEPSEEK_API_KEY`.
 2. Create venv and install deps:
    ```bash
    uv python install 3.11
@@ -100,14 +100,14 @@ sqlite3 admissions_app.db "SELECT ai_raw_output FROM predictions ORDER BY id DES
 ```
 
 ## 5. Failure Handling Test
-Temporarily remove `GOOGLE_API_KEY` from `.env` and restart app.
+Temporarily remove `DEEPSEEK_API_KEY` from `.env` and restart app.
 
 Expected:
 - Submission fails with a clear error indicating missing API key.
 - App remains responsive.
 
 ## 6. Operational Notes
-- Default model: `gemini-1.5-pro`.
+- Default model: `deepseek-chat`.
 - Override model using `.env` with any model your API key can access:
-  - `GEMINI_MODEL=gemini-3-flash-preview`
+  - `DEEPSEEK_MODEL=deepseek-reasoner`
 - SQLite DB is local and suitable for single-instance deployment.

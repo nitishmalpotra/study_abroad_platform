@@ -18,4 +18,4 @@ Use `.env.example` files for documentation and keep real `.env` files local. If 
 
 ## Current security posture
 
-The current repo contains a Vite frontend plus two Streamlit services. The services still use Gemini and local SQLite storage, and the frontend SOP experience is still mock-only. Planned controls such as a shared API layer, DeepSeek provider abstraction, centralized rate limiting, production Postgres storage, blob storage, and retention automation are described in the migration blueprint but are not implemented yet.
+The current repo contains a Vite frontend plus two Streamlit services. The services use DeepSeek through a shared AI runtime and local SQLite storage, and the frontend SOP experience is still mock-only. Planned controls such as a shared API layer, centralized rate limiting, production Postgres storage, blob storage, and retention automation are described in the migration blueprint but are not implemented yet.

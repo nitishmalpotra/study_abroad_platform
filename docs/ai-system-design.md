@@ -2,7 +2,7 @@
 
 ## Current implementation
 
-Both Python services call Gemini through LangChain today.
+Both Python services call DeepSeek through the shared `packages/ai_runtime` package today.
 
 - SOP review performs a validity check and grading pass, then parses structured feedback.
 - Admissions prediction builds a structured recommendation payload and includes one repair pass for malformed model output.
@@ -25,4 +25,4 @@ The service extraction is already underway through provider protocols in each do
 
 - Preserve structured validation rather than trusting raw model text.
 - Keep mock/demo execution explicit so it is not confused with real inference.
-- Treat provider migration as a parity exercise; current Gemini behavior should be validated before replacement.
+- Treat provider migration as a parity exercise; behavior should be validated before any future provider replacement.
