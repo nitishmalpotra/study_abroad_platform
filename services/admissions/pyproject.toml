@@ -27,6 +27,7 @@ requires = ["setuptools>=69.5.1", "wheel>=0.45.1"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
+packages = ["admissions", "admissions.prompts"]
 py-modules = ["app"]
 
 [tool.uv]
