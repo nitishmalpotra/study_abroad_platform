@@ -21,6 +21,7 @@ from sop_review.service import SOPReviewService
 from sop_review.validation import validate_profile
 
 UNIVERSITY_PLACEHOLDER = "Select University"
+OTHER_UNIVERSITY = "Other"
 INTAKE_PLACEHOLDER = "Select Intake"
 
 
@@ -162,19 +163,32 @@ def main() -> None:
         mobile = st.text_input("Mobile *", max_chars=20)
         if university_lookup:
             selected_university = st.selectbox(
-                "Target University *", options=[UNIVERSITY_PLACEHOLDER] + sorted(university_lookup), index=0
-            )
-            selected_info = university_lookup.get(selected_university) if selected_university != UNIVERSITY_PLACEHOLDER else None
-            university = selected_university if selected_info is not None else ""
-            country = selected_info["country"] if selected_info is not None else ""
-            selected_intake = st.selectbox(
-                "Intake *",
-                options=([INTAKE_PLACEHOLDER] + selected_info["intakes"]) if selected_info else [INTAKE_PLACEHOLDER],
+                "Target University *",
+                options=[UNIVERSITY_PLACEHOLDER] + sorted(university_lookup) + [OTHER_UNIVERSITY],
                 index=0,
-                disabled=selected_info is None,
             )
-            intake = selected_intake if selected_intake != INTAKE_PLACEHOLDER else ""
-            st.text_input("Country *", value=country, disabled=True)
+            if selected_university == OTHER_UNIVERSITY:
+                university = st.text_input("Target University Name *", max_chars=160)
+                intake = st.text_input("Intake *", max_chars=80)
+                country = st.text_input("Country *", max_chars=80)
+            else:
+                selected_info = (
+                    university_lookup.get(selected_university)
+                    if selected_university != UNIVERSITY_PLACEHOLDER
+                    else None
+                )
+                university = selected_university if selected_info is not None else ""
+                country = selected_info["country"] if selected_info is not None else ""
+                selected_intake = st.selectbox(
+                    "Intake *",
+                    options=([INTAKE_PLACEHOLDER] + selected_info["intakes"])
+                    if selected_info
+                    else [INTAKE_PLACEHOLDER],
+                    index=0,
+                    disabled=selected_info is None,
+                )
+                intake = selected_intake if selected_intake != INTAKE_PLACEHOLDER else ""
+                st.text_input("Country *", value=country, disabled=True)
         else:
             st.warning("University catalog is unavailable. Falling back to manual input fields.")
             university = st.text_input("Target University *", max_chars=160)
