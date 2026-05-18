@@ -18,4 +18,4 @@ Use `.env.example` files for documentation and keep real `.env` files local. If 
 
 ## Current security posture
 
-The current repo contains a Vite frontend plus two Streamlit services. The services use DeepSeek through a shared AI runtime and local SQLite storage, and the frontend SOP experience is still mock-only. Planned controls such as a shared API layer, centralized rate limiting, production Postgres storage, blob storage, and retention automation are described in the migration blueprint but are not implemented yet.
+The current repo contains a Next.js frontend, a FastAPI backend, and two Streamlit service adapters. Live AI calls use DeepSeek through the backend and shared AI runtime; the frontend only receives public API URLs and must never expose the DeepSeek key. Server-side live rate limiting now exists in-memory for the first API surface, while production Postgres storage, blob storage, and retention automation remain planned in the migration blueprint.

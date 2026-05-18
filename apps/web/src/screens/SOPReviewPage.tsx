@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -11,49 +11,11 @@ import {
   AlertCircle,
   RotateCcw,
   Loader2,
+  ShieldCheck,
 } from 'lucide-react';
 import ToolLeadGate from '../components/ToolLeadGate';
-import type { SOPReviewResponse } from '../contracts/api';
-
-const mockResponse = {
-  mode: 'mock',
-  gatekeeper: {
-    is_valid: true,
-    reason: 'Valid SOP for demo output.',
-  },
-  grade: {
-    overall_score: 7.8,
-    criteria_breakdown: [
-      {
-        name: 'Academic Fit',
-        score: 8,
-        feedback: 'Shows relevant preparation for the chosen field.',
-      },
-      {
-        name: 'University Specificity',
-        score: 7,
-        feedback: 'Mentions program fit but could cite one concrete resource.',
-      },
-      {
-        name: 'Career Clarity',
-        score: 8,
-        feedback: 'Connects the degree to a plausible next step.',
-      },
-      {
-        name: 'Narrative Flow',
-        score: 8,
-        feedback: 'Progression is coherent and easy to follow.',
-      },
-      {
-        name: 'Language & Tone',
-        score: 8,
-        feedback: 'Clear, professional, and concise.',
-      },
-    ],
-    summary:
-      'A credible SOP with good fit and clear direction; the main improvement is sharper program specificity.',
-  },
-} satisfies SOPReviewResponse;
+import type { ApiError, SOPReviewRequest, SOPReviewResponse } from '../contracts/api';
+import { SOPReviewApiError, submitSOPReview, type SOPReviewMode } from '../lib/sopReviewApi';
 
 const criterionColors = [
   'bg-emerald-500',
@@ -63,30 +25,84 @@ const criterionColors = [
   'bg-violet-500',
 ];
 
-const suggestions = [
-  'Replace the opening with a specific anecdote or experience that sparked your interest.',
-  'Quantify your achievements where possible (e.g., "improved efficiency by 30%").',
-  'Add a paragraph about why this specific university/program is the right fit.',
-  'Strengthen your closing by tying your long-term career goals back to the program.',
-  'Reduce the SOP length from ~1200 words to under 1000 for a tighter narrative.',
-];
+const emptyApiError: ApiError = {
+  code: 'validation_error',
+  message: '',
+  details: [],
+};
+
+const inputBase = 'w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent';
+
+function wordCount(value: string): number {
+  return value.trim().split(/\s+/).filter(Boolean).length;
+}
 
 function SOPTool() {
-  const [sopText, setSopText] = useState('');
+  const [form, setForm] = useState<SOPReviewRequest>({
+    full_name: '',
+    mobile: '',
+    university: '',
+    intake: '',
+    country: '',
+    sop_text: '',
+  });
   const [state, setState] = useState<'input' | 'loading' | 'result'>('input');
+  const [activeMode, setActiveMode] = useState<SOPReviewMode>('live');
+  const [result, setResult] = useState<SOPReviewResponse | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
 
-  const handleAnalyze = () => {
-    if (sopText.trim().length < 50) return;
+  const sopWordCount = useMemo(() => wordCount(form.sop_text), [form.sop_text]);
+  const canSubmit = Object.values(form).every((value) => value.trim().length > 0);
+  const grade = result?.grade;
+  const isDemo = result?.mode === 'mock';
+
+  const updateField = (field: keyof SOPReviewRequest, value: string) => {
+    setForm((current) => ({ ...current, [field]: value }));
+    setError(null);
+  };
+
+  const handleAnalyze = async (mode: SOPReviewMode) => {
+    if (!canSubmit) {
+      setError({ ...emptyApiError, message: 'Please complete all SOP review fields before submitting.' });
+      return;
+    }
+
+    setActiveMode(mode);
     setState('loading');
-    setTimeout(() => setState('result'), 3000);
+    setError(null);
+    setResult(null);
+
+    try {
+      const response = await submitSOPReview(form, mode);
+      setResult(response);
+      setState('result');
+    } catch (caught) {
+      if (caught instanceof SOPReviewApiError) {
+        setError(caught.payload);
+      } else {
+        setError({
+          code: 'unknown_error',
+          message: 'The SOP review request failed safely. Please try again later.',
+          details: [],
+        });
+      }
+      setState('input');
+    }
   };
 
   const handleReset = () => {
-    setSopText('');
+    setForm({
+      full_name: '',
+      mobile: '',
+      university: '',
+      intake: '',
+      country: '',
+      sop_text: '',
+    });
+    setResult(null);
+    setError(null);
     setState('input');
   };
-
-  const grade = mockResponse.grade;
 
   return (
     <section className="section-padding bg-slate-50">
@@ -95,34 +111,72 @@ function SOPTool() {
           {state === 'input' && (
             <motion.div key="input" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
               <div className="card p-6">
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3 mb-5">
                   <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
                     <FileText className="w-5 h-5 text-emerald-600" />
                   </div>
                   <div>
                     <h2 className="text-lg font-bold text-brand-900">Paste Your SOP</h2>
-                    <p className="text-sm text-slate-500">Minimum 50 characters required</p>
+                    <p className="text-sm text-slate-500">Live review uses the secure backend API; demo mode returns sample output.</p>
                   </div>
                 </div>
+
+                <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                  <input value={form.full_name} onChange={(e) => updateField('full_name', e.target.value)} className={inputBase} placeholder="Full name" />
+                  <input value={form.mobile} onChange={(e) => updateField('mobile', e.target.value.replace(/\D/g, '').slice(0, 15))} className={inputBase} placeholder="Mobile number" inputMode="numeric" />
+                  <input value={form.university} onChange={(e) => updateField('university', e.target.value)} className={inputBase} placeholder="Target university" />
+                  <input value={form.intake} onChange={(e) => updateField('intake', e.target.value)} className={inputBase} placeholder="Target intake, e.g. Fall 2026" />
+                  <input value={form.country} onChange={(e) => updateField('country', e.target.value)} className={`${inputBase} sm:col-span-2`} placeholder="Target country" />
+                </div>
+
                 <textarea
-                  value={sopText}
-                  onChange={(e) => setSopText(e.target.value)}
+                  value={form.sop_text}
+                  onChange={(e) => updateField('sop_text', e.target.value)}
                   rows={14}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent leading-relaxed"
-                  placeholder="Paste your Statement of Purpose here. The AI will analyze it for grammar, structure, impact, and relevance..."
+                  className={`${inputBase} resize-none leading-relaxed`}
+                  placeholder="Paste your Statement of Purpose here. Live mode checks the backend SOP rubric: academic fit, university specificity, career clarity, narrative flow, and language tone."
                 />
-                <div className="flex items-center justify-between mt-4">
+
+                {error && (
+                  <div className="mt-4 p-4 bg-rose-50 border border-rose-100 rounded-xl">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold text-rose-800">{error.message}</p>
+                        {error.details.length > 0 && (
+                          <ul className="mt-2 space-y-1">
+                            {error.details.map((detail, index) => (
+                              <li key={`${detail}-${index}`} className="text-xs text-rose-700">{detail}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-4">
                   <span className="text-xs text-slate-400">
-                    {sopText.length} characters {sopText.length > 0 && sopText.length < 50 && '(minimum 50)'}
+                    {form.sop_text.length} characters · {sopWordCount} words · backend expects 100–2500 words for live scoring
                   </span>
-                  <button
-                    onClick={handleAnalyze}
-                    disabled={sopText.trim().length < 50}
-                    className="btn-primary text-sm disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    Analyze SOP
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={() => void handleAnalyze('mock')}
+                      disabled={!canSubmit}
+                      className="btn-outline text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <ShieldCheck className="w-4 h-4" />
+                      Demo Review
+                    </button>
+                    <button
+                      onClick={() => void handleAnalyze('live')}
+                      disabled={!canSubmit}
+                      className="btn-primary text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Analyze SOP
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -133,9 +187,11 @@ function SOPTool() {
               <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }} className="w-16 h-16 mx-auto mb-6">
                 <Loader2 className="w-16 h-16 text-brand-700" />
               </motion.div>
-              <h3 className="text-xl font-bold text-brand-900 mb-2">Analyzing Your SOP</h3>
+              <h3 className="text-xl font-bold text-brand-900 mb-2">{activeMode === 'mock' ? 'Loading Demo Review' : 'Analyzing Your SOP'}</h3>
               <p className="text-sm text-slate-500 max-w-sm mx-auto">
-                Our AI is reviewing your statement for grammar, structure, impact, and program relevance...
+                {activeMode === 'mock'
+                  ? 'Fetching deterministic demo output from the mock API. No DeepSeek request is made.'
+                  : 'The secure API is reviewing your SOP against the backend rubric.'}
               </p>
               <div className="mt-8 max-w-xs mx-auto">
                 <motion.div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -143,24 +199,29 @@ function SOPTool() {
                     className="h-full bg-brand-700 rounded-full"
                     initial={{ width: '0%' }}
                     animate={{ width: '100%' }}
-                    transition={{ duration: 3, ease: 'easeInOut' }}
+                    transition={{ duration: activeMode === 'mock' ? 1 : 3, ease: 'easeInOut' }}
                   />
                 </motion.div>
               </div>
             </motion.div>
           )}
 
-          {state === 'result' && (
+          {state === 'result' && result && (
             <motion.div key="result" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
               <div className="card p-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-accent-50 rounded-xl flex items-center justify-center">
-                      <CheckCircle2 className="w-5 h-5 text-accent-600" />
+                    <div className={`w-10 h-10 ${grade ? 'bg-accent-50' : 'bg-amber-50'} rounded-xl flex items-center justify-center`}>
+                      {grade ? <CheckCircle2 className="w-5 h-5 text-accent-600" /> : <AlertCircle className="w-5 h-5 text-amber-500" />}
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-brand-900">Analysis Complete</h2>
-                      <p className="text-sm text-slate-500">Here's how your SOP scores</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-lg font-bold text-brand-900">{grade ? 'Analysis Complete' : 'SOP Needs Revision Before Scoring'}</h2>
+                        {isDemo && <span className="px-2 py-1 bg-lavender-100 text-brand-700 text-xs font-semibold rounded-full">Demo output</span>}
+                      </div>
+                      <p className="text-sm text-slate-500">
+                        {isDemo ? 'This is deterministic sample feedback from the mock API, not a DeepSeek review.' : result.gatekeeper.reason}
+                      </p>
                     </div>
                   </div>
                   <button onClick={handleReset} className="btn-outline text-sm py-2">
@@ -169,55 +230,45 @@ function SOPTool() {
                   </button>
                 </div>
 
-                <div className="bg-brand-800 rounded-xl p-6 mb-6 flex items-center gap-6">
-                  <div className="text-center">
-                    <p className="text-4xl font-bold text-white">{grade.overall_score.toFixed(1)}</p>
-                    <p className="text-sm text-brand-200">out of 10</p>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-brand-100 font-medium mb-1">Overall Score</p>
-                    <p className="text-sm text-brand-300">
-                      {grade.summary}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  {grade.criteria_breakdown.map((item, index) => (
-                    <div key={item.name} className="p-4 bg-slate-50 rounded-xl">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-semibold text-brand-800">{item.name}</span>
-                        <span className="text-sm font-bold text-brand-900">{item.score}/10</span>
+                {grade ? (
+                  <>
+                    <div className="bg-brand-800 rounded-xl p-6 mb-6 flex items-center gap-6">
+                      <div className="text-center">
+                        <p className="text-4xl font-bold text-white">{grade.overall_score.toFixed(1)}</p>
+                        <p className="text-sm text-brand-200">out of 10</p>
                       </div>
-                      <div className="h-2 bg-slate-200 rounded-full overflow-hidden mb-3">
-                        <motion.div
-                          className={`h-full ${criterionColors[index]} rounded-full`}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${(item.score / 10) * 100}%` }}
-                          transition={{ duration: 0.8, delay: 0.2 }}
-                        />
+                      <div className="flex-1">
+                        <p className="text-sm text-brand-100 font-medium mb-1">Overall Score</p>
+                        <p className="text-sm text-brand-300">{grade.summary}</p>
                       </div>
-                      <p className="text-xs text-slate-600 leading-relaxed">{item.feedback}</p>
                     </div>
-                  ))}
-                </div>
-              </div>
 
-              <div className="card p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <AlertCircle className="w-5 h-5 text-amber-500" />
-                  <h3 className="text-lg font-bold text-brand-900">Key Suggestions</h3>
-                </div>
-                <ol className="space-y-3">
-                  {suggestions.map((s, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-slate-700">
-                      <span className="w-6 h-6 bg-amber-50 text-amber-700 rounded-lg flex items-center justify-center text-xs font-bold shrink-0">
-                        {i + 1}
-                      </span>
-                      <span className="leading-relaxed">{s}</span>
-                    </li>
-                  ))}
-                </ol>
+                    <div className="space-y-4">
+                      {grade.criteria_breakdown.map((item, index) => (
+                        <div key={item.name} className="p-4 bg-slate-50 rounded-xl">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-semibold text-brand-800">{item.name}</span>
+                            <span className="text-sm font-bold text-brand-900">{item.score}/10</span>
+                          </div>
+                          <div className="h-2 bg-slate-200 rounded-full overflow-hidden mb-3">
+                            <motion.div
+                              className={`h-full ${criterionColors[index]} rounded-full`}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${(item.score / 10) * 100}%` }}
+                              transition={{ duration: 0.8, delay: 0.2 }}
+                            />
+                          </div>
+                          <p className="text-xs text-slate-600 leading-relaxed">{item.feedback}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="p-5 bg-amber-50 border border-amber-100 rounded-xl">
+                    <p className="text-sm font-semibold text-amber-800 mb-1">Review not scored</p>
+                    <p className="text-sm text-amber-700 leading-relaxed">{result.gatekeeper.reason}</p>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

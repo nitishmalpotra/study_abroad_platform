@@ -32,8 +32,9 @@ This document is the authoritative migration plan for the repository.
 | FastAPI backend public surface | Completed | `apps/api` with health, live, and deterministic mock endpoints plus API tests |
 | Shared frontend/backend contracts | Completed | Canonical Pydantic API contracts, committed JSON Schemas, frontend TypeScript types, shared mock payloads, and contract docs/tests |
 | Frontend framework migration | Completed | `apps/web` now runs on Next.js App Router while preserving the existing KlassFin marketing pages, mock SOP flow, and lead-capture UX |
+| Frontend SOP API integration | Completed | SOP page now submits shared-contract payloads to FastAPI live and mock endpoints, renders live/mock response shapes, and keeps DeepSeek credentials behind the API boundary |
 
-### Current repo reality after prompt eleven
+### Current repo reality after prompt twelve
 
 - The repo is now a monorepo rooted at:
   - `apps/web`
@@ -45,7 +46,7 @@ This document is the authoritative migration plan for the repository.
   - `infra`
   - `tests`
 - `apps/web` is now a Next.js App Router frontend migrated from the original Vite + React app.
-- `apps/api` now exposes the first public FastAPI surface for SOP review and admissions prediction.
+- `apps/api` now exposes the first public FastAPI surface for SOP review and admissions prediction, with CORS configuration for the Next.js frontend.
 - `services/sop_review` now contains reusable service modules plus a temporary Streamlit adapter.
 - `services/admissions` now contains reusable service modules plus a temporary Streamlit adapter.
 - `packages/ai_runtime` now owns shared provider clients, retries, timeout handling, response normalization, JSON parsing helpers, and secret redaction.
@@ -58,8 +59,10 @@ This document is the authoritative migration plan for the repository.
 - SOP prompt evaluation now has sanitized synthetic fixtures and regression checks for schema validity, rubric order, concise outputs, and broad quality calibration.
 - Admissions prompt evaluation now has sanitized synthetic fixtures and regression checks for schema validity, concise grounded reasoning, and broad category calibration across strong, borderline, weak, and unrealistic-target profiles.
 - Automated tests now exist for both Python services.
-- Frontend linting, type-checking, and Next.js build verification are green after the framework migration.
-- The SOP mock page now renders the same five rubric criteria as the backend grading schema.
+- Frontend SOP review now has an API client layer for live and deterministic mock submissions using the shared TypeScript contracts.
+- Frontend SOP live mode sends applicant details and pasted SOP text to `POST /api/v1/sop/review`; demo mode calls `POST /api/v1/sop/review/mock` and labels the result as demo output.
+- Frontend linting, type-checking, tests, and Next.js build verification are part of the SOP integration verification.
+- The SOP page renders the same five rubric criteria as the backend grading schema.
 
 ## 1. Current-state summary
 
@@ -121,7 +124,7 @@ This document is the authoritative migration plan for the repository.
 |---|---|
 | SOP review | Streamlit app; paste/upload support; PDF/DOCX/TXT extraction; word-count gate; DeepSeek validity check; DeepSeek grading; strict Pydantic parsing; SQLite persistence; per-session rate limiting; rotating logs; model fallback |
 | Admit prediction | Streamlit app; full profile form; DeepSeek prompt; strict nested schema; JSON repair pass; SQLite persistence; validation; result charts |
-| Frontend | Next.js marketing site with preserved KlassFin theme, static content, EMI calculator, resources, lead capture, and mock SOP page |
+| Frontend | Next.js marketing site with preserved KlassFin theme, static content, EMI calculator, resources, lead capture, and API-backed live/mock SOP page |
 | Lead capture | Supabase-backed inserts into `tool_leads`; UI flows for phone, fake OTP step, and details capture |
 | Data | Local SQLite for both Python apps; Supabase/Postgres only for frontend lead capture |
 
@@ -131,26 +134,24 @@ This document is the authoritative migration plan for the repository.
 |---|---|
 | Backend architecture | FastAPI backend exists for the first public release surface; persistence hardening and production deployment work remain |
 | AI provider | DeepSeek is active through `packages/ai_runtime`; service-level provider protocols remain in place |
-| Frontend integration | No real AI-backed SOP page, no admit predictor page, no frontend API client layer |
-| Mocking | Mock SOP exists only as hard-coded frontend behavior; no unified mock mode for both tools |
+| Frontend integration | SOP review is API-backed; admit predictor page and broader frontend API client structure remain pending |
+| Mocking | SOP frontend calls the backend mock endpoint; admissions mock endpoint exists but has no frontend yet |
 | Production data | No Neon Postgres path, no shared schema, no centralized migrations |
 | File persistence | No blob storage implementation |
 | Security / hygiene | Public-repo baseline docs and CI now exist, but there is still no production security implementation, no explicit retention implementation, and no integrated release-hardening pass |
 
 ### Current frontend/backend contradictions
 
-- Frontend SOP page is mock-only; backend SOP app is real.
 - Frontend and backend SOP rubric names are now aligned on:
   - `Academic Fit`
   - `University Specificity`
   - `Career Clarity`
   - `Narrative Flow`
   - `Language & Tone`
-- Frontend SOP accepts pasted text only with a 50-character minimum; backend accepts paste or upload and enforces 100–2500 words.
-- Frontend SOP collects no applicant details before analysis; backend requires `full_name`, `mobile`, `university`, `intake`, and `country`.
+- Frontend SOP now accepts pasted text and applicant details, then lets the backend enforce the 100–2500 word scoring gate; frontend upload support is still pending.
 - Frontend Tools page marks Admit Predictor as “Coming Soon”; a working predictor already exists separately.
 - Lead flows present an OTP step, but no OTP is actually sent or verified.
-- Frontend README describes an SOP review service and Supabase backend, but the SOP tool is not API-backed today.
+- Frontend reads the public API base URL from `NEXT_PUBLIC_STUDY_ABROAD_API_URL`; DeepSeek credentials remain backend-only.
 
 ## 2. Recommended target monorepo architecture
 
@@ -419,13 +420,13 @@ Status: Completed.
 
 #### Phase 5 — Rebuild frontend in Next.js
 
-Status: In progress.
+Status: In progress; SOP frontend integration is completed, while admissions frontend and content restructuring remain pending.
 - Completed in the framework-migration slice:
   - Port the current KlassFin pages and theme faithfully.
   - Preserve current public routes, static assets, mock SOP behavior, and lead-capture UX.
 - Still pending in later product-integration work:
   - Port static content into a cleaner code-owned content structure that can later move to MDX/CMS.
-  - Replace the mock-only SOP page with an API-backed SOP feature.
+  - Replace the mock-only SOP page with an API-backed SOP feature. Completed in the SOP integration slice.
   - Add the public Admit Predictor page.
   - Expose real AI mode, user-visible demo/mock mode, and environment-driven mode configuration.
 - Keep lead capture in the UX without turning it into account creation.

@@ -2,7 +2,8 @@ from fastapi.testclient import TestClient
 
 from admissions.schemas import AdmissionPrediction, ProgramPrediction
 from admissions.service import AdmissionsPredictionResult
-from app.api.deps import get_live_admissions_service, get_live_sop_service
+from app.api.deps import get_live_admissions_service
+from app.api.routes.sop import get_live_sop_service_factory
 from app.core.config import ApiSettings
 from app.core.rate_limits import InMemoryRateLimiter
 from app.main import create_app
@@ -21,7 +22,7 @@ def sop_payload() -> dict[str, object]:
         "university": "Example University",
         "intake": "Fall 2026",
         "country": "UK",
-        "sop_text": "one two three four five six seven eight nine ten",
+        "sop_text": " ".join(["word"] * 120),
     }
 
 
@@ -106,7 +107,7 @@ class FakeAdmissionsService:
 
 def client() -> TestClient:
     app = create_app()
-    app.state.live_rate_limiter = InMemoryRateLimiter(ApiSettings(2, 3600))
+    app.state.live_rate_limiter = InMemoryRateLimiter(ApiSettings(2, 3600, ()))
     return TestClient(app, raise_server_exceptions=False)
 
 
@@ -123,9 +124,25 @@ def test_validation_errors_use_structured_shape() -> None:
     assert response.json()["message"] == "Request validation failed."
 
 
+
+def test_short_live_sop_returns_gatekeeper_response_without_live_service() -> None:
+    app = create_app()
+    app.dependency_overrides[get_live_sop_service_factory] = lambda: lambda: (_ for _ in ()).throw(
+        AssertionError("live SOP dependency should not be used for local validation")
+    )
+    test_client = TestClient(app, raise_server_exceptions=False)
+    payload = sop_payload() | {"sop_text": "This is too short."}
+
+    response = test_client.post("/api/v1/sop/review", json=payload)
+
+    assert response.status_code == 200
+    assert response.json()["mode"] == "live"
+    assert response.json()["gatekeeper"]["is_valid"] is False
+    assert response.json()["grade"] is None
+
 def test_mock_endpoints_return_deterministic_responses_without_live_services() -> None:
     app = create_app()
-    app.dependency_overrides[get_live_sop_service] = lambda: (_ for _ in ()).throw(
+    app.dependency_overrides[get_live_sop_service_factory] = lambda: lambda: (_ for _ in ()).throw(
         AssertionError("live SOP dependency should not be used")
     )
     app.dependency_overrides[get_live_admissions_service] = lambda: (
@@ -152,7 +169,7 @@ def test_live_endpoints_are_testable_with_fakes() -> None:
     app = create_app()
     fake_sop = FakeSOPService()
     fake_admissions = FakeAdmissionsService()
-    app.dependency_overrides[get_live_sop_service] = lambda: fake_sop
+    app.dependency_overrides[get_live_sop_service_factory] = lambda: lambda: fake_sop
     app.dependency_overrides[get_live_admissions_service] = lambda: fake_admissions
     test_client = TestClient(app)
 
@@ -171,8 +188,8 @@ def test_live_endpoints_are_testable_with_fakes() -> None:
 
 def test_live_rate_limiting_applies_but_mock_calls_are_excluded() -> None:
     app = create_app()
-    app.state.live_rate_limiter = InMemoryRateLimiter(ApiSettings(1, 3600))
-    app.dependency_overrides[get_live_sop_service] = lambda: FakeSOPService()
+    app.state.live_rate_limiter = InMemoryRateLimiter(ApiSettings(1, 3600, ()))
+    app.dependency_overrides[get_live_sop_service_factory] = lambda: lambda: FakeSOPService()
     test_client = TestClient(app)
 
     assert (
@@ -196,7 +213,7 @@ def test_unhandled_errors_are_safe_and_redacted() -> None:
             raise RuntimeError("provider failed with sk-secretsecretsecret")
 
     app = create_app()
-    app.dependency_overrides[get_live_sop_service] = lambda: ExplodingSOPService()
+    app.dependency_overrides[get_live_sop_service_factory] = lambda: lambda: ExplodingSOPService()
     response = TestClient(app, raise_server_exceptions=False).post(
         "/api/v1/sop/review", json=sop_payload()
     )

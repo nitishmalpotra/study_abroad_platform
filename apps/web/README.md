@@ -7,7 +7,7 @@ A comprehensive web platform designed to help Indian students navigate their stu
 This platform provides students with essential tools and resources for studying abroad, including:
 - University and destination exploration
 - Education loan EMI calculator
-- Mock-only Statement of Purpose (SOP) review experience
+- API-backed live and demo Statement of Purpose (SOP) review experience
 - Comprehensive blog with expert guidance
 - Lead capture for personalized assistance
 
@@ -16,7 +16,7 @@ This platform provides students with essential tools and resources for studying 
 - **Destination Guides**: Detailed information about popular study abroad destinations (USA, UK, Canada, Australia, Germany, Ireland)
 - **University Database**: Explore top universities with program details, rankings, and admission requirements
 - **EMI Calculator**: Calculate education loan EMIs with adjustable parameters
-- **SOP Review Tool**: Mock-only SOP experience pending backend integration
+- **SOP Review Tool**: Live backend SOP review plus deterministic demo mode
 - **Resource Center**: Downloadable guides, checklists, and templates
 - **Blog**: Expert articles on loans, visas, test prep, scholarships, and more
 - **Lead Management**: Integrated lead capture system with Supabase backend
@@ -56,9 +56,10 @@ Create a `.env` file in the root directory with the following variables:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_STUDY_ABROAD_API_URL=http://localhost:8000
 ```
 
-Replace the values with your actual Supabase project credentials.
+Replace the Supabase values with your actual project credentials. `NEXT_PUBLIC_STUDY_ABROAD_API_URL` should point at the FastAPI backend; it is not a secret and must never contain the DeepSeek key.
 
 ## Database Setup
 
@@ -83,6 +84,7 @@ The application will be available at `http://localhost:3000`
 
 Build the project:
 ```bash
+npm run test
 npm run build
 ```
 
