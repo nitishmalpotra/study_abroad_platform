@@ -38,3 +38,36 @@ test('mock SOP review shape matches the rendered contract expectations', () => {
     ['Academic Fit', 'University Specificity', 'Career Clarity', 'Narrative Flow', 'Language & Tone'],
   );
 });
+
+test('admissions prediction shape supports multiple target programs', () => {
+  const prediction = {
+    mode: 'mock',
+    prediction: {
+      target_predictions: [
+        {
+          program_name: 'MS CS at Oxford',
+          chance_category: 'Reach',
+          estimated_probability_percentage: 30,
+          brief_reasoning: 'Competitive target with a strong applicant pool.',
+        },
+        {
+          program_name: 'MS AI at Edinburgh',
+          chance_category: 'Target',
+          estimated_probability_percentage: 62,
+          brief_reasoning: 'Profile is competitive for this target.',
+        },
+      ],
+      profile_strengths: ['Strong GPA', 'Research', 'Experience'],
+      profile_weaknesses: ['Few publications', 'Leadership', 'No GMAT'],
+      actionable_roadmap: ['Improve SOP', 'Add projects', 'Apply early'],
+      recommended_universities: ['A', 'B', 'C'],
+    },
+  };
+
+  assert.equal(prediction.mode, 'mock');
+  assert.equal(prediction.prediction.target_predictions.length, 2);
+  assert.deepEqual(
+    prediction.prediction.target_predictions.map((item) => item.program_name),
+    ['MS CS at Oxford', 'MS AI at Edinburgh'],
+  );
+});

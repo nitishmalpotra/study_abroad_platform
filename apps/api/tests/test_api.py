@@ -165,6 +165,23 @@ def test_mock_endpoints_return_deterministic_responses_without_live_services() -
     assert admissions_first.json() == admissions_second.json()
 
 
+def test_admissions_mock_returns_each_target_program() -> None:
+    payload = admissions_payload() | {
+        "target_programs": [
+            "MS CS at Oxford",
+            "MS AI at Edinburgh",
+            "MSc Data Science at Manchester",
+        ]
+    }
+    response = client().post("/api/v1/admissions/predict/mock", json=payload)
+
+    assert response.status_code == 200
+    assert [
+        item["program_name"]
+        for item in response.json()["prediction"]["target_predictions"]
+    ] == payload["target_programs"]
+
+
 def test_live_endpoints_are_testable_with_fakes() -> None:
     app = create_app()
     fake_sop = FakeSOPService()
@@ -198,6 +215,34 @@ def test_live_rate_limiting_applies_but_mock_calls_are_excluded() -> None:
     )
     assert test_client.post("/api/v1/sop/review", json=sop_payload()).status_code == 200
     limited = test_client.post("/api/v1/sop/review", json=sop_payload())
+
+    assert limited.status_code == 429
+    assert limited.json() == {
+        "code": "rate_limited",
+        "message": "Live request rate limit exceeded.",
+        "details": [],
+    }
+
+
+def test_live_admissions_rate_limiting_applies_but_mock_calls_are_excluded() -> None:
+    app = create_app()
+    app.state.live_rate_limiter = InMemoryRateLimiter(ApiSettings(1, 3600, ()))
+    app.dependency_overrides[get_live_admissions_service] = lambda: FakeAdmissionsService()
+    test_client = TestClient(app)
+
+    assert (
+        test_client.post(
+            "/api/v1/admissions/predict/mock", json=admissions_payload()
+        ).status_code
+        == 200
+    )
+    assert (
+        test_client.post(
+            "/api/v1/admissions/predict", json=admissions_payload()
+        ).status_code
+        == 200
+    )
+    limited = test_client.post("/api/v1/admissions/predict", json=admissions_payload())
 
     assert limited.status_code == 429
     assert limited.json() == {

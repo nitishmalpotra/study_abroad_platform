@@ -44,19 +44,23 @@ SOP_REVIEW_MOCK_RESPONSE = SOPReviewResponse.model_validate(
 
 
 def admissions_prediction_mock_response(
-    first_program: str,
+    target_programs: list[str],
 ) -> AdmissionsPredictionResponse:
+    categories = ["Target", "Reach", "Safe", "Unrealistic", "Target"]
+    probabilities = [62, 38, 74, 18, 56]
+
     return AdmissionsPredictionResponse.model_validate(
         {
             "mode": "mock",
             "prediction": {
                 "target_predictions": [
                     {
-                        "program_name": first_program,
-                        "chance_category": "Target",
-                        "estimated_probability_percentage": 62,
+                        "program_name": program,
+                        "chance_category": categories[index],
+                        "estimated_probability_percentage": probabilities[index],
                         "brief_reasoning": "Profile is competitive for this target with room to strengthen evidence.",
                     }
+                    for index, program in enumerate(target_programs)
                 ],
                 "profile_strengths": [
                     "Relevant academic background",

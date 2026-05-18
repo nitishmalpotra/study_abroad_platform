@@ -37,7 +37,7 @@ def _profile_from_request(payload: AdmissionsPredictionRequest) -> StudentProfil
 
 
 def _mock_response(payload: AdmissionsPredictionRequest) -> AdmissionsPredictionResponse:
-    return admissions_prediction_mock_response(payload.target_programs[0])
+    return admissions_prediction_mock_response(payload.target_programs)
 
 
 @router.post("/predict/mock", response_model=AdmissionsPredictionResponse)

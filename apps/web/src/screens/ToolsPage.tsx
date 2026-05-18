@@ -33,10 +33,9 @@ const tools = [
     icon: Target,
     title: 'Admit Predictor',
     desc: 'Enter your academic profile and get a data-driven prediction of your admission chances at top universities worldwide.',
-    path: '',
+    path: '/tools/admit-predictor',
     color: 'bg-rose-50 text-rose-600',
     features: ['Profile-based predictions', 'University match scoring', 'Recommendations to improve odds'],
-    comingSoon: true,
   },
 ];
 

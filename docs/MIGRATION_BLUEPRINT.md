@@ -33,6 +33,7 @@ This document is the authoritative migration plan for the repository.
 | Shared frontend/backend contracts | Completed | Canonical Pydantic API contracts, committed JSON Schemas, frontend TypeScript types, shared mock payloads, and contract docs/tests |
 | Frontend framework migration | Completed | `apps/web` now runs on Next.js App Router while preserving the existing KlassFin marketing pages, mock SOP flow, and lead-capture UX |
 | Frontend SOP API integration | Completed | SOP page now submits shared-contract payloads to FastAPI live and mock endpoints, renders live/mock response shapes, and keeps DeepSeek credentials behind the API boundary |
+| Frontend admissions API integration | Completed | Admit Predictor is now a public Next.js tool backed by the shared admissions contracts and FastAPI live/mock endpoints |
 
 ### Current repo reality after prompt twelve
 
@@ -59,10 +60,11 @@ This document is the authoritative migration plan for the repository.
 - SOP prompt evaluation now has sanitized synthetic fixtures and regression checks for schema validity, rubric order, concise outputs, and broad quality calibration.
 - Admissions prompt evaluation now has sanitized synthetic fixtures and regression checks for schema validity, concise grounded reasoning, and broad category calibration across strong, borderline, weak, and unrealistic-target profiles.
 - Automated tests now exist for both Python services.
-- Frontend SOP review now has an API client layer for live and deterministic mock submissions using the shared TypeScript contracts.
+- Frontend SOP review and Admit Predictor now have API client layers for live and deterministic mock submissions using the shared TypeScript contracts.
 - Frontend SOP live mode sends applicant details and pasted SOP text to `POST /api/v1/sop/review`; demo mode calls `POST /api/v1/sop/review/mock` and labels the result as demo output.
 - Frontend linting, type-checking, tests, and Next.js build verification are part of the SOP integration verification.
 - The SOP page renders the same five rubric criteria as the backend grading schema.
+- The Admit Predictor page renders admissions target predictions, chance categories, probabilities, reasoning, strengths, weaknesses, roadmap items, and recommended universities from the backend response schema.
 
 ## 1. Current-state summary
 
@@ -134,7 +136,7 @@ This document is the authoritative migration plan for the repository.
 |---|---|
 | Backend architecture | FastAPI backend exists for the first public release surface; persistence hardening and production deployment work remain |
 | AI provider | DeepSeek is active through `packages/ai_runtime`; service-level provider protocols remain in place |
-| Frontend integration | SOP review is API-backed; admit predictor page and broader frontend API client structure remain pending |
+| Frontend integration | SOP review and Admit Predictor are API-backed public tools; broader frontend content restructuring remains pending |
 | Mocking | SOP frontend calls the backend mock endpoint; admissions mock endpoint exists but has no frontend yet |
 | Production data | No Neon Postgres path, no shared schema, no centralized migrations |
 | File persistence | No blob storage implementation |
@@ -149,7 +151,7 @@ This document is the authoritative migration plan for the repository.
   - `Narrative Flow`
   - `Language & Tone`
 - Frontend SOP now accepts pasted text and applicant details, then lets the backend enforce the 100–2500 word scoring gate; frontend upload support is still pending.
-- Frontend Tools page marks Admit Predictor as “Coming Soon”; a working predictor already exists separately.
+- Frontend Tools page now links Admit Predictor as a first-class public tool.
 - Lead flows present an OTP step, but no OTP is actually sent or verified.
 - Frontend reads the public API base URL from `NEXT_PUBLIC_STUDY_ABROAD_API_URL`; DeepSeek credentials remain backend-only.
 
@@ -420,14 +422,14 @@ Status: Completed.
 
 #### Phase 5 — Rebuild frontend in Next.js
 
-Status: In progress; SOP frontend integration is completed, while admissions frontend and content restructuring remain pending.
+Status: In progress; SOP and admissions frontend API integrations are completed, while content restructuring remains pending.
 - Completed in the framework-migration slice:
   - Port the current KlassFin pages and theme faithfully.
   - Preserve current public routes, static assets, mock SOP behavior, and lead-capture UX.
 - Still pending in later product-integration work:
   - Port static content into a cleaner code-owned content structure that can later move to MDX/CMS.
   - Replace the mock-only SOP page with an API-backed SOP feature. Completed in the SOP integration slice.
-  - Add the public Admit Predictor page.
+  - Add the public Admit Predictor page. Completed in the admissions frontend integration slice.
   - Expose real AI mode, user-visible demo/mock mode, and environment-driven mode configuration.
 - Keep lead capture in the UX without turning it into account creation.
 
