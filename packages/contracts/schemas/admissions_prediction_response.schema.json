@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "AdmissionPrediction": {
+      "additionalProperties": false,
+      "properties": {
+        "actionable_roadmap": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Actionable Roadmap",
+          "type": "array"
+        },
+        "profile_strengths": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Profile Strengths",
+          "type": "array"
+        },
+        "profile_weaknesses": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Profile Weaknesses",
+          "type": "array"
+        },
+        "recommended_universities": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Recommended Universities",
+          "type": "array"
+        },
+        "target_predictions": {
+          "items": {
+            "$ref": "#/$defs/ProgramPrediction"
+          },
+          "maxItems": 5,
+          "minItems": 1,
+          "title": "Target Predictions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "target_predictions",
+        "profile_strengths",
+        "profile_weaknesses",
+        "actionable_roadmap",
+        "recommended_universities"
+      ],
+      "title": "AdmissionPrediction",
+      "type": "object"
+    },
+    "ProgramPrediction": {
+      "additionalProperties": false,
+      "properties": {
+        "brief_reasoning": {
+          "maxLength": 500,
+          "minLength": 10,
+          "title": "Brief Reasoning",
+          "type": "string"
+        },
+        "chance_category": {
+          "enum": [
+            "Safe",
+            "Target",
+            "Reach",
+            "Unrealistic"
+          ],
+          "title": "Chance Category",
+          "type": "string"
+        },
+        "estimated_probability_percentage": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Estimated Probability Percentage",
+          "type": "integer"
+        },
+        "program_name": {
+          "maxLength": 200,
+          "minLength": 3,
+          "title": "Program Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "program_name",
+        "chance_category",
+        "estimated_probability_percentage",
+        "brief_reasoning"
+      ],
+      "title": "ProgramPrediction",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "mode": {
+      "enum": [
+        "mock",
+        "live"
+      ],
+      "title": "Mode",
+      "type": "string"
+    },
+    "prediction": {
+      "$ref": "#/$defs/AdmissionPrediction"
+    }
+  },
+  "required": [
+    "mode",
+    "prediction"
+  ],
+  "title": "AdmissionsPredictionResponse",
+  "type": "object"
+}

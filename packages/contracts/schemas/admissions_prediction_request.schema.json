@@ -1,0 +1,119 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "cgpa": {
+      "exclusiveMinimum": 0,
+      "title": "Cgpa",
+      "type": "number"
+    },
+    "cgpa_scale": {
+      "title": "Cgpa Scale",
+      "type": "integer"
+    },
+    "english_score": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "English Score"
+    },
+    "english_test": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "English Test"
+    },
+    "full_name": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Full Name",
+      "type": "string"
+    },
+    "gmat_score": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gmat Score"
+    },
+    "gre_score": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gre Score"
+    },
+    "research_publications": {
+      "maximum": 200,
+      "minimum": 0,
+      "title": "Research Publications",
+      "type": "integer"
+    },
+    "target_country": {
+      "maxLength": 60,
+      "minLength": 1,
+      "title": "Target Country",
+      "type": "string"
+    },
+    "target_intake": {
+      "maxLength": 40,
+      "title": "Target Intake",
+      "type": "string"
+    },
+    "target_programs": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 5,
+      "minItems": 1,
+      "title": "Target Programs",
+      "type": "array"
+    },
+    "undergrad_degree_name": {
+      "maxLength": 160,
+      "minLength": 1,
+      "title": "Undergrad Degree Name",
+      "type": "string"
+    },
+    "work_experience_months": {
+      "maximum": 600,
+      "minimum": 0,
+      "title": "Work Experience Months",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "full_name",
+    "target_intake",
+    "target_country",
+    "undergrad_degree_name",
+    "cgpa",
+    "cgpa_scale",
+    "work_experience_months",
+    "research_publications",
+    "target_programs"
+  ],
+  "title": "AdmissionsPredictionRequest",
+  "type": "object"
+}

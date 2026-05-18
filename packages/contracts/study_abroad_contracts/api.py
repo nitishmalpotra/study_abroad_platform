@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from admissions.schemas import AdmissionPrediction
@@ -8,6 +10,7 @@ class ApiError(BaseModel):
     code: str
     message: str
     details: list[str] = Field(default_factory=list)
+    model_config = ConfigDict(extra="forbid")
 
 
 class HealthResponse(BaseModel):
@@ -25,9 +28,10 @@ class SOPReviewRequest(BaseModel):
 
 
 class SOPReviewResponse(BaseModel):
-    mode: str
+    mode: Literal["mock", "live"]
     gatekeeper: GatekeeperResponse
     grade: SOPGrade | None
+    model_config = ConfigDict(extra="forbid")
 
 
 class AdmissionsPredictionRequest(BaseModel):
@@ -64,6 +68,7 @@ class AdmissionsPredictionRequest(BaseModel):
         return cleaned
 
 
-class AdmissionPredictionResponse(BaseModel):
-    mode: str
+class AdmissionsPredictionResponse(BaseModel):
+    mode: Literal["mock", "live"]
     prediction: AdmissionPrediction
+    model_config = ConfigDict(extra="forbid")

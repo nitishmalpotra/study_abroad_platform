@@ -29,8 +29,9 @@ This document is the authoritative migration plan for the repository.
 | SOP prompt quality redesign | Completed | Versioned `v2` SOP prompts, prompt metadata, synthetic eval fixtures, and regression tests |
 | Admissions prompt quality redesign | Completed | Versioned `v2` admissions prompts, prompt metadata, synthetic eval fixtures, and regression tests |
 | FastAPI backend public surface | Completed | `apps/api` with health, live, and deterministic mock endpoints plus API tests |
+| Shared frontend/backend contracts | Completed | Canonical Pydantic API contracts, committed JSON Schemas, frontend TypeScript types, shared mock payloads, and contract docs/tests |
 
-### Current repo reality after prompt nine
+### Current repo reality after prompt ten
 
 - The repo is now a monorepo rooted at:
   - `apps/web`
@@ -46,6 +47,7 @@ This document is the authoritative migration plan for the repository.
 - `services/sop_review` now contains reusable service modules plus a temporary Streamlit adapter.
 - `services/admissions` now contains reusable service modules plus a temporary Streamlit adapter.
 - `packages/ai_runtime` now owns shared provider clients, retries, timeout handling, response normalization, JSON parsing helpers, and secret redaction.
+- `packages/contracts` now owns canonical API request/response models, committed JSON Schema snapshots, frontend TypeScript contract types, shared mock payloads, and contract drift tests.
 - Both Python services use DeepSeek through thin task-specific adapters over the shared AI runtime.
 - Both Python services now expose provider protocols so domain orchestration is no longer inherently tied to Streamlit.
 - Prompt organization is now normalized across both Python services:
@@ -55,6 +57,7 @@ This document is the authoritative migration plan for the repository.
 - Admissions prompt evaluation now has sanitized synthetic fixtures and regression checks for schema validity, concise grounded reasoning, and broad category calibration across strong, borderline, weak, and unrealistic-target profiles.
 - Automated tests now exist for both Python services.
 - Frontend baseline linting, type-checking, and build verification are green.
+- The SOP mock page now renders the same five rubric criteria as the backend grading schema.
 
 ## 1. Current-state summary
 
@@ -135,12 +138,7 @@ This document is the authoritative migration plan for the repository.
 ### Current frontend/backend contradictions
 
 - Frontend SOP page is mock-only; backend SOP app is real.
-- Frontend SOP rubric:
-  - `Grammar & Clarity`
-  - `Structure & Flow`
-  - `Impact & Persuasion`
-  - `Relevance to Program`
-- Backend SOP rubric:
+- Frontend and backend SOP rubric names are now aligned on:
   - `Academic Fit`
   - `University Specificity`
   - `Career Clarity`

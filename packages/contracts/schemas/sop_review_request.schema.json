@@ -1,0 +1,50 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "country": {
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Country",
+      "type": "string"
+    },
+    "full_name": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Full Name",
+      "type": "string"
+    },
+    "intake": {
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Intake",
+      "type": "string"
+    },
+    "mobile": {
+      "maxLength": 20,
+      "minLength": 10,
+      "title": "Mobile",
+      "type": "string"
+    },
+    "sop_text": {
+      "minLength": 1,
+      "title": "Sop Text",
+      "type": "string"
+    },
+    "university": {
+      "maxLength": 160,
+      "minLength": 1,
+      "title": "University",
+      "type": "string"
+    }
+  },
+  "required": [
+    "full_name",
+    "mobile",
+    "university",
+    "intake",
+    "country",
+    "sop_text"
+  ],
+  "title": "SOPReviewRequest",
+  "type": "object"
+}

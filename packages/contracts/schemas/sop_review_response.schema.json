@@ -1,0 +1,104 @@
+{
+  "$defs": {
+    "CriterionFeedback": {
+      "properties": {
+        "feedback": {
+          "title": "Feedback",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "score": {
+          "title": "Score",
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "score",
+        "feedback"
+      ],
+      "title": "CriterionFeedback",
+      "type": "object"
+    },
+    "GatekeeperResponse": {
+      "properties": {
+        "is_valid": {
+          "description": "True only if input is a valid SOP in English.",
+          "title": "Is Valid",
+          "type": "boolean"
+        },
+        "reason": {
+          "description": "One concise reason for the decision.",
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "is_valid",
+        "reason"
+      ],
+      "title": "GatekeeperResponse",
+      "type": "object"
+    },
+    "SOPGrade": {
+      "properties": {
+        "criteria_breakdown": {
+          "items": {
+            "$ref": "#/$defs/CriterionFeedback"
+          },
+          "title": "Criteria Breakdown",
+          "type": "array"
+        },
+        "overall_score": {
+          "title": "Overall Score",
+          "type": "number"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "overall_score",
+        "criteria_breakdown",
+        "summary"
+      ],
+      "title": "SOPGrade",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "gatekeeper": {
+      "$ref": "#/$defs/GatekeeperResponse"
+    },
+    "grade": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SOPGrade"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "mode": {
+      "enum": [
+        "mock",
+        "live"
+      ],
+      "title": "Mode",
+      "type": "string"
+    }
+  },
+  "required": [
+    "mode",
+    "gatekeeper",
+    "grade"
+  ],
+  "title": "SOPReviewResponse",
+  "type": "object"
+}

@@ -11,44 +11,54 @@ import {
   Loader2,
 } from 'lucide-react';
 import ToolLeadGate from '../components/ToolLeadGate';
+import type { SOPReviewResponse } from '../contracts/api';
 
-interface ScoreItem {
-  label: string;
-  score: number;
-  max: number;
-  feedback: string;
-  color: string;
-}
+const mockResponse = {
+  mode: 'mock',
+  gatekeeper: {
+    is_valid: true,
+    reason: 'Valid SOP for demo output.',
+  },
+  grade: {
+    overall_score: 7.8,
+    criteria_breakdown: [
+      {
+        name: 'Academic Fit',
+        score: 8,
+        feedback: 'Shows relevant preparation for the chosen field.',
+      },
+      {
+        name: 'University Specificity',
+        score: 7,
+        feedback: 'Mentions program fit but could cite one concrete resource.',
+      },
+      {
+        name: 'Career Clarity',
+        score: 8,
+        feedback: 'Connects the degree to a plausible next step.',
+      },
+      {
+        name: 'Narrative Flow',
+        score: 8,
+        feedback: 'Progression is coherent and easy to follow.',
+      },
+      {
+        name: 'Language & Tone',
+        score: 8,
+        feedback: 'Clear, professional, and concise.',
+      },
+    ],
+    summary:
+      'A credible SOP with good fit and clear direction; the main improvement is sharper program specificity.',
+  },
+} satisfies SOPReviewResponse;
 
-const mockResults: ScoreItem[] = [
-  {
-    label: 'Grammar & Clarity',
-    score: 7.5,
-    max: 10,
-    feedback: 'Generally well-written with minor grammatical issues. Consider revising passive voice constructions in paragraphs 2 and 4 for more direct communication.',
-    color: 'bg-emerald-500',
-  },
-  {
-    label: 'Structure & Flow',
-    score: 6.8,
-    max: 10,
-    feedback: 'Logical progression is present but could be strengthened. The transition between your academic background and career goals feels abrupt. Add a bridging sentence.',
-    color: 'bg-blue-500',
-  },
-  {
-    label: 'Impact & Persuasion',
-    score: 7.2,
-    max: 10,
-    feedback: 'Good use of specific examples. However, the opening paragraph could be more engaging. Avoid generic statements like "Since childhood, I have been passionate about..."',
-    color: 'bg-amber-500',
-  },
-  {
-    label: 'Relevance to Program',
-    score: 8.0,
-    max: 10,
-    feedback: 'Strong alignment with the target program. You effectively connect your research interests to faculty expertise. Consider mentioning specific courses or labs.',
-    color: 'bg-rose-500',
-  },
+const criterionColors = [
+  'bg-emerald-500',
+  'bg-blue-500',
+  'bg-amber-500',
+  'bg-rose-500',
+  'bg-violet-500',
 ];
 
 const suggestions = [
@@ -74,7 +84,7 @@ function SOPTool() {
     setState('input');
   };
 
-  const overallScore = mockResults.reduce((acc, r) => acc + r.score, 0) / mockResults.length;
+  const grade = mockResponse.grade;
 
   return (
     <section className="section-padding bg-slate-50">
@@ -159,29 +169,29 @@ function SOPTool() {
 
                 <div className="bg-brand-800 rounded-xl p-6 mb-6 flex items-center gap-6">
                   <div className="text-center">
-                    <p className="text-4xl font-bold text-white">{overallScore.toFixed(1)}</p>
+                    <p className="text-4xl font-bold text-white">{grade.overall_score.toFixed(1)}</p>
                     <p className="text-sm text-brand-200">out of 10</p>
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-brand-100 font-medium mb-1">Overall Score</p>
                     <p className="text-sm text-brand-300">
-                      Your SOP is above average. Focus on the suggestions below to push it to the next level.
+                      {grade.summary}
                     </p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  {mockResults.map((item) => (
-                    <div key={item.label} className="p-4 bg-slate-50 rounded-xl">
+                  {grade.criteria_breakdown.map((item, index) => (
+                    <div key={item.name} className="p-4 bg-slate-50 rounded-xl">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-semibold text-brand-800">{item.label}</span>
-                        <span className="text-sm font-bold text-brand-900">{item.score}/{item.max}</span>
+                        <span className="text-sm font-semibold text-brand-800">{item.name}</span>
+                        <span className="text-sm font-bold text-brand-900">{item.score}/10</span>
                       </div>
                       <div className="h-2 bg-slate-200 rounded-full overflow-hidden mb-3">
                         <motion.div
-                          className={`h-full ${item.color} rounded-full`}
+                          className={`h-full ${criterionColors[index]} rounded-full`}
                           initial={{ width: 0 }}
-                          animate={{ width: `${(item.score / item.max) * 100}%` }}
+                          animate={{ width: `${(item.score / 10) * 100}%` }}
                           transition={{ duration: 0.8, delay: 0.2 }}
                         />
                       </div>

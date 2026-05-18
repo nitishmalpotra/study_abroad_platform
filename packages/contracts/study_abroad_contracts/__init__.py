@@ -1,5 +1,5 @@
 from .api import (
-    AdmissionPredictionResponse,
+    AdmissionsPredictionResponse,
     AdmissionsPredictionRequest,
     ApiError,
     HealthResponse,
@@ -8,7 +8,7 @@ from .api import (
 )
 
 __all__ = [
-    "AdmissionPredictionResponse",
+    "AdmissionsPredictionResponse",
     "AdmissionsPredictionRequest",
     "ApiError",
     "HealthResponse",
