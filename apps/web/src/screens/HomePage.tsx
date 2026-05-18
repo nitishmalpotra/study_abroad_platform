@@ -1,5 +1,7 @@
+'use client';
+
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import {
   ChevronRight,
   Calculator,
@@ -114,7 +116,7 @@ export default function HomePage() {
                 Check Loan Eligibility
                 <ChevronRight className="w-5 h-5" />
               </button>
-              <Link to="/tools" className="btn-outline border-white/30 text-white hover:bg-white hover:text-brand-900 text-base px-8 py-4">
+              <Link href="/tools" className="btn-outline border-white/30 text-white hover:bg-white hover:text-brand-900 text-base px-8 py-4">
                 Explore Free Tools
               </Link>
             </motion.div>
@@ -172,7 +174,7 @@ export default function HomePage() {
                 whileInView="visible"
                 viewport={{ once: true }}
               >
-                <Link to={tool.path} className="card block p-6 h-full group">
+                <Link href={tool.path} className="card block p-6 h-full group">
                   <div className={`w-12 h-12 rounded-xl ${tool.color} flex items-center justify-center mb-4`}>
                     <tool.icon className="w-6 h-6" />
                   </div>
@@ -212,7 +214,7 @@ export default function HomePage() {
               </p>
             </div>
             <Link
-              to="/destinations"
+              href="/destinations"
               className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:text-accent-600 transition-colors whitespace-nowrap"
             >
               View All Destinations
@@ -230,7 +232,7 @@ export default function HomePage() {
                 whileInView="visible"
                 viewport={{ once: true }}
               >
-                <Link to={`/destinations/${country.id}`} className="card block overflow-hidden group">
+                <Link href={`/destinations/${country.id}`} className="card block overflow-hidden group">
                   <div className="relative h-44 overflow-hidden">
                     <img
                       src={country.heroImage}

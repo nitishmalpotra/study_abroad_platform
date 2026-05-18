@@ -23,10 +23,9 @@ This platform provides students with essential tools and resources for studying 
 
 ## Tech Stack
 
-- **Framework**: React 18 with TypeScript
-- **Build Tool**: Vite
+- **Framework**: Next.js with React 18 and TypeScript
 - **Styling**: Tailwind CSS
-- **Routing**: React Router v7
+- **Routing**: Next.js App Router
 - **Animations**: Framer Motion
 - **Icons**: Lucide React
 - **Database**: Supabase (PostgreSQL)
@@ -55,8 +54,8 @@ npm install
 
 Create a `.env` file in the root directory with the following variables:
 ```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 Replace the values with your actual Supabase project credentials.
@@ -78,7 +77,7 @@ Start the development server:
 npm run dev
 ```
 
-The application will be available at `http://localhost:5173`
+The application will be available at `http://localhost:3000`
 
 ## Building for Production
 
@@ -87,12 +86,7 @@ Build the project:
 npm run build
 ```
 
-The optimized production build will be created in the `dist/` directory.
-
-Preview the production build locally:
-```bash
-npm run preview
-```
+The optimized production build is created by Next.js in `.next/`.
 
 ## Code Quality
 
@@ -117,18 +111,16 @@ npm run lint
 │   ├── context/         # React context providers
 │   ├── data/            # Static data files
 │   ├── lib/             # Utility libraries and configurations
-│   ├── pages/           # Page components
-│   ├── App.tsx          # Main app component with routing
-│   ├── index.css        # Global styles and Tailwind directives
-│   └── main.tsx         # Application entry point
+│   ├── app/             # Next.js App Router entry points
+│   ├── screens/         # Reused page-level components
+│   └── index.css        # Global styles and Tailwind directives
 ├── supabase/
 │   └── migrations/      # Database migration files
 ├── .env                 # Environment variables (create this)
-├── index.html           # HTML entry point
 ├── package.json         # Project dependencies
 ├── tailwind.config.js   # Tailwind CSS configuration
 ├── tsconfig.json        # TypeScript configuration
-└── vite.config.ts       # Vite configuration
+└── next.config.ts       # Next.js configuration
 ```
 
 ## Key Pages
@@ -140,7 +132,7 @@ npm run lint
 - `/tools` - Available tools overview
 - `/tools/emi-calculator` - Education loan EMI calculator
 - `/tools/sop-review` - SOP review service
-- `/resources` - Downloadable resources and guides
+- `/tools/resources` - Downloadable resources and guides
 - `/blog` - Blog listing with category filters and search
 - `/blog/:id` - Individual blog post pages
 
@@ -168,6 +160,13 @@ The application supports all modern browsers:
 - Firefox (latest)
 - Safari (latest)
 - Edge (latest)
+
+## Migration notes
+
+- Routes are now file-based under `src/app`; public URLs are preserved from the Vite app.
+- `resources` remains at `/tools/resources`, matching the pre-migration implementation.
+- Static assets continue to live in `public/`; `logo.png` remains available at `/logo.png`.
+- Supabase browser variables now use the `NEXT_PUBLIC_` prefix required by Next.js.
 
 ## Monorepo note
 

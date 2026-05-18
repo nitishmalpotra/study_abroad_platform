@@ -1,7 +1,9 @@
+'use client';
+
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Phone, Mail, MapPin, GraduationCap, ChevronRight, Compass, Calendar, CheckCircle2, BookOpen } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { getSupabaseClient } from '../lib/supabase';
 
 const countryOptions = ['United States', 'United Kingdom', 'Canada', 'Australia', 'Ireland', 'New Zealand', 'Germany', 'Other'];
 const intakeOptions = ['Fall 2026', 'Spring 2027', 'Fall 2027', 'Spring 2028'];
@@ -63,7 +65,7 @@ export default function ResourceLeadModal({ isOpen, resourceName, onClose }: Res
     setSubmitting(true);
     setError('');
     try {
-      const { error: dbError } = await supabase.from('tool_leads').insert({
+      const { error: dbError } = await getSupabaseClient().from('tool_leads').insert({
         phone,
         email,
         target_country: country,

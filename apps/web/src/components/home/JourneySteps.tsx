@@ -1,5 +1,7 @@
+'use client';
+
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import {
   Globe,
   BookOpen,
@@ -122,7 +124,7 @@ export default function JourneySteps() {
           className="text-center mt-12"
         >
           <Link
-            to="/tools/resources"
+            href="/tools/resources"
             className="btn-primary text-base px-8 py-4 inline-flex items-center gap-2"
           >
             Explore Planning Resources

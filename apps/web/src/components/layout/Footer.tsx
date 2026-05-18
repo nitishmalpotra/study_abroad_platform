@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link';
 import { Shield, Building2, Lock, Mail, Phone, Instagram, Twitter, Linkedin, Youtube } from 'lucide-react';
 
 const footerLinks = {
@@ -30,7 +32,7 @@ export default function Footer() {
         <div className="py-12 lg:py-16 border-b border-brand-700">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
             <div className="lg:col-span-2">
-              <Link to="/" className="flex items-center gap-2.5 mb-5">
+              <Link href="/" className="flex items-center gap-2.5 mb-5">
                 <img src="/logo.png" alt="KlassFin" className="h-9 w-auto brightness-0 invert" />
               </Link>
               <p className="text-brand-300 text-sm leading-relaxed max-w-sm mb-6">
@@ -73,7 +75,7 @@ export default function Footer() {
                   {links.map((link) => (
                     <li key={link.name}>
                       <Link
-                        to={link.path}
+                        href={link.path}
                         className="text-sm text-brand-300 hover:text-white transition-colors"
                       >
                         {link.name}

@@ -1,4 +1,6 @@
-import { useParams, Link, Navigate } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   DollarSign,
@@ -17,12 +19,9 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
 };
 
-export default function CountryDetailPage() {
-  const { id } = useParams();
+export default function CountryDetailPage({ id }: { id: string }) {
   const { openModal } = useModal();
-  const country = countries.find((c) => c.id === id);
-
-  if (!country) return <Navigate to="/destinations" replace />;
+  const country = countries.find((c) => c.id === id)!;
 
   return (
     <>
@@ -38,7 +37,7 @@ export default function CountryDetailPage() {
         <div className="relative container-max mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl">
             <div className="flex items-center gap-2 text-sm text-brand-300 mb-4">
-              <Link to="/destinations" className="hover:text-white transition-colors">Destinations</Link>
+              <Link href="/destinations" className="hover:text-white transition-colors">Destinations</Link>
               <ChevronRight className="w-4 h-4" />
               <span className="text-white">{country.name}</span>
             </div>
@@ -51,7 +50,7 @@ export default function CountryDetailPage() {
                 Check Loan Eligibility
                 <ChevronRight className="w-4 h-4" />
               </button>
-              <Link to="/universities" className="btn-outline border-white/30 text-white hover:bg-white hover:text-brand-900">
+              <Link href="/universities" className="btn-outline border-white/30 text-white hover:bg-white hover:text-brand-900">
                 Browse Universities
               </Link>
             </div>

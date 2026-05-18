@@ -1,6 +1,8 @@
+'use client';
+
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { ChevronRight, IndianRupee, Percent, Clock, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
 import { useModal } from '../context/ModalContext';
 
@@ -59,7 +61,7 @@ export default function EMICalculatorPage() {
         <div className="container-max mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl">
             <div className="flex items-center gap-2 text-sm text-brand-300 mb-4">
-              <Link to="/tools" className="hover:text-white transition-colors">Tools</Link>
+              <Link href="/tools" className="hover:text-white transition-colors">Tools</Link>
               <ChevronRight className="w-4 h-4" />
               <span className="text-white">EMI Calculator</span>
             </div>

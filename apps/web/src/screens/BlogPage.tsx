@@ -1,6 +1,8 @@
+'use client';
+
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Clock, ArrowRight, User, Search } from 'lucide-react';
 import { blogPosts } from '../data/blog';
 
@@ -98,7 +100,7 @@ export default function BlogPage() {
               viewport={{ once: true }}
               className="mb-12"
             >
-              <Link to={`/blog/${featured.id}`} className="card overflow-hidden block group">
+              <Link href={`/blog/${featured.id}`} className="card overflow-hidden block group">
                 <div className="grid md:grid-cols-2">
                   <div className="relative h-64 md:h-80 overflow-hidden">
                     <img
@@ -144,7 +146,7 @@ export default function BlogPage() {
                   whileInView="visible"
                   viewport={{ once: true }}
                 >
-                  <Link to={`/blog/${post.id}`} className="card overflow-hidden group block h-full">
+                  <Link href={`/blog/${post.id}`} className="card overflow-hidden group block h-full">
                     <div className="relative h-44 overflow-hidden">
                       <img
                         src={post.image}

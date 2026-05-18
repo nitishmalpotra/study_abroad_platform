@@ -30,6 +30,7 @@ This document is the authoritative migration plan for the repository.
 | Admissions prompt quality redesign | Completed | Versioned `v2` admissions prompts, prompt metadata, synthetic eval fixtures, and regression tests |
 | FastAPI backend public surface | Completed | `apps/api` with health, live, and deterministic mock endpoints plus API tests |
 | Shared frontend/backend contracts | Completed | Canonical Pydantic API contracts, committed JSON Schemas, frontend TypeScript types, shared mock payloads, and contract docs/tests |
+| Frontend framework migration | Completed | `apps/web` now runs on Next.js App Router while preserving the existing KlassFin marketing pages, mock SOP flow, and lead-capture UX |
 
 ### Current repo reality after prompt ten
 
@@ -42,7 +43,7 @@ This document is the authoritative migration plan for the repository.
   - `docs`
   - `infra`
   - `tests`
-- `apps/web` is still the original Vite + React frontend.
+- `apps/web` is now a Next.js App Router frontend migrated from the original Vite + React app.
 - `apps/api` now exposes the first public FastAPI surface for SOP review and admissions prediction.
 - `services/sop_review` now contains reusable service modules plus a temporary Streamlit adapter.
 - `services/admissions` now contains reusable service modules plus a temporary Streamlit adapter.
@@ -56,7 +57,7 @@ This document is the authoritative migration plan for the repository.
 - SOP prompt evaluation now has sanitized synthetic fixtures and regression checks for schema validity, rubric order, concise outputs, and broad quality calibration.
 - Admissions prompt evaluation now has sanitized synthetic fixtures and regression checks for schema validity, concise grounded reasoning, and broad category calibration across strong, borderline, weak, and unrealistic-target profiles.
 - Automated tests now exist for both Python services.
-- Frontend baseline linting, type-checking, and build verification are green.
+- Frontend baseline linting, type-checking, and build verification were green before the framework migration; Next.js verification is tracked in the current migration work.
 - The SOP mock page now renders the same five rubric criteria as the backend grading schema.
 
 ## 1. Current-state summary
@@ -119,7 +120,7 @@ This document is the authoritative migration plan for the repository.
 |---|---|
 | SOP review | Streamlit app; paste/upload support; PDF/DOCX/TXT extraction; word-count gate; DeepSeek validity check; DeepSeek grading; strict Pydantic parsing; SQLite persistence; per-session rate limiting; rotating logs; model fallback |
 | Admit prediction | Streamlit app; full profile form; DeepSeek prompt; strict nested schema; JSON repair pass; SQLite persistence; validation; result charts |
-| Frontend | Vite + React marketing site with strong KlassFin theme, static content, EMI calculator, resources, lead capture, mock SOP page |
+| Frontend | Next.js marketing site with preserved KlassFin theme, static content, EMI calculator, resources, lead capture, and mock SOP page |
 | Lead capture | Supabase-backed inserts into `tool_leads`; UI flows for phone, fake OTP step, and details capture |
 | Data | Local SQLite for both Python apps; Supabase/Postgres only for frontend lead capture |
 
@@ -416,14 +417,16 @@ Status: Completed.
   - repair pass behavior
 
 #### Phase 5 — Rebuild frontend in Next.js
-- Port current KlassFin pages and theme faithfully.
-- Port static content into a cleaner code-owned content structure that can later move to MDX/CMS.
-- Replace mock-only SOP page with API-backed SOP feature.
-- Add public Admit Predictor page.
-- Expose:
-  - real AI mode
-  - user-visible demo/mock mode
-  - environment-driven mode configuration
+
+Status: In progress.
+- Completed in the framework-migration slice:
+  - Port the current KlassFin pages and theme faithfully.
+  - Preserve current public routes, static assets, mock SOP behavior, and lead-capture UX.
+- Still pending in later product-integration work:
+  - Port static content into a cleaner code-owned content structure that can later move to MDX/CMS.
+  - Replace the mock-only SOP page with an API-backed SOP feature.
+  - Add the public Admit Predictor page.
+  - Expose real AI mode, user-visible demo/mock mode, and environment-driven mode configuration.
 - Keep lead capture in the UX without turning it into account creation.
 
 #### Phase 6 — Production hardening

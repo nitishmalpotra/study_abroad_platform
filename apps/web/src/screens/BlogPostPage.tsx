@@ -1,4 +1,6 @@
-import { useParams, Link, Navigate } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, User, Calendar, Tag, ChevronRight } from 'lucide-react';
 import { blogPosts } from '../data/blog';
@@ -14,12 +16,9 @@ const categoryColors: Record<string, string> = {
   Destinations: 'bg-slate-100 text-slate-700',
 };
 
-export default function BlogPostPage() {
-  const { id } = useParams<{ id: string }>();
+export default function BlogPostPage({ id }: { id: string }) {
   const { openModal } = useModal();
-  const post = blogPosts.find((p) => p.id === id);
-
-  if (!post) return <Navigate to="/blog" replace />;
+  const post = blogPosts.find((p) => p.id === id)!;
 
   const relatedPosts = blogPosts
     .filter((p) => p.id !== post.id && (p.category === post.category || p.tags.some((t) => post.tags.includes(t))))
@@ -31,7 +30,7 @@ export default function BlogPostPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <Link
-              to="/blog"
+              href="/blog"
               className="inline-flex items-center gap-1.5 text-sm text-brand-300 hover:text-white transition-colors mb-6"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -127,7 +126,7 @@ export default function BlogPostPage() {
               {relatedPosts.map((related) => (
                 <Link
                   key={related.id}
-                  to={`/blog/${related.id}`}
+                  href={`/blog/${related.id}`}
                   className="card overflow-hidden group block"
                 >
                   <div className="relative h-40 overflow-hidden">

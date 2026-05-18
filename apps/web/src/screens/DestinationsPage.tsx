@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, MapPin } from 'lucide-react';
 import { countries } from '../data/countries';
@@ -45,7 +47,7 @@ export default function DestinationsPage() {
                 whileInView="visible"
                 viewport={{ once: true }}
               >
-                <Link to={`/destinations/${country.id}`} className="card block overflow-hidden group h-full">
+                <Link href={`/destinations/${country.id}`} className="card block overflow-hidden group h-full">
                   <div className="relative h-40 sm:h-52 overflow-hidden">
                     <img
                       src={country.heroImage}

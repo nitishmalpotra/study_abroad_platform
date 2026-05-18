@@ -1,5 +1,8 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronRight } from 'lucide-react';
 import { useModal } from '../../context/ModalContext';
@@ -15,7 +18,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { openModal } = useModal();
-  const location = useLocation();
+  const pathname = usePathname() ?? '';
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -25,7 +28,7 @@ export default function Navbar() {
 
   useEffect(() => {
     setMobileOpen(false);
-  }, [location]);
+  }, [pathname]);
 
   return (
     <nav
@@ -37,7 +40,7 @@ export default function Navbar() {
     >
       <div className="container-max mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          <Link to="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <img src="/logo.png" alt="KlassFin" className="h-9 lg:h-10 w-auto" />
           </Link>
 
@@ -45,9 +48,9 @@ export default function Navbar() {
             {navLinks.map((link) => (
               <Link
                 key={link.path}
-                to={link.path}
+                href={link.path}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  location.pathname.startsWith(link.path)
+                  pathname.startsWith(link.path)
                     ? isScrolled
                       ? 'text-brand-700 bg-brand-50'
                       : 'text-white bg-white/15'
@@ -92,9 +95,9 @@ export default function Navbar() {
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
-                  to={link.path}
+                  href={link.path}
                   className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                    location.pathname.startsWith(link.path)
+                    pathname.startsWith(link.path)
                       ? 'text-brand-700 bg-brand-50'
                       : 'text-slate-600 hover:text-brand-700 hover:bg-slate-50'
                   }`}

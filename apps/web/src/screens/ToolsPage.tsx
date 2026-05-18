@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Calculator, FileText, CheckSquare, ArrowRight, Target } from 'lucide-react';
 
@@ -114,7 +116,7 @@ export default function ToolsPage() {
                   {isComingSoon ? (
                     <div className="card block p-6 h-full group relative overflow-hidden cursor-default">{content}</div>
                   ) : (
-                    <Link to={tool.path} className="card block p-6 h-full group">{content}</Link>
+                    <Link href={tool.path} className="card block p-6 h-full group">{content}</Link>
                   )}
                 </motion.div>
               );
