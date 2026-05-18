@@ -1,10 +1,10 @@
 # Study Abroad Platform
 
-Study Abroad Platform is a public monorepo in transition. It currently contains a KlassFin-themed Vite frontend, a Streamlit SOP review tool, and a Streamlit admissions predictor. The approved migration target is a cleaner monorepo with a shared backend, a shared AI runtime, reusable task-specific domain modules, and public-repo-grade operations; that work is still in progress.
+Study Abroad Platform is a public monorepo in transition. It currently contains a KlassFin-themed Next.js frontend, a FastAPI backend, a Streamlit SOP review tool, and a Streamlit admissions predictor. The approved migration target is a cleaner monorepo with a shared backend, a shared AI runtime, reusable task-specific domain modules, and public-repo-grade operations; that work is still in progress.
 
 ## Current layout
 
-- `apps/web` — Vite + React frontend with static marketing pages, Supabase-backed lead capture, and a mock-only SOP page
+- `apps/web` — Next.js frontend with static marketing pages, Supabase-backed lead capture, and a mock-only SOP page
 - `apps/api` — FastAPI backend exposing health, live SOP/admissions endpoints, and deterministic mock endpoints
 - `services/sop_review` — DeepSeek-backed Streamlit SOP review tool with local SQLite persistence
 - `services/admissions` — DeepSeek-backed Streamlit admissions predictor with local SQLite persistence
@@ -20,8 +20,7 @@ See `docs/local-development.md` for setup and commands for each app.
 
 ## AI provider status
 
-- Current services require a bring-your-own DeepSeek API key via `DEEPSEEK_API_KEY`.
-- Bring-your-own DeepSeek API key support is planned in the migration blueprint but is not implemented yet.
+- Current services and live API endpoints require a bring-your-own DeepSeek API key via `DEEPSEEK_API_KEY`.
 - Mock/demo endpoints now exist in `apps/api`; the frontend still has only its older hard-coded SOP demo flow.
 
 ## Deployment overview
@@ -67,4 +66,4 @@ uv run ruff check .
 uv run mypy app
 ```
 
-Automated tests now exist for both Python services and the API. Frontend, contract-generation, and end-to-end coverage are still planned later in the migration.
+Automated tests now exist for both Python services, the API, shared contracts, and frontend build/type/lint checks. End-to-end coverage is still planned later in the migration.

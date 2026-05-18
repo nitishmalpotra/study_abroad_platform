@@ -6,10 +6,11 @@ No single production deployment path is implemented in this monorepo yet.
 
 Today:
 
-- the frontend can be built as a Vite static app
+- the frontend can be built as a Next.js app
 - each Python tool can be run independently as a Streamlit app
+- the FastAPI backend can be run independently
 - the SOP service includes a Dockerfile
-- the repo does not yet include the planned FastAPI backend, production database layer, or unified deploy pipeline
+- the repo does not yet include the planned production database layer or unified deploy pipeline
 
 ## Current build commands
 
@@ -23,10 +24,10 @@ cd services/admissions && uv build
 
 Per `docs/MIGRATION_BLUEPRINT.md`, the target architecture is expected to move toward:
 
-- frontend deployment for the future Next.js app
-- FastAPI deployment for the public backend
+- frontend deployment for the Next.js app
+- production FastAPI deployment for the public backend
 - Neon Postgres for production relational storage
 - Vercel Blob for persisted SOP uploads
 - environment-specific configuration and CI-backed release checks
 
-These are migration targets, not current capabilities.
+The production database, blob storage, environment promotion, and unified release pipeline remain migration targets, not current capabilities.

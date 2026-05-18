@@ -6,6 +6,7 @@ Both Python services call DeepSeek through the shared `packages/ai_runtime` pack
 
 - SOP review performs a validity check and grading pass, then parses structured feedback.
 - Admissions prediction builds a structured recommendation payload and includes one repair pass for malformed model output.
+- `apps/api` exposes live SOP and admissions endpoints through the shared runtime, plus deterministic mock endpoints that do not call DeepSeek.
 - The frontend SOP experience is a hard-coded mock UI rather than an API-backed AI flow.
 
 ## Target direction
@@ -19,7 +20,7 @@ The migration blueprint proposes:
 - shared domain logic outside UI frameworks
 - common API contracts for SOP and admissions responses
 
-The service extraction is already underway through provider protocols in each domain service. The shared runtime and DeepSeek implementation are planned next; DeepSeek is not wired into the current repo yet.
+The service extraction, shared runtime, DeepSeek wiring, FastAPI surface, and shared contracts are now implemented. Frontend API integration, production persistence, and release hardening remain future migration work.
 
 ## Design guardrails
 

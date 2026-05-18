@@ -4,6 +4,9 @@ Use these prompts in order. Each prompt is intentionally scoped so the repo stay
 
 Global rules for every prompt:
 - inspect before editing
+- before making changes, read `docs/MIGRATION_BLUEPRINT.md` and treat it as the authoritative migration plan
+- if the requested work conflicts with the blueprint or implementation reality has changed, update `docs/MIGRATION_BLUEPRINT.md` in the same change before continuing
+- update all affected docs in the same change whenever implementation reality, setup commands, env vars, architecture, deployment status, testing coverage, or feature status changes
 - do not expand scope beyond the current prompt
 - preserve the existing KlassFin visual theme unless the prompt explicitly says otherwise
 - run the relevant tests, linting, type checks, and builds before claiming completion

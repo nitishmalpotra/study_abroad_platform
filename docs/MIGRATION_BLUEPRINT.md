@@ -12,6 +12,7 @@ This document is the authoritative migration plan for the repository.
   - a default assumption became a fixed decision
   - a new risk, constraint, or open decision emerged
 - Documentation must never claim functionality that is not actually implemented.
+- Supporting docs must be updated in the same change whenever implementation reality, setup commands, environment variables, architecture, deployment status, testing coverage, or feature status changes.
 - If the code and this blueprint disagree, either the code must be corrected or this blueprint must be revised before continuing.
 
 ## 0. Current migration status
@@ -32,7 +33,7 @@ This document is the authoritative migration plan for the repository.
 | Shared frontend/backend contracts | Completed | Canonical Pydantic API contracts, committed JSON Schemas, frontend TypeScript types, shared mock payloads, and contract docs/tests |
 | Frontend framework migration | Completed | `apps/web` now runs on Next.js App Router while preserving the existing KlassFin marketing pages, mock SOP flow, and lead-capture UX |
 
-### Current repo reality after prompt ten
+### Current repo reality after prompt eleven
 
 - The repo is now a monorepo rooted at:
   - `apps/web`
@@ -57,7 +58,7 @@ This document is the authoritative migration plan for the repository.
 - SOP prompt evaluation now has sanitized synthetic fixtures and regression checks for schema validity, rubric order, concise outputs, and broad quality calibration.
 - Admissions prompt evaluation now has sanitized synthetic fixtures and regression checks for schema validity, concise grounded reasoning, and broad category calibration across strong, borderline, weak, and unrealistic-target profiles.
 - Automated tests now exist for both Python services.
-- Frontend baseline linting, type-checking, and build verification were green before the framework migration; Next.js verification is tracked in the current migration work.
+- Frontend linting, type-checking, and Next.js build verification are green after the framework migration.
 - The SOP mock page now renders the same five rubric criteria as the backend grading schema.
 
 ## 1. Current-state summary
@@ -471,7 +472,7 @@ Status: In progress.
 | Device identity | “Per device” without sign-in needs a practical anonymous identifier strategy; it should not rely only on frontend state. |
 | Lead capture | Existing OTP UX is not real verification. Retaining lead capture requires deciding whether OTP becomes real or whether the flow is simplified honestly. |
 | Contract drift | Current frontend/backend disagreement is material; shared contracts are required. |
-| Testing gap | Service-level tests now exist, but there is still no API, contract, frontend, or end-to-end coverage yet. |
+| Testing gap | Service-level, API, contract, and frontend build/type/lint checks now exist, but end-to-end coverage is still pending. |
 | Data model consolidation | SOP, admissions, and leads currently live in different storage models and need a unified schema strategy. |
 | Public repo readiness | Baseline docs now exist, but public-release documentation is not final and must keep evolving with implementation. |
 | Static content | Content remains code-owned now, so structure it cleanly enough to extract later without rewriting page logic. |

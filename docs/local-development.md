@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Node.js compatible with the existing Vite app
+- Node.js compatible with the Next.js frontend
 - Python 3.11 for the SOP review service
 - Python 3.10-3.12 for the admissions service
 - `uv` for Python dependency management
@@ -18,8 +18,8 @@ npm run dev
 
 Required frontend environment values:
 
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 The SOP page in the frontend is currently mock-only. A unified demo mode across both tools is planned but not implemented yet.
 
@@ -83,4 +83,4 @@ uv run ruff check .
 uv run mypy app
 ```
 
-Automated tests now exist for both Python tools and the API. Frontend, generated-contract, and integration coverage are still planned later in the migration.
+Automated tests now exist for both Python tools, the API, shared contracts, and frontend build/type/lint checks. Integration coverage is still planned later in the migration.
