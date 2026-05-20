@@ -5,6 +5,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from admissions.schemas import AdmissionPrediction
 from sop_review.schemas import GatekeeperResponse, SOPGrade
 
+MAX_SOP_TEXT_CHARS = 30_000
+MAX_ADMISSIONS_TEXT_CHARS = 200
+
 
 class ApiError(BaseModel):
     code: str
@@ -23,7 +26,7 @@ class SOPReviewRequest(BaseModel):
     university: str = Field(..., min_length=1, max_length=160)
     intake: str = Field(..., min_length=1, max_length=80)
     country: str = Field(..., min_length=1, max_length=80)
-    sop_text: str = Field(..., min_length=1)
+    sop_text: str = Field(..., min_length=1, max_length=MAX_SOP_TEXT_CHARS)
     model_config = ConfigDict(extra="forbid")
 
 
@@ -36,7 +39,7 @@ class SOPReviewResponse(BaseModel):
 
 class AdmissionsPredictionRequest(BaseModel):
     full_name: str = Field(..., min_length=1, max_length=120)
-    target_intake: str = Field(..., max_length=40)
+    target_intake: str = Field(..., min_length=1, max_length=40)
     target_country: str = Field(..., min_length=1, max_length=60)
     undergrad_degree_name: str = Field(..., min_length=1, max_length=160)
     cgpa: float = Field(..., gt=0)
@@ -49,6 +52,19 @@ class AdmissionsPredictionRequest(BaseModel):
     research_publications: int = Field(..., ge=0, le=200)
     target_programs: list[str] = Field(..., min_length=1, max_length=5)
     model_config = ConfigDict(extra="forbid")
+
+    @field_validator(
+        "full_name",
+        "target_intake",
+        "target_country",
+        "undergrad_degree_name",
+    )
+    @classmethod
+    def validate_text(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("Text fields cannot be empty.")
+        return cleaned
 
     @field_validator("cgpa_scale")
     @classmethod
@@ -63,6 +79,8 @@ class AdmissionsPredictionRequest(BaseModel):
         cleaned = [value.strip() for value in values]
         if any(not value for value in cleaned):
             raise ValueError("target_programs cannot contain empty values.")
+        if any(len(value) > MAX_ADMISSIONS_TEXT_CHARS for value in cleaned):
+            raise ValueError("target_programs entries cannot exceed 200 characters.")
         if len({value.lower() for value in cleaned}) != len(cleaned):
             raise ValueError("target_programs must be distinct.")
         return cleaned

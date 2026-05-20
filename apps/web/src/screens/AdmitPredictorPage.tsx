@@ -218,7 +218,7 @@ function AdmitPredictorTool() {
                   </div>
                   <div>
                     <h2 className="text-lg font-bold text-brand-900">Applicant Profile</h2>
-                    <p className="text-sm text-slate-500">Live mode uses the admissions API; demo mode returns deterministic sample predictions.</p>
+	                    <p className="text-sm text-slate-500">Live mode uses the admissions API; demo mode returns deterministic sample predictions. AI estimates are informational and not an admissions guarantee.</p>
                   </div>
                 </div>
 

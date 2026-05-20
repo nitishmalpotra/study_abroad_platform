@@ -117,7 +117,7 @@ function SOPTool() {
                   </div>
                   <div>
                     <h2 className="text-lg font-bold text-brand-900">Paste Your SOP</h2>
-                    <p className="text-sm text-slate-500">Live review uses the secure backend API; demo mode returns sample output.</p>
+	                    <p className="text-sm text-slate-500">Live review uses the secure backend API; demo mode returns sample output. AI feedback is informational and should be reviewed by a human.</p>
                   </div>
                 </div>
 

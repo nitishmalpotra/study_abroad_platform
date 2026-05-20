@@ -5,7 +5,7 @@ Study Abroad Platform is a public monorepo in transition. It currently contains 
 ## Current layout
 
 - `apps/web` — Next.js frontend with static marketing pages, Supabase-backed lead capture, and API-backed live/mock SOP review plus Admit Predictor tools
-- `apps/api` — FastAPI backend exposing health, live SOP/admissions endpoints, and deterministic mock endpoints
+- `apps/api` — FastAPI backend exposing health, live SOP/admissions endpoints, deterministic mock endpoints, and optional Neon-backed persistence
 - `services/sop_review` — DeepSeek-backed Streamlit SOP review tool with local SQLite persistence
 - `services/admissions` — DeepSeek-backed Streamlit admissions predictor with local SQLite persistence
 - `docs` — architecture, development, deployment, security, and migration documentation
@@ -22,14 +22,20 @@ See `docs/local-development.md` for setup and commands for each app.
 
 - Current services and live API endpoints require a bring-your-own DeepSeek API key via `DEEPSEEK_API_KEY`.
 - The SOP review and Admit Predictor frontend tools now call the FastAPI live and mock endpoints; the DeepSeek key remains server-side only.
+- Mock API endpoints are separate from live endpoints and do not call DeepSeek.
 
 ## Deployment overview
 
-See `docs/deployment.md`. A unified production deployment path is not implemented yet.
+See `docs/deployment.md`. The API now has Neon Postgres migrations and optional production persistence; a unified deployment pipeline is not implemented yet.
 
 ## Security and privacy
 
 See `SECURITY.md` and `docs/security-and-privacy.md`.
+
+The public API is anonymous by design. Live AI endpoints enforce backend rate
+limits, JSON/body-size guards, safe structured errors, restricted CORS, and
+secret-redacted structured logging; mock endpoints remain usable without model
+cost.
 
 Public-repo hygiene is mandatory:
 

@@ -1,23 +1,43 @@
 from functools import lru_cache
+from typing import Protocol
 
 from ai_runtime import AIRuntime, DeepSeekProvider, load_runtime_settings
 from admissions.providers import RuntimePredictionProvider
+from admissions.schemas import AdmissionPrediction
+from admissions.schemas import StudentProfile as AdmissionsProfile
 from admissions.service import AdmissionsPredictionService
+from app.core.config import load_api_settings
+from app.persistence.database import Database
+from app.persistence.repositories import (
+    NullAdmissionsPredictionRepository,
+    NullSOPSubmissionRepository,
+    PostgresAdmissionsPredictionRepository,
+    PostgresSOPSubmissionRepository,
+)
 from sop_review.config import load_settings as load_sop_settings
 from sop_review.providers import RuntimeReviewProvider
-from sop_review.schemas import SOPGrade, StudentProfile
+from sop_review.schemas import SOPGrade
+from sop_review.schemas import StudentProfile as SOPProfile
 from sop_review.service import SOPReviewService
 
 
-class NoOpSubmissionRepository:
+class SOPSubmissionRepository(Protocol):
     def save(
         self,
-        profile: StudentProfile,
+        profile: SOPProfile,
         sop_text: str,
         grade: SOPGrade,
         raw_json: str,
-    ) -> int:
-        return 0
+    ) -> int: ...
+
+
+class AdmissionsPredictionRepository(Protocol):
+    def save_prediction(
+        self,
+        profile: AdmissionsProfile,
+        target_programs: list[str],
+        prediction: AdmissionPrediction,
+    ) -> None: ...
 
 
 @lru_cache
@@ -26,11 +46,35 @@ def get_runtime() -> AIRuntime:
     return AIRuntime(settings, DeepSeekProvider(settings.api_key, settings.base_url))
 
 
+@lru_cache
+def get_database() -> Database | None:
+    settings = load_api_settings()
+    if settings.database_url is None:
+        return None
+    return Database(settings.database_url)
+
+
+def get_sop_submission_repository() -> SOPSubmissionRepository:
+    settings = load_api_settings()
+    database = get_database()
+    if settings.persistence_enabled and database is not None:
+        return PostgresSOPSubmissionRepository(database)
+    return NullSOPSubmissionRepository()
+
+
+def get_admissions_prediction_repository() -> AdmissionsPredictionRepository:
+    settings = load_api_settings()
+    database = get_database()
+    if settings.persistence_enabled and database is not None:
+        return PostgresAdmissionsPredictionRepository(database)
+    return NullAdmissionsPredictionRepository()
+
+
 def get_live_sop_service() -> SOPReviewService:
     return SOPReviewService(
         load_sop_settings(),
         RuntimeReviewProvider(get_runtime()),
-        NoOpSubmissionRepository(),
+        get_sop_submission_repository(),
     )
 
 

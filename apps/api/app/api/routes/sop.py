@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from sop_review.config import load_settings as load_sop_settings
 from sop_review.schemas import StudentProfile
@@ -58,7 +58,19 @@ def review_live(
         return SOPReviewResponse(mode="live", gatekeeper=local_gate, grade=None)
 
     request.app.state.live_rate_limiter.check(client_key(request))
-    result = service_factory().review(profile, payload.sop_text, "api-sop")
+    request_id = getattr(request.state, "request_id", "api-sop")
+    try:
+        result = service_factory().review(profile, payload.sop_text, request_id)
+    except TimeoutError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI provider is temporarily unavailable.",
+        ) from exc
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI provider is temporarily unavailable.",
+        ) from exc
     return SOPReviewResponse(
         mode="live", gatekeeper=result.gatekeeper, grade=result.grade
     )

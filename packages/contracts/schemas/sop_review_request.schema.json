@@ -26,6 +26,7 @@
       "type": "string"
     },
     "sop_text": {
+      "maxLength": 30000,
       "minLength": 1,
       "title": "Sop Text",
       "type": "string"

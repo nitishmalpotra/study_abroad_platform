@@ -21,7 +21,8 @@ Required frontend environment values:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-The SOP page in the frontend is currently mock-only. A unified demo mode across both tools is planned but not implemented yet.
+The SOP review and Admit Predictor pages support both live and demo mode. Demo
+mode calls mock API endpoints and does not incur model cost.
 
 ## SOP review service
 
@@ -49,12 +50,33 @@ This service currently requires a DeepSeek key via `DEEPSEEK_API_KEY`.
 
 ```bash
 cd apps/api
+cp .env.example .env
 uv sync
 uv run uvicorn app.main:app --reload
 ```
 
 Generated docs are available at `/docs`; the OpenAPI schema is available at `/openapi.json`.
 Live endpoints require `DEEPSEEK_API_KEY`; mock endpoints do not call DeepSeek.
+
+Local API persistence is optional. By default, `apps/api/.env.example` keeps
+`API_PERSISTENCE_ENABLED=false` and `API_RATE_LIMIT_STORE=memory`, so contributors
+do not need a local database for normal frontend/API work.
+
+The API enforces JSON-only requests, a default 64 KB request-body limit, shared
+contract validation, and live-only rate limiting. Configure these with
+`API_MAX_REQUEST_BODY_BYTES`, `API_LIVE_RATE_LIMIT_COUNT`, and
+`API_LIVE_RATE_LIMIT_WINDOW_SECONDS`.
+
+To test against Postgres locally, create a local Postgres database or Neon
+development branch, set `DATABASE_URL`, then run:
+
+```bash
+cd apps/api
+uv run python -m app.persistence.migrations
+```
+
+Use a Neon-style URL with `sslmode=require` for hosted development databases.
+Do not commit `.env` files or local database artifacts.
 
 ## Quality commands
 

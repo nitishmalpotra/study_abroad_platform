@@ -34,8 +34,10 @@ This document is the authoritative migration plan for the repository.
 | Frontend framework migration | Completed | `apps/web` now runs on Next.js App Router while preserving the existing KlassFin marketing pages, mock SOP flow, and lead-capture UX |
 | Frontend SOP API integration | Completed | SOP page now submits shared-contract payloads to FastAPI live and mock endpoints, renders live/mock response shapes, and keeps DeepSeek credentials behind the API boundary |
 | Frontend admissions API integration | Completed | Admit Predictor is now a public Next.js tool backed by the shared admissions contracts and FastAPI live/mock endpoints |
+| Public platform persistence architecture | Completed | FastAPI owns versioned Neon Postgres migrations, modular tool-specific repositories, optional Postgres-backed hashed rate-limit buckets, and env-based persistence configuration |
+| Secure-by-default public AI controls | Completed | Live-only backend rate limits, JSON/body-size guards, stricter validation, safe errors, structured redacted logs, provider failure handling, frontend AI disclaimers, and security docs/tests |
 
-### Current repo reality after prompt thirteen
+### Current repo reality after prompt fifteen
 
 - The repo is now a monorepo rooted at:
   - `apps/web`
@@ -47,7 +49,7 @@ This document is the authoritative migration plan for the repository.
   - `infra`
   - `tests`
 - `apps/web` is now a Next.js App Router frontend migrated from the original Vite + React app.
-- `apps/api` now exposes the first public FastAPI surface for SOP review and admissions prediction, with CORS configuration for the Next.js frontend.
+- `apps/api` now exposes the first public FastAPI surface for SOP review and admissions prediction, with CORS configuration, JSON-only request guards, body-size limits, safe structured errors, structured redacted request/error logs, backend live AI rate limits, and safe provider-failure responses.
 - `services/sop_review` now contains reusable service modules plus a temporary Streamlit adapter.
 - `services/admissions` now contains reusable service modules plus a temporary Streamlit adapter.
 - `packages/ai_runtime` now owns shared provider clients, retries, timeout handling, response normalization, JSON parsing helpers, and secret redaction.
@@ -62,9 +64,21 @@ This document is the authoritative migration plan for the repository.
 - Automated tests now exist for both Python services.
 - Frontend SOP review and Admit Predictor now have API client layers for live and deterministic mock submissions using the shared TypeScript contracts.
 - Frontend SOP live mode sends applicant details and pasted SOP text to `POST /api/v1/sop/review`; demo mode calls `POST /api/v1/sop/review/mock` and labels the result as demo output.
+- Frontend SOP review and Admit Predictor pages now disclose that AI outputs are informational and require human judgment; admissions estimates are not guarantees.
 - Frontend linting, type-checking, tests, and Next.js build verification are part of the SOP integration verification.
 - The SOP page renders the same five rubric criteria as the backend grading schema.
 - The Admit Predictor page renders admissions target predictions, chance categories, probabilities, reasoning, strengths, weaknesses, roadmap items, and recommended universities from the backend response schema.
+- `apps/api` now has a production persistence architecture targeting Neon Postgres:
+  - versioned SQL migrations in `apps/api/migrations`
+  - a migration runner at `python -m app.persistence.migrations`
+  - separate SOP review and admissions repositories
+  - optional Postgres-backed live AI rate-limit buckets
+  - environment-variable configuration documented in `apps/api/.env.example`
+- First-release SOP API persistence intentionally does not store raw SOP text, uploaded file bytes, phone numbers, or full names.
+- Original SOP uploads are treated as transient processing input for the first public API release. Vercel Blob remains the target only if file retention becomes a product requirement.
+- API rate-limit persistence stores salted hashes of anonymous identifiers rather than raw IP addresses.
+- API client identity ignores `x-forwarded-for` by default to avoid trusting spoofable public headers; `API_TRUST_PROXY_HEADERS=true` is only for trusted reverse-proxy deployments.
+- Mock endpoints remain separate from live endpoints and do not instantiate live model providers.
 
 ## 1. Current-state summary
 
@@ -138,9 +152,9 @@ This document is the authoritative migration plan for the repository.
 | AI provider | DeepSeek is active through `packages/ai_runtime`; service-level provider protocols remain in place |
 | Frontend integration | SOP review and Admit Predictor are API-backed public tools; broader frontend content restructuring remains pending |
 | Mocking | SOP review and Admit Predictor frontend flows call their backend mock endpoints |
-| Production data | No Neon Postgres path, no shared schema, no centralized migrations |
-| File persistence | No blob storage implementation |
-| Security / hygiene | Public-repo baseline docs and CI now exist, but there is still no production security implementation, no explicit retention implementation, and no integrated release-hardening pass |
+| Production data | Neon Postgres migrations and API persistence layer exist; automated retention jobs and production deployment wiring remain pending |
+| File persistence | No blob storage implementation; first-release API design intentionally processes SOP uploads/text transiently instead of retaining originals |
+| Security / hygiene | Public-repo baseline docs, CI, data-minimized API persistence, public API request guards, live-only rate limits, safe errors, structured redacted logs, and privacy notes exist; exact retention windows and automated deletion remain pending |
 
 ### Current frontend/backend contradictions
 
@@ -204,6 +218,9 @@ flowchart LR
 - No user accounts/sign-in for the first public release
 - User-visible mock/demo mode for both AI tools
 - Public-repo-grade documentation and CI are part of the product, not optional polish
+- Neon Postgres is the production relational database target for API persistence
+- First-release API persistence stores summarized tool records only; raw SOP text and original uploads are transient processing inputs
+- Vercel Blob is deferred until there is a product requirement to retain original SOP uploads
 
 ### Default assumptions to re-evaluate as implementation proceeds
 
@@ -211,14 +228,14 @@ flowchart LR
 - Vercel Blob is the preferred storage target if original SOP uploads are persisted.
 - Static content remains code-owned for now but should stay migration-friendly.
 - Lead capture remains part of the product, but the current fake OTP UX must either become real or be simplified honestly.
-- A daily anonymous rate-limit default is appropriate, but the exact policy should be validated during API/security work rather than treated as immutable now.
-- Data-retention defaults should favor minimization unless a clear product need justifies longer storage.
+- API persistence defaults to off for local development when `DATABASE_URL` is absent.
+- Production live AI rate limiting should use Postgres buckets with salted identifier hashes.
+- Data-retention defaults favor minimization unless a clear product need justifies longer storage.
 
 ### Open decisions that should be resolved before their dependent phases
 
-- Whether original SOP uploads should actually be persisted in the first public release, or processed transiently and discarded.
-- Final retention policy for SOP text, uploads, and prediction records.
-- Exact anonymous rate-limit strategy and identifier mechanism.
+- Final numeric retention windows for summarized SOP review records, admissions prediction records, and rate-limit buckets.
+- Whether future uploaded SOP file retention is needed after first release; if yes, use Vercel Blob and store only references/metadata in Postgres.
 - Whether lead capture should remain gated ahead of tools or be simplified for the first public release.
 
 ### Architectural decisions already fixed for the current target
@@ -238,6 +255,8 @@ flowchart LR
 - Real AI calls are rate-limited server-side; exact anonymous policy remains to be finalized during API/security implementation.
 - Mock/demo calls are excluded from live-model quotas.
 - No user accounts or sign-in.
+- Production API persistence uses separate SOP review, admissions prediction, and rate-limit tables rather than a shared tool-submission model.
+- Postgres-backed rate limiting stores salted hashes of anonymous client identifiers.
 - Production database target is Neon Postgres.
 - Static content remains code-owned for now, but should be structured so it can later move cleanly into a content layer such as MDX or a CMS.
 
@@ -385,7 +404,7 @@ study-abroad-platform/
 
 #### Phase 3 — Build FastAPI backend
 
-Status: Completed for the first public API surface; persistence and production-hardening follow-up remain.
+Status: Completed for the first public API surface, persistence architecture, and first-pass public hardening. Production deployment, retention automation, and stronger bot mitigation remain follow-up work.
 - Implement:
   - `GET /health`
   - `POST /api/v1/sop/review`
@@ -402,7 +421,7 @@ Status: Completed for the first public API surface; persistence and production-h
 - Add persistence:
   - Neon Postgres
   - migrations
-  - Vercel Blob-backed original SOP uploads
+  - Vercel Blob-backed original SOP uploads only if future product requirements need file retention
   - retention/deletion behavior once the final retention decision is fixed
 
 #### Phase 4 — Introduce the shared AI runtime and replace Gemini with DeepSeek

@@ -78,6 +78,7 @@
     },
     "target_intake": {
       "maxLength": 40,
+      "minLength": 1,
       "title": "Target Intake",
       "type": "string"
     },

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, Request
+from collections.abc import Callable
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from admissions.schemas import StudentProfile
 from admissions.service import AdmissionsPredictionService
@@ -8,7 +10,11 @@ from study_abroad_contracts import (
 )
 from study_abroad_contracts.examples import admissions_prediction_mock_response
 
-from app.api.deps import get_live_admissions_service
+from app.api.deps import (
+    AdmissionsPredictionRepository,
+    get_admissions_prediction_repository,
+    get_live_admissions_service,
+)
 from app.core.rate_limits import client_key
 
 router = APIRouter(prefix="/api/v1/admissions", tags=["admissions"])
@@ -40,6 +46,10 @@ def _mock_response(payload: AdmissionsPredictionRequest) -> AdmissionsPrediction
     return admissions_prediction_mock_response(payload.target_programs)
 
 
+def get_live_admissions_service_factory() -> Callable[[], AdmissionsPredictionService]:
+    return get_live_admissions_service
+
+
 @router.post("/predict/mock", response_model=AdmissionsPredictionResponse)
 def predict_mock(payload: AdmissionsPredictionRequest) -> AdmissionsPredictionResponse:
     _profile_from_request(payload)
@@ -50,9 +60,26 @@ def predict_mock(payload: AdmissionsPredictionRequest) -> AdmissionsPredictionRe
 def predict_live(
     payload: AdmissionsPredictionRequest,
     request: Request,
-    service: AdmissionsPredictionService = Depends(get_live_admissions_service),
+    service_factory: Callable[[], AdmissionsPredictionService] = Depends(
+        get_live_admissions_service_factory
+    ),
+    repository: AdmissionsPredictionRepository = Depends(
+        get_admissions_prediction_repository
+    ),
 ) -> AdmissionsPredictionResponse:
-    request.app.state.live_rate_limiter.check(client_key(request))
     profile = _profile_from_request(payload)
-    result = service.predict(profile, payload.target_programs)
+    request.app.state.live_rate_limiter.check(client_key(request))
+    try:
+        result = service_factory().predict(profile, payload.target_programs)
+    except TimeoutError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI provider is temporarily unavailable.",
+        ) from exc
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI provider is temporarily unavailable.",
+        ) from exc
+    repository.save_prediction(profile, payload.target_programs, result.prediction)
     return AdmissionsPredictionResponse(mode="live", prediction=result.prediction)
