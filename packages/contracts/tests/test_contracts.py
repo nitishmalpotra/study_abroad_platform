@@ -27,7 +27,7 @@ def test_committed_json_schemas_match_contract_models() -> None:
 def test_mock_payloads_conform_to_live_response_contracts() -> None:
     assert isinstance(SOP_REVIEW_MOCK_RESPONSE, SOPReviewResponse)
     assert isinstance(
-        admissions_prediction_mock_response("MS CS at Oxford"),
+        admissions_prediction_mock_response(["MS CS at Oxford"]),
         AdmissionsPredictionResponse,
     )
 

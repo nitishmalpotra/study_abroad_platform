@@ -1583,11 +1583,20 @@ name = "study-abroad-contracts"
 version = "0.1.0"
 source = { editable = "../../packages/contracts" }
 dependencies = [
+    { name = "college-admission-predictor" },
     { name = "pydantic" },
+    { name = "sop-review-grader" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pydantic", specifier = ">=2.10.0,<3.0.0" }]
+requires-dist = [
+    { name = "college-admission-predictor", editable = "../../services/admissions" },
+    { name = "pydantic", specifier = ">=2.10.0,<3.0.0" },
+    { name = "sop-review-grader", editable = "../../services/sop_review" },
+]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=9.0.3" }]
 
 [[package]]
 name = "tenacity"

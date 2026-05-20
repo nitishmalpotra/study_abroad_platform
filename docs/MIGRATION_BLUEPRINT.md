@@ -35,7 +35,7 @@ This document is the authoritative migration plan for the repository.
 | Frontend SOP API integration | Completed | SOP page now submits shared-contract payloads to FastAPI live and mock endpoints, renders live/mock response shapes, and keeps DeepSeek credentials behind the API boundary |
 | Frontend admissions API integration | Completed | Admit Predictor is now a public Next.js tool backed by the shared admissions contracts and FastAPI live/mock endpoints |
 
-### Current repo reality after prompt twelve
+### Current repo reality after prompt thirteen
 
 - The repo is now a monorepo rooted at:
   - `apps/web`
@@ -126,7 +126,7 @@ This document is the authoritative migration plan for the repository.
 |---|---|
 | SOP review | Streamlit app; paste/upload support; PDF/DOCX/TXT extraction; word-count gate; DeepSeek validity check; DeepSeek grading; strict Pydantic parsing; SQLite persistence; per-session rate limiting; rotating logs; model fallback |
 | Admit prediction | Streamlit app; full profile form; DeepSeek prompt; strict nested schema; JSON repair pass; SQLite persistence; validation; result charts |
-| Frontend | Next.js marketing site with preserved KlassFin theme, static content, EMI calculator, resources, lead capture, and API-backed live/mock SOP page |
+| Frontend | Next.js marketing site with preserved KlassFin theme, static content, EMI calculator, resources, lead capture, and API-backed live/mock SOP review plus Admit Predictor pages |
 | Lead capture | Supabase-backed inserts into `tool_leads`; UI flows for phone, fake OTP step, and details capture |
 | Data | Local SQLite for both Python apps; Supabase/Postgres only for frontend lead capture |
 
@@ -137,7 +137,7 @@ This document is the authoritative migration plan for the repository.
 | Backend architecture | FastAPI backend exists for the first public release surface; persistence hardening and production deployment work remain |
 | AI provider | DeepSeek is active through `packages/ai_runtime`; service-level provider protocols remain in place |
 | Frontend integration | SOP review and Admit Predictor are API-backed public tools; broader frontend content restructuring remains pending |
-| Mocking | SOP frontend calls the backend mock endpoint; admissions mock endpoint exists but has no frontend yet |
+| Mocking | SOP review and Admit Predictor frontend flows call their backend mock endpoints |
 | Production data | No Neon Postgres path, no shared schema, no centralized migrations |
 | File persistence | No blob storage implementation |
 | Security / hygiene | Public-repo baseline docs and CI now exist, but there is still no production security implementation, no explicit retention implementation, and no integrated release-hardening pass |

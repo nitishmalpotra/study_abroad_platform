@@ -4,7 +4,7 @@ Study Abroad Platform is a public monorepo in transition. It currently contains 
 
 ## Current layout
 
-- `apps/web` — Next.js frontend with static marketing pages, Supabase-backed lead capture, and API-backed live/mock SOP review
+- `apps/web` — Next.js frontend with static marketing pages, Supabase-backed lead capture, and API-backed live/mock SOP review plus Admit Predictor tools
 - `apps/api` — FastAPI backend exposing health, live SOP/admissions endpoints, and deterministic mock endpoints
 - `services/sop_review` — DeepSeek-backed Streamlit SOP review tool with local SQLite persistence
 - `services/admissions` — DeepSeek-backed Streamlit admissions predictor with local SQLite persistence
@@ -21,7 +21,7 @@ See `docs/local-development.md` for setup and commands for each app.
 ## AI provider status
 
 - Current services and live API endpoints require a bring-your-own DeepSeek API key via `DEEPSEEK_API_KEY`.
-- The SOP frontend now calls the FastAPI live and mock endpoints; the DeepSeek key remains server-side only.
+- The SOP review and Admit Predictor frontend tools now call the FastAPI live and mock endpoints; the DeepSeek key remains server-side only.
 
 ## Deployment overview
 

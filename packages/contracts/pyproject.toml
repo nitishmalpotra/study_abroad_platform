@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "Shared API contracts for the study abroad platform."
 requires-python = ">=3.11"
 dependencies = [
+  "college-admission-predictor",
   "pydantic>=2.10.0,<3.0.0",
+  "sop-review-grader",
 ]
 
 [build-system]
@@ -13,3 +15,12 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["study_abroad_contracts"]
+
+[tool.uv.sources]
+college-admission-predictor = { path = "../../services/admissions", editable = true }
+sop-review-grader = { path = "../../services/sop_review", editable = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
