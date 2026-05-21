@@ -11,7 +11,7 @@ Deployable units today:
 - `services/sop_review`: standalone Streamlit app with a Dockerfile.
 - `services/admissions`: standalone Streamlit app package.
 
-For the public platform, treat `apps/web` and `apps/api` as the primary deployment units. The Streamlit apps are temporary standalone adapters for local or internal use during migration.
+For the public platform, treat `apps/web` and `apps/api` as the primary deployment units. The Streamlit apps are intentionally retained as internal/local tools for operators and debugging, not as public architecture.
 
 ## Build and smoke commands
 
@@ -94,7 +94,6 @@ If product requirements later require retaining uploaded files, store file bytes
 ## Operational gaps
 
 - No unified deploy workflow is committed.
-- API, contract, and shared runtime checks are not yet in GitHub Actions CI.
 - Retention deletion jobs are not implemented.
 - Backup/restore procedures are not documented.
 - Centralized observability and alerting are not implemented.

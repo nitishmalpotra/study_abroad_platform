@@ -4,7 +4,9 @@ from typing import Any, Protocol
 
 
 class Cursor(Protocol):
-    def execute(self, query: str, params: dict[str, Any] | tuple[Any, ...] = ()) -> Any: ...
+    def execute(
+        self, query: str, params: dict[str, Any] | tuple[Any, ...] = ()
+    ) -> Any: ...
 
     def fetchone(self) -> Any: ...
 

@@ -7,15 +7,33 @@ repos:
         language: system
         pass_filenames: false
 
+      - id: api-ruff-format
+        name: API ruff format
+        entry: bash -c 'cd apps/api && uv run ruff format --check .'
+        language: system
+        pass_filenames: false
+
       - id: api-mypy
         name: API mypy
-        entry: bash -c 'cd apps/api && uv run mypy app tests'
+        entry: bash -c 'cd apps/api && uv run mypy app'
         language: system
         pass_filenames: false
 
       - id: api-tests
         name: API tests
         entry: bash -c 'cd apps/api && uv run pytest'
+        language: system
+        pass_filenames: false
+
+      - id: contracts-tests
+        name: Contracts tests
+        entry: bash -c 'cd packages/contracts && uv run pytest'
+        language: system
+        pass_filenames: false
+
+      - id: ai-runtime-tests
+        name: AI runtime tests
+        entry: bash -c 'cd packages/ai_runtime && uv run pytest'
         language: system
         pass_filenames: false
 
@@ -34,5 +52,29 @@ repos:
       - id: web-tests
         name: Web tests
         entry: bash -c 'cd apps/web && npm run test'
+        language: system
+        pass_filenames: false
+
+      - id: admissions-ruff
+        name: Admissions ruff
+        entry: bash -c 'cd services/admissions && uv run ruff check .'
+        language: system
+        pass_filenames: false
+
+      - id: admissions-ruff-format
+        name: Admissions ruff format
+        entry: bash -c 'cd services/admissions && uv run ruff format --check .'
+        language: system
+        pass_filenames: false
+
+      - id: admissions-tests
+        name: Admissions tests
+        entry: bash -c 'cd services/admissions && uv run pytest'
+        language: system
+        pass_filenames: false
+
+      - id: sop-review-tests
+        name: SOP review tests
+        entry: bash -c 'cd services/sop_review && uv run python -m unittest discover -s tests'
         language: system
         pass_filenames: false

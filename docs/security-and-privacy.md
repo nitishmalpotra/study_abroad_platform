@@ -98,8 +98,7 @@ Known residual risks:
   workflow is implemented yet
 - lead-capture OTP is a UI flow only and does not currently send or verify a
   real OTP
-- API, contract, and shared runtime checks are documented but not yet included
-  in GitHub Actions CI
+- no automated secret scanning job is configured in GitHub Actions yet
 
 ## Planned posture
 

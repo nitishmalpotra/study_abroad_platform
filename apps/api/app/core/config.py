@@ -27,7 +27,9 @@ def _env_int(name: str, default: int, min_value: int, max_value: int) -> int:
 def _env_list(name: str, default: str) -> Tuple[str, ...]:
     raw = os.getenv(name, default)
     values = tuple(value.strip() for value in raw.split(",") if value.strip())
-    return values or tuple(value.strip() for value in default.split(",") if value.strip())
+    return values or tuple(
+        value.strip() for value in default.split(",") if value.strip()
+    )
 
 
 def _env_bool(name: str, default: bool) -> bool:

@@ -73,7 +73,9 @@ def sop_grade() -> SOPGrade:
         overall_score=8,
         criteria_breakdown=[
             CriterionFeedback(name="Academic Fit", score=8, feedback="Strong"),
-            CriterionFeedback(name="University Specificity", score=8, feedback="Strong"),
+            CriterionFeedback(
+                name="University Specificity", score=8, feedback="Strong"
+            ),
             CriterionFeedback(name="Career Clarity", score=8, feedback="Strong"),
             CriterionFeedback(name="Narrative Flow", score=8, feedback="Strong"),
             CriterionFeedback(name="Language & Tone", score=8, feedback="Strong"),
@@ -120,7 +122,9 @@ def test_admissions_record_minimizes_stored_content() -> None:
     target_programs = payload["target_programs"]
     assert isinstance(target_programs, list)
     assert all(isinstance(program, str) for program in target_programs)
-    profile = StudentProfile(**{k: v for k, v in payload.items() if k != "target_programs"})
+    profile = StudentProfile(
+        **{k: v for k, v in payload.items() if k != "target_programs"}
+    )
     record = admissions_record(profile, target_programs, prediction())
 
     assert "full_name" not in record["profile_summary_json"]
@@ -152,7 +156,9 @@ def test_postgres_repositories_write_separate_tables() -> None:
     assert isinstance(target_programs, list)
     assert all(isinstance(program, str) for program in target_programs)
     admissions_repo.save_prediction(
-        AdmissionsProfile(**{k: v for k, v in payload.items() if k != "target_programs"}),
+        AdmissionsProfile(
+            **{k: v for k, v in payload.items() if k != "target_programs"}
+        ),
         target_programs,
         prediction(),
     )
@@ -165,7 +171,9 @@ def test_postgres_repositories_write_separate_tables() -> None:
 
 
 def test_rate_limit_hashing_is_stable_and_salted() -> None:
-    assert hash_identifier(" 127.0.0.1 ", "salt") == hash_identifier("127.0.0.1", "salt")
+    assert hash_identifier(" 127.0.0.1 ", "salt") == hash_identifier(
+        "127.0.0.1", "salt"
+    )
     assert hash_identifier("127.0.0.1", "salt") != hash_identifier(
         "127.0.0.1", "other-salt"
     )

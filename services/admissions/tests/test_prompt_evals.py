@@ -18,9 +18,10 @@ def word_count(text: str) -> int:
 
 def test_active_prompt_is_versioned_and_documents_quality_philosophy() -> None:
     assert PREDICTION_PROMPT_VERSION == "v2"
-    assert "careful judgment over volume" in PREDICTION_PROMPT_METADATA[
-        "quality_philosophy"
-    ]
+    assert (
+        "careful judgment over volume"
+        in PREDICTION_PROMPT_METADATA["quality_philosophy"]
+    )
     assert PREDICTION_PROMPT_METADATA["response_contract"] == [
         "target_predictions",
         "profile_strengths",
@@ -101,12 +102,12 @@ def test_golden_outputs_capture_category_calibration_tendencies() -> None:
         "Reach",
         "Unrealistic",
     ]
-    assert {item.chance_category for item in weak.target_predictions} == {
-        "Unrealistic"
-    }
+    assert {item.chance_category for item in weak.target_predictions} == {"Unrealistic"}
     assert {item.chance_category for item in unrealistic.target_predictions} == {
         "Unrealistic"
     }
-    assert max(item.estimated_probability_percentage for item in unrealistic.target_predictions) < min(
+    assert max(
+        item.estimated_probability_percentage for item in unrealistic.target_predictions
+    ) < min(
         item.estimated_probability_percentage for item in borderline.target_predictions
     )

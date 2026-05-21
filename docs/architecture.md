@@ -21,8 +21,8 @@ flowchart LR
 
 - `apps/web`: Next.js App Router frontend with the preserved KlassFin theme, marketing/content pages, EMI calculator, Supabase lead capture, and API-backed SOP Review and Admit Predictor tools.
 - `apps/api`: FastAPI backend exposing `/health`, live SOP/admissions endpoints, deterministic mock endpoints, CORS, JSON/body-size guards, backend rate limits, safe errors, redacted request/error logs, and optional Postgres persistence.
-- `services/sop_review`: reusable SOP review domain service plus a temporary Streamlit adapter. It owns SOP validation, ingestion for the Streamlit app, prompts, grading schemas, and prompt regression tests.
-- `services/admissions`: reusable admissions prediction domain service plus a temporary Streamlit adapter. It owns profile validation, prompt construction, post-processing, repair behavior, schemas, and prompt regression tests.
+- `services/sop_review`: reusable SOP review domain service plus an internal/local Streamlit adapter. It owns SOP validation, ingestion for the Streamlit app, prompts, grading schemas, and prompt regression tests.
+- `services/admissions`: reusable admissions prediction domain service plus an internal/local Streamlit adapter. It owns profile validation, prompt construction, post-processing, repair behavior, schemas, and prompt regression tests.
 - `packages/ai_runtime`: shared DeepSeek provider runtime, retry/timeout behavior, response normalization, JSON parsing helpers, and secret redaction.
 - `packages/contracts`: canonical Pydantic API contracts, committed JSON Schemas, frontend TypeScript types, and deterministic mock payload examples.
 
@@ -69,7 +69,7 @@ See `docs/contracts.md`.
 - FastAPI is the only intended public backend contract.
 - DeepSeek keys remain backend-only.
 - The public web SOP flow accepts pasted text only.
-- Streamlit adapters remain for standalone/local tool use during migration.
+- Streamlit adapters remain intentionally retained internal/local tools, not public endpoints.
 - Static content is code-owned for now.
 - Exact retention windows and automated deletion jobs are pending.
-- CI currently covers web, admissions, and SOP review checks; API/contracts/shared runtime checks are documented but not wired into GitHub Actions yet.
+- CI covers web, API, contracts, shared runtime, admissions, and SOP review checks.

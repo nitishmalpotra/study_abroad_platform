@@ -42,7 +42,9 @@ def _profile_from_request(payload: AdmissionsPredictionRequest) -> StudentProfil
     return StudentProfile(**payload.model_dump(exclude={"target_programs"}))
 
 
-def _mock_response(payload: AdmissionsPredictionRequest) -> AdmissionsPredictionResponse:
+def _mock_response(
+    payload: AdmissionsPredictionRequest,
+) -> AdmissionsPredictionResponse:
     return admissions_prediction_mock_response(payload.target_programs)
 
 

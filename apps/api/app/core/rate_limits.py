@@ -84,9 +84,7 @@ class PostgresRateLimiter:
 
 def client_key(request: Request) -> str:
     settings = getattr(request.app.state, "settings", None)
-    trust_proxy_headers = bool(
-        getattr(settings, "trust_proxy_headers", False)
-    )
+    trust_proxy_headers = bool(getattr(settings, "trust_proxy_headers", False))
     forwarded = request.headers.get("x-forwarded-for")
     if trust_proxy_headers and forwarded:
         return forwarded.split(",", 1)[0].strip()

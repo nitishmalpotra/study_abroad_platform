@@ -36,7 +36,8 @@ This document is the authoritative migration plan for the repository.
 | Frontend admissions API integration | Completed | Admit Predictor is now a public Next.js tool backed by the shared admissions contracts and FastAPI live/mock endpoints |
 | Public platform persistence architecture | Completed | FastAPI owns versioned Neon Postgres migrations, modular tool-specific repositories, optional Postgres-backed hashed rate-limit buckets, and env-based persistence configuration |
 | Secure-by-default public AI controls | Completed | Live-only backend rate limits, JSON/body-size guards, stricter validation, safe errors, structured redacted logs, provider failure handling, frontend AI disclaimers, and security docs/tests |
-| Public-facing documentation finalization | Completed | Root README plus architecture, local development, deployment, security/privacy, AI design, and evaluation docs aligned to current scripts, ports, env vars, and known limitations |
+| Public-facing documentation finalization | Completed | Root README plus architecture, local development, deployment, security/privacy, AI design, release smoke checks, and evaluation docs aligned to current scripts, ports, env vars, and known limitations |
+| Final engineering hardening pass | Completed | CI now includes web tests, API checks, contracts, shared runtime, and both domain services; frontend API-client tests and backend smoke tests cover mock/live-with-fakes, validation, and rate limits |
 
 ### Current repo reality after prompt fifteen
 
@@ -51,8 +52,8 @@ This document is the authoritative migration plan for the repository.
   - `tests`
 - `apps/web` is now a Next.js App Router frontend migrated from the original Vite + React app.
 - `apps/api` now exposes the first public FastAPI surface for SOP review and admissions prediction, with CORS configuration, JSON-only request guards, body-size limits, safe structured errors, structured redacted request/error logs, backend live AI rate limits, and safe provider-failure responses.
-- `services/sop_review` now contains reusable service modules plus a temporary Streamlit adapter.
-- `services/admissions` now contains reusable service modules plus a temporary Streamlit adapter.
+- `services/sop_review` now contains reusable service modules plus an intentionally retained internal/local Streamlit adapter.
+- `services/admissions` now contains reusable service modules plus an intentionally retained internal/local Streamlit adapter.
 - `packages/ai_runtime` now owns shared provider clients, retries, timeout handling, response normalization, JSON parsing helpers, and secret redaction.
 - `packages/contracts` now owns canonical API request/response models, committed JSON Schema snapshots, frontend TypeScript contract types, shared mock payloads, and contract drift tests.
 - Both Python services use DeepSeek through thin task-specific adapters over the shared AI runtime.
@@ -66,6 +67,7 @@ This document is the authoritative migration plan for the repository.
 - Frontend SOP review and Admit Predictor now have API client layers for live and deterministic mock submissions using the shared TypeScript contracts.
 - Frontend SOP live mode sends applicant details and pasted SOP text to `POST /api/v1/sop/review`; demo mode calls `POST /api/v1/sop/review/mock` and labels the result as demo output.
 - Frontend SOP review and Admit Predictor pages now disclose that AI outputs are informational and require human judgment; admissions estimates are not guarantees.
+- Lead-gated frontend tools remain usable in local development without Supabase env vars; in that local-only case the gate unlocks without writing a lead so mock SOP/admissions smoke tests can run.
 - Frontend linting, type-checking, tests, and Next.js build verification are part of the SOP integration verification.
 - The SOP page renders the same five rubric criteria as the backend grading schema.
 - The Admit Predictor page renders admissions target predictions, chance categories, probabilities, reasoning, strengths, weaknesses, roadmap items, and recommended universities from the backend response schema.
@@ -83,9 +85,10 @@ This document is the authoritative migration plan for the repository.
 - Public documentation now describes the current monorepo, BYO DeepSeek workflow,
   mock/demo mode, local setup, deployment posture, security/privacy posture,
   known limitations, and roadmap.
-- Current GitHub Actions CI covers the web app, admissions Streamlit service, and
-  SOP review Streamlit service. API, contract, and shared runtime checks are
-  documented but not yet wired into CI.
+- GitHub Actions CI covers the web app, FastAPI backend, shared contracts,
+  shared AI runtime, admissions service, and SOP review service. It now runs
+  frontend tests/lint/type/build, API ruff format/lint/mypy/pytest/compile
+  checks, contract drift tests, shared runtime tests, and service tests.
 
 ## 1. Current-state summary
 
@@ -157,7 +160,7 @@ This document is the authoritative migration plan for the repository.
 |---|---|
 | Backend architecture | FastAPI backend exists for the first public release surface; persistence hardening and production deployment work remain |
 | AI provider | DeepSeek is active through `packages/ai_runtime`; service-level provider protocols remain in place |
-| Frontend integration | SOP review and Admit Predictor are API-backed public tools; broader frontend content restructuring remains pending |
+| Frontend integration | SOP review and Admit Predictor are API-backed public tools with deterministic mock/demo flows; broader frontend content restructuring remains pending |
 | Mocking | SOP review and Admit Predictor frontend flows call their backend mock endpoints |
 | Production data | Neon Postgres migrations and API persistence layer exist; automated retention jobs and production deployment wiring remain pending |
 | File persistence | No blob storage implementation; first-release API design intentionally processes SOP uploads/text transiently instead of retaining originals |
@@ -171,7 +174,7 @@ This document is the authoritative migration plan for the repository.
   - `Career Clarity`
   - `Narrative Flow`
   - `Language & Tone`
-- Frontend SOP now accepts pasted text and applicant details, then lets the backend enforce the 100–2500 word scoring gate; frontend upload support is still pending.
+- Frontend SOP now accepts pasted text and applicant details, then lets the backend enforce the 100–2500 word scoring gate; public upload support is intentionally deferred and only the internal Streamlit SOP tool keeps upload ingestion.
 - Frontend Tools page now links Admit Predictor as a first-class public tool.
 - Lead flows present an OTP step, but no OTP is actually sent or verified.
 - Frontend reads the public API base URL from `NEXT_PUBLIC_STUDY_ABROAD_API_URL`; DeepSeek credentials remain backend-only.
@@ -486,9 +489,10 @@ added.
 
 #### Phase 7 — Public release readiness
 Status: Partially completed. Public-facing documentation has been finalized for
-current implementation reality. Screenshots/demo instructions, CI coverage for
-API/contracts/shared runtime, production release operations, and end-to-end
-verification remain pending.
+current implementation reality, release smoke-test instructions exist, and CI
+coverage now includes API, contracts, and shared runtime checks. Production
+release operations, screenshots, deployed-environment verification, and live
+DeepSeek verification remain pending.
 - Finalize docs.
 - Add screenshots/demo instructions.
 - Verify deployment paths.
@@ -516,7 +520,7 @@ verification remain pending.
 | Device identity | “Per device” without sign-in needs a practical anonymous identifier strategy; it should not rely only on frontend state. |
 | Lead capture | Existing OTP UX is not real verification. Retaining lead capture requires deciding whether OTP becomes real or whether the flow is simplified honestly. |
 | Contract drift | Shared contracts now prevent the earlier frontend/backend rubric and payload drift; keep schema diffs reviewable whenever payloads change. |
-| Testing gap | Service-level, API, contract, and frontend build/type/lint checks now exist, but end-to-end coverage is still pending. |
+| Testing gap | Service-level, API, contract, frontend API-client, frontend build/type/lint, backend smoke, and mock-flow checks now exist. Browser-level end-to-end automation and live DeepSeek verification remain pending. |
 | Data model consolidation | SOP, admissions, and leads currently live in different storage models and need a unified schema strategy. |
 | Public repo readiness | Public-facing docs now cover setup, architecture, deployment, security/privacy, AI design, evaluations, BYO DeepSeek, mock/demo mode, limitations, and roadmap. Docs must still keep evolving with implementation. |
 | Static content | Content remains code-owned now, so structure it cleanly enough to extract later without rewriting page logic. |
@@ -565,7 +569,7 @@ verification remain pending.
 ### Frontend
 - Next.js frontend preserves the current KlassFin theme.
 - Existing public marketing routes are preserved or intentionally redirected.
-- SOP review is real, API-backed, and supports uploaded files.
+- SOP review is real and API-backed for pasted text. Uploaded files are intentionally limited to the internal/local Streamlit SOP tool until public upload retention, scanning, and lifecycle requirements are defined.
 - Admit Predictor is available in the frontend.
 - Real and mock/demo AI modes both work.
 
@@ -599,9 +603,10 @@ verification remain pending.
   - post-processing
   - routes
 - Frontend tests cover:
-  - SOP flow
-  - admit predictor flow
-  - real/mock switching
+  - SOP API client flow
+  - admit predictor API client flow
+  - real/mock endpoint switching
+  - structured API error handling
 - Integration tests cover API contracts.
 - Target CI runs linting, type checking, tests, and builds across the monorepo.
 
@@ -637,15 +642,17 @@ verification remain pending.
 - Presence of SOP and admissions service tests
 - Prompt layout normalization across both services
 - Public README and supporting docs matched against current scripts, ports,
-  environment variables, API routes, and CI configuration
+  environment variables, API routes, release smoke checks, and CI configuration
+- API, contract, shared runtime, frontend API client, and backend smoke tests are
+  wired into CI
 
 ### Not verified
-- Runtime behavior of the apps
+- Deployed runtime behavior of the apps
 - Deployed environments
 - Supabase live data or policies beyond local migration files
 - Performance, accessibility, and browser rendering
 - Live DeepSeek calls
-- End-to-end browser flows
+- Automated browser-level end-to-end flows
 
 ### Fixed decisions
 - Public monorepo

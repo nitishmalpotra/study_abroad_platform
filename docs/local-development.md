@@ -44,7 +44,7 @@ NEXT_PUBLIC_STUDY_ABROAD_API_URL=http://localhost:8000
 
 `NEXT_PUBLIC_STUDY_ABROAD_API_URL` points browser API calls at FastAPI. Do not put backend secrets in `apps/web/.env`; all `NEXT_PUBLIC_` values are visible in the browser.
 
-Supabase values are required to unlock the lead-gated tool UI in the browser. The FastAPI endpoints can still be tested directly without Supabase.
+Supabase values are required for production lead capture. In local development only, the gate unlocks without writing a lead when Supabase values are omitted so mock tool flows remain testable.
 
 ## API
 
@@ -87,7 +87,7 @@ uv run python -m app.persistence.migrations
 
 Use a Neon-style URL with `sslmode=require` for hosted development databases.
 
-## SOP review Streamlit app
+## SOP review internal Streamlit app
 
 ```bash
 cd services/sop_review
@@ -97,9 +97,9 @@ uv run streamlit run app.py
 
 Streamlit usually serves at `http://localhost:8501`.
 
-This standalone app requires `DEEPSEEK_API_KEY` for real review and stores local SQLite data at `SOP_DB_PATH` from `services/sop_review/.env`.
+This internal/local tool requires `DEEPSEEK_API_KEY` for real review and stores local SQLite data at `SOP_DB_PATH` from `services/sop_review/.env`.
 
-## Admissions Streamlit app
+## Admissions internal Streamlit app
 
 ```bash
 cd services/admissions
@@ -109,7 +109,7 @@ uv run streamlit run app.py
 
 Streamlit usually serves at `http://localhost:8501`.
 
-This standalone app requires `DEEPSEEK_API_KEY` for real prediction and stores local SQLite data.
+This internal/local tool requires `DEEPSEEK_API_KEY` for real prediction and stores local SQLite data.
 
 ## Mock/demo development
 
@@ -133,6 +133,7 @@ npm run build
 
 cd ../api
 uv run pytest
+uv run ruff format --check .
 uv run ruff check .
 uv run mypy app
 
@@ -143,7 +144,8 @@ cd ../ai_runtime
 uv run pytest
 
 cd ../../services/admissions
-uv run ruff check app.py
+uv run ruff format --check .
+uv run ruff check .
 uv run pytest
 uv run python -m py_compile app.py
 
