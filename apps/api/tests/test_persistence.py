@@ -117,8 +117,11 @@ def test_admissions_record_minimizes_stored_content() -> None:
     from admissions.schemas import StudentProfile
 
     payload = admissions_payload()
+    target_programs = payload["target_programs"]
+    assert isinstance(target_programs, list)
+    assert all(isinstance(program, str) for program in target_programs)
     profile = StudentProfile(**{k: v for k, v in payload.items() if k != "target_programs"})
-    record = admissions_record(profile, payload["target_programs"], prediction())
+    record = admissions_record(profile, target_programs, prediction())
 
     assert "full_name" not in record["profile_summary_json"]
     assert "raw_output" not in record
@@ -145,9 +148,12 @@ def test_postgres_repositories_write_separate_tables() -> None:
         FakeDatabase(admissions_cursor)  # type: ignore[arg-type]
     )
     payload = admissions_payload()
+    target_programs = payload["target_programs"]
+    assert isinstance(target_programs, list)
+    assert all(isinstance(program, str) for program in target_programs)
     admissions_repo.save_prediction(
         AdmissionsProfile(**{k: v for k, v in payload.items() if k != "target_programs"}),
-        payload["target_programs"],
+        target_programs,
         prediction(),
     )
     admissions_query, admissions_params = admissions_cursor.statements[0]

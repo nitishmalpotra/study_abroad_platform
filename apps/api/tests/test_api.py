@@ -1,6 +1,8 @@
 import logging
+from typing import Any
 
 from fastapi.testclient import TestClient
+from pytest import LogCaptureFixture, MonkeyPatch
 
 from admissions.schemas import AdmissionPrediction, ProgramPrediction
 from admissions.service import AdmissionsPredictionResult
@@ -94,7 +96,9 @@ class FakeSOPService:
     def __init__(self) -> None:
         self.calls = 0
 
-    def review(self, profile, sop_text, request_id):
+    def review(
+        self, profile: Any, sop_text: str, request_id: str
+    ) -> SOPReviewResult:
         self.calls += 1
         return live_sop_result()
 
@@ -103,7 +107,9 @@ class FakeAdmissionsService:
     def __init__(self) -> None:
         self.calls = 0
 
-    def predict(self, profile, target_programs):
+    def predict(
+        self, profile: Any, target_programs: list[str]
+    ) -> AdmissionsPredictionResult:
         self.calls += 1
         return live_admissions_result()
 
@@ -142,7 +148,7 @@ def test_invalid_admissions_request_fails_before_live_service() -> None:
     assert response.json()["code"] == "validation_error"
 
 
-def test_oversize_payload_fails_safely(monkeypatch) -> None:
+def test_oversize_payload_fails_safely(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setenv("API_MAX_REQUEST_BODY_BYTES", "1000")
     response = TestClient(create_app(), raise_server_exceptions=False).post(
         "/api/v1/sop/review/mock",
@@ -172,11 +178,12 @@ def test_non_json_payload_fails_safely() -> None:
     }
 
 
-
 def test_short_live_sop_returns_gatekeeper_response_without_live_service() -> None:
     app = create_app()
-    app.dependency_overrides[get_live_sop_service_factory] = lambda: lambda: (_ for _ in ()).throw(
-        AssertionError("live SOP dependency should not be used for local validation")
+    app.dependency_overrides[get_live_sop_service_factory] = (
+        lambda: lambda: (_ for _ in ()).throw(
+            AssertionError("live SOP dependency should not be used for local validation")
+        )
     )
     test_client = TestClient(app, raise_server_exceptions=False)
     payload = sop_payload() | {"sop_text": "This is too short."}
@@ -188,10 +195,13 @@ def test_short_live_sop_returns_gatekeeper_response_without_live_service() -> No
     assert response.json()["gatekeeper"]["is_valid"] is False
     assert response.json()["grade"] is None
 
+
 def test_mock_endpoints_return_deterministic_responses_without_live_services() -> None:
     app = create_app()
-    app.dependency_overrides[get_live_sop_service_factory] = lambda: lambda: (_ for _ in ()).throw(
-        AssertionError("live SOP dependency should not be used")
+    app.dependency_overrides[get_live_sop_service_factory] = (
+        lambda: lambda: (_ for _ in ()).throw(
+            AssertionError("live SOP dependency should not be used")
+        )
     )
     app.dependency_overrides[get_live_admissions_service] = lambda: (
         _ for _ in ()
@@ -256,7 +266,9 @@ def test_live_endpoints_are_testable_with_fakes() -> None:
 def test_live_rate_limiting_applies_but_mock_calls_are_excluded() -> None:
     app = create_app()
     app.state.live_rate_limiter = InMemoryRateLimiter(ApiSettings(1, 3600, ()))
-    app.dependency_overrides[get_live_sop_service_factory] = lambda: lambda: FakeSOPService()
+    app.dependency_overrides[get_live_sop_service_factory] = (
+        lambda: lambda: FakeSOPService()
+    )
     test_client = TestClient(app)
 
     assert (
@@ -329,11 +341,13 @@ def test_live_admissions_rate_limiting_applies_but_mock_calls_are_excluded() -> 
 
 def test_unhandled_errors_are_safe_and_redacted() -> None:
     class ExplodingSOPService:
-        def review(self, profile, sop_text, request_id):
+        def review(self, profile: Any, sop_text: str, request_id: str) -> None:
             raise Exception("unexpected failure with sk-secretsecretsecret")
 
     app = create_app()
-    app.dependency_overrides[get_live_sop_service_factory] = lambda: lambda: ExplodingSOPService()
+    app.dependency_overrides[get_live_sop_service_factory] = (
+        lambda: lambda: ExplodingSOPService()
+    )
     response = TestClient(app, raise_server_exceptions=False).post(
         "/api/v1/sop/review", json=sop_payload()
     )
@@ -347,9 +361,31 @@ def test_unhandled_errors_are_safe_and_redacted() -> None:
     assert "secret" not in response.text.lower()
 
 
+def test_provider_timeouts_are_safe() -> None:
+    class TimeoutSOPService:
+        def review(self, profile: Any, sop_text: str, request_id: str) -> None:
+            raise TimeoutError("provider timed out with API_KEY=secret123")
+
+    app = create_app()
+    app.dependency_overrides[get_live_sop_service_factory] = (
+        lambda: lambda: TimeoutSOPService()
+    )
+    response = TestClient(app, raise_server_exceptions=False).post(
+        "/api/v1/sop/review", json=sop_payload()
+    )
+
+    assert response.status_code == 503
+    assert response.json() == {
+        "code": "http_error",
+        "message": "AI provider is temporarily unavailable.",
+        "details": [],
+    }
+    assert "secret123" not in response.text
+
+
 def test_provider_failures_are_safe_and_redacted() -> None:
     class FailingAdmissionsService:
-        def predict(self, profile, target_programs):
+        def predict(self, profile: Any, target_programs: list[str]) -> None:
             raise RuntimeError("provider failed with sk-secretsecretsecret")
 
     app = create_app()
@@ -369,9 +405,9 @@ def test_provider_failures_are_safe_and_redacted() -> None:
     assert "secret" not in response.text.lower()
 
 
-def test_error_logs_redact_secrets(caplog) -> None:
+def test_error_logs_redact_secrets(caplog: LogCaptureFixture) -> None:
     class ExplodingSOPService:
-        def review(self, profile, sop_text, request_id):
+        def review(self, profile: Any, sop_text: str, request_id: str) -> None:
             raise Exception("unexpected failure with sk-secretsecretsecret")
 
     app = create_app()
