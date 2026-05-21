@@ -12,6 +12,7 @@ from app.persistence.repositories import (
     NullAdmissionsPredictionRepository,
     NullSOPSubmissionRepository,
     PostgresAdmissionsPredictionRepository,
+    PostgresLeadRepository,
     PostgresSOPSubmissionRepository,
 )
 from sop_review.config import load_settings as load_sop_settings
@@ -38,6 +39,10 @@ class AdmissionsPredictionRepository(Protocol):
         target_programs: list[str],
         prediction: AdmissionPrediction,
     ) -> None: ...
+
+
+class LeadRepository(Protocol):
+    def save_lead(self, lead: dict[str, str]) -> None: ...
 
 
 @lru_cache
@@ -68,6 +73,13 @@ def get_admissions_prediction_repository() -> AdmissionsPredictionRepository:
     if settings.persistence_enabled and database is not None:
         return PostgresAdmissionsPredictionRepository(database)
     return NullAdmissionsPredictionRepository()
+
+
+def get_lead_repository() -> LeadRepository | None:
+    database = get_database()
+    if database is not None:
+        return PostgresLeadRepository(database)
+    return None
 
 
 def get_live_sop_service() -> SOPReviewService:

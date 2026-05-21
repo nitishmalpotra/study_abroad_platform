@@ -69,7 +69,8 @@ This document is the authoritative migration plan for the repository.
 - Frontend SOP review and Admit Predictor now have API client layers for live and deterministic mock submissions using the shared TypeScript contracts.
 - Frontend SOP live mode sends applicant details and pasted SOP text to `POST /api/v1/sop/review`; demo mode calls `POST /api/v1/sop/review/mock` and labels the result as demo output.
 - Frontend SOP review and Admit Predictor pages now disclose that AI outputs are informational and require human judgment; admissions estimates are not guarantees.
-- Lead-gated frontend tools remain usable in local development without Supabase env vars; in that local-only case the gate unlocks without writing a lead so mock SOP/admissions smoke tests can run.
+- Lead capture is now backend-owned: the frontend posts to `POST /api/v1/leads`, which stores contact details in the Neon `tool_leads` table. Supabase has been fully removed (no `@supabase/supabase-js` dependency, no `apps/web/supabase/` directory, no `NEXT_PUBLIC_SUPABASE_*` env vars). The browser never connects to the database directly.
+- Lead-gated frontend tools remain usable in local development: the gate unlocks even if the lead submission fails (e.g. the API or database is not running) so mock SOP/admissions smoke tests can run. In production a successful lead submission is required to unlock, so Neon must be configured and migrated for the public tools to be reachable.
 - Frontend linting, type-checking, tests, and Next.js build verification are part of the SOP integration verification.
 - The SOP page renders the same five rubric criteria as the backend grading schema.
 - The Admit Predictor page renders admissions target predictions, chance categories, probabilities, reasoning, strengths, weaknesses, roadmap items, and recommended universities from the backend response schema.
@@ -171,8 +172,8 @@ This document is the authoritative migration plan for the repository.
 | SOP review | Streamlit app; paste/upload support; PDF/DOCX/TXT extraction; word-count gate; DeepSeek validity check; DeepSeek grading; strict Pydantic parsing; SQLite persistence; per-session rate limiting; rotating logs; model fallback |
 | Admit prediction | Streamlit app; full profile form; DeepSeek prompt; strict nested schema; JSON repair pass; SQLite persistence; validation; result charts |
 | Frontend | Next.js marketing site with preserved KlassFin theme, static content, EMI calculator, resources, lead capture, and API-backed live/mock SOP review plus Admit Predictor pages |
-| Lead capture | Supabase-backed inserts into `tool_leads`; UI flows for phone, fake OTP step, and details capture |
-| Data | Local SQLite for both Python apps; Supabase/Postgres only for frontend lead capture |
+| Lead capture | FastAPI `POST /api/v1/leads` inserts into the Neon `tool_leads` table; UI flows for phone, fake OTP step, and details capture |
+| Data | Local SQLite for both Python apps; Neon Postgres for API tool records and lead capture |
 
 ### What is only implied by docs or missing
 
@@ -266,7 +267,7 @@ flowchart LR
 
 - Final numeric retention windows for summarized SOP review records, admissions prediction records, and rate-limit buckets.
 - Whether future uploaded SOP file retention is needed after first release; if yes, use Vercel Blob and store only references/metadata in Postgres.
-- Whether lead capture should remain gated ahead of tools or be simplified for the first public release.
+- Resolved: lead capture remains gated ahead of the tools and is stored in Neon via `POST /api/v1/leads`. The OTP step stays UI-only (no real verification) for now. Remaining open question is only whether/when to make OTP real.
 
 ### Architectural decisions already fixed for the current target
 
@@ -674,7 +675,7 @@ DeepSeek verification remain pending.
 - Deployed runtime behavior of the apps
 - Deployed environments
 - Actual Vercel build/runtime execution
-- Supabase live data or policies beyond local migration files
+- Live lead capture writing to a real Neon `tool_leads` table (verified only with fakes/unit tests)
 - Performance, accessibility, and browser rendering
 - Live DeepSeek calls
 - Automated browser-level end-to-end flows
@@ -695,6 +696,6 @@ DeepSeek verification remain pending.
 
 ### Open decisions
 - Final retention policy
-- Final lead-capture behavior for the public tools
+- Whether the lead-capture OTP step should become real verification (the flow is otherwise resolved: gated, API/Neon-backed)
 - Whether future SOP upload retention is needed after the pasted-text public API
   flow

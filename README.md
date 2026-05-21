@@ -10,14 +10,13 @@ The project is for students exploring international study options, counselors or
 - Admit Predictor: estimates admissions chances for one to five target programs from an applicant profile.
 - EMI Calculator: frontend-only education-loan EMI calculator.
 - Resources, destinations, universities, and blog pages: code-owned public content inside the web app.
-- Lead capture: browser-side Supabase inserts for consultation/resource interest. The current OTP step is a UI flow only; it does not send or verify a real OTP.
+- Lead capture: the frontend submits consultation/resource interest to the FastAPI backend, which stores it in Neon Postgres (`tool_leads`). The OTP step is a UI flow only; it does not send or verify a real OTP.
 
 ## Architecture overview
 
 ```mermaid
 flowchart LR
   W["apps/web Next.js"] --> A["apps/api FastAPI"]
-  W --> S["Supabase leads"]
   A --> C["packages/contracts"]
   A --> SOP["services/sop_review"]
   A --> ADM["services/admissions"]
@@ -53,7 +52,7 @@ services/
 
 ## Tech stack
 
-- Frontend: Next.js 15, React 18, TypeScript, Tailwind CSS, Framer Motion, Lucide icons, Supabase browser client.
+- Frontend: Next.js 15, React 18, TypeScript, Tailwind CSS, Framer Motion, Lucide icons.
 - API: FastAPI, Pydantic, Uvicorn, Psycopg, Ruff, Mypy, Pytest.
 - AI services: Python 3.11, Pydantic, Streamlit internal/local adapters, Plotly, DeepSeek via `packages/ai_runtime`.
 - Tooling: `npm` for the web app, `uv` for Python packages, GitHub Actions CI for web, API, contracts, shared runtime, and both domain services.
@@ -119,8 +118,7 @@ Prerequisites:
 - Python 3.11
 - `uv`
 - A DeepSeek API key for live AI calls
-- Optional Supabase project values for lead capture
-- Optional Neon or local Postgres database for API persistence
+- Optional Neon or local Postgres database for API persistence and lead capture
 
 Install and run each package from its own directory. There is no root package manager command yet.
 
@@ -165,12 +163,10 @@ The web app runs at `http://localhost:3000`.
 `apps/web/.env`:
 
 ```dotenv
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 NEXT_PUBLIC_STUDY_ABROAD_API_URL=http://localhost:8000
 ```
 
-Supabase values are required for production lead capture. In local development only, the gate unlocks without writing a lead when Supabase values are omitted so mock tool flows remain testable.
+Lead capture is handled by the backend (`POST /api/v1/leads` → Neon `tool_leads`), so the web app needs no database credentials. In local development the tool gate unlocks even if the lead submission fails (e.g. the API or database is not running) so mock tool flows remain testable; in production a successful lead submission is required to unlock.
 
 ## Run the API
 
@@ -287,7 +283,7 @@ The intended production split is:
 - API: deploy `apps/api` as a FastAPI service.
 - Database: use Neon Postgres for API persistence and Postgres-backed rate limits.
 - AI provider: set `DEEPSEEK_API_KEY` only on backend runtimes.
-- Supabase: keep current lead-capture tables if lead capture remains in scope.
+- Lead capture: stored in Neon via the backend `tool_leads` table (run the API migrations).
 
 Production API settings should include:
 
@@ -306,7 +302,8 @@ There is no unified production deployment pipeline yet. See `docs/deployment.md`
 
 - The public API is anonymous; there are no user accounts in the first release.
 - Live AI endpoints enforce backend rate limits, JSON-only requests, request body limits, strict Pydantic validation, safe structured errors, CORS configuration, and secret-redacted logging.
-- API persistence stores summarized tool records only. It does not store raw SOP text, uploaded file bytes, phone numbers, full names, raw provider output, or raw client IP addresses.
+- AI tool records (SOP review and admissions prediction) are summarized only: they do not store raw SOP text, uploaded file bytes, phone numbers, full names, raw provider output, or raw client IP addresses.
+- Lead capture is the one intentional exception: the `tool_leads` table stores the contact details a user knowingly submits through the lead form (email, phone, and target preferences) so they can be followed up with. It is kept separate from the AI tool records.
 - Streamlit apps are intentionally retained as internal/local tools and use local SQLite persistence; treat their local databases as sensitive.
 - `x-forwarded-for` is ignored by default. Set `API_TRUST_PROXY_HEADERS=true` only behind a trusted reverse proxy that strips untrusted forwarding headers.
 - Raw user submissions must not be committed as fixtures.

@@ -7,7 +7,6 @@ Study Abroad Platform is a public monorepo with a Next.js frontend, FastAPI back
 ```mermaid
 flowchart LR
   Web["apps/web Next.js"] --> API["apps/api FastAPI"]
-  Web --> Leads["Supabase tool_leads"]
   API --> Contracts["packages/contracts"]
   API --> SOP["services/sop_review"]
   API --> Admissions["services/admissions"]
@@ -19,7 +18,7 @@ flowchart LR
 
 ## Components
 
-- `apps/web`: Next.js App Router frontend with the preserved KlassFin theme, marketing/content pages, EMI calculator, Supabase lead capture, and API-backed SOP Review and Admit Predictor tools.
+- `apps/web`: Next.js App Router frontend with the preserved KlassFin theme, marketing/content pages, EMI calculator, API-backed lead capture, and API-backed SOP Review and Admit Predictor tools.
 - `apps/api`: FastAPI backend exposing `/health`, live SOP/admissions endpoints, deterministic mock endpoints, CORS, JSON/body-size guards, backend rate limits, safe errors, redacted request/error logs, and optional Postgres persistence.
 - `services/sop_review`: reusable SOP review domain service plus an internal/local Streamlit adapter. It owns SOP validation, ingestion for the Streamlit app, prompts, grading schemas, and prompt regression tests.
 - `services/admissions`: reusable admissions prediction domain service plus an internal/local Streamlit adapter. It owns profile validation, prompt construction, post-processing, repair behavior, schemas, and prompt regression tests.
@@ -50,7 +49,7 @@ Mock/demo flows use `/api/v1/sop/review/mock` and `/api/v1/admissions/predict/mo
 
 ## Data and persistence
 
-- Frontend lead capture writes to Supabase from the browser.
+- Lead capture posts to `POST /api/v1/leads`, which stores contact details in the Neon `tool_leads` table. The browser never talks to the database directly.
 - API persistence is optional locally and targets Neon Postgres in production.
 - API migrations live in `apps/api/migrations` and run with `uv run python -m app.persistence.migrations`.
 - API SOP persistence stores summary fields and structured grades, not raw SOP text or uploaded files.

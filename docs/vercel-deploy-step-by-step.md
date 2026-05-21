@@ -17,6 +17,33 @@ see [`deployment.md`](deployment.md). This guide is the quick, friendly path.
 
 ---
 
+## Already deployed? Apply the lead-capture update
+
+If you deployed an earlier version and the **"Unlock Tool"** step failed with
+"Something went wrong," lead capture now runs through the backend and Neon
+(instead of Supabase). To make your existing deployment work, do this in order:
+
+1. **Push the latest code** to GitHub. Vercel auto-redeploys both projects:
+   - the API gains `POST /api/v1/leads` and a new `tool_leads` migration,
+   - the web app submits leads to that endpoint and no longer uses Supabase.
+2. **Re-run the database migration** so the new `tool_leads` table is created.
+   Your earlier migration run happened before this table existed, so it must run
+   again (it is safe to re-run — applied migrations are skipped):
+   ```bash
+   cd apps/api
+   DATABASE_URL="your_neon_connection_string_with_sslmode_require" uv run python -m app.persistence.migrations
+   ```
+3. **Confirm CORS**: the API's `API_CORS_ORIGINS` must list your exact web URL
+   (the browser now POSTs leads to the API). If you change it, redeploy the API.
+4. **(Optional) Remove** any `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   env vars from the **web** project — they are no longer used.
+5. **Test**: open a tool, complete the unlock form (use a 10-digit phone and a
+   real-looking email), and confirm it unlocks. Then try Demo mode.
+
+The rest of this guide is the full first-time walkthrough.
+
+---
+
 ## Before you start: get your accounts and keys
 
 You will need these. Open each in a separate browser tab and keep them handy.
@@ -26,11 +53,12 @@ You will need these. Open each in a separate browser tab and keep them handy.
 | Vercel account | <https://vercel.com/signup> — sign in with GitHub | Hosting both apps |
 | GitHub repo access | Your private repo (already pushed) | Vercel imports from here |
 | DeepSeek API key | <https://platform.deepseek.com> → API Keys | Live AI answers |
-| Neon Postgres database | <https://neon.tech> (free tier is fine) | Saving results + rate limits |
-| Supabase project (optional) | <https://supabase.com> | Lead-capture form |
+| Neon Postgres database | <https://neon.tech> (free tier is fine) | Lead capture, saved results, rate limits |
 
-You can deploy and run **demo mode** without DeepSeek, Neon, or Supabase. Those
-are only needed for **live AI** and **lead capture**.
+Lead capture (the form that unlocks each tool) writes to Neon through the
+backend, so **Neon is required to use the tools** — set it up and run the
+migration. **DeepSeek** is only needed for *live* AI answers; demo mode works
+without it once you are past the lead gate. There is no Supabase dependency.
 
 ### Get your Neon connection string
 
@@ -109,7 +137,7 @@ you will fix it in Part 3 once the web app has a URL:
 API_CORS_ORIGINS = https://example.com
 ```
 
-> Do **not** add `NEXT_PUBLIC_...`, Supabase, or any web variables here. Keep
+> Do **not** add `NEXT_PUBLIC_...` or any web-only variables here. Keep
 > DeepSeek and database secrets on the API project only.
 
 ### Step 1.5 — Deploy and check health
@@ -127,15 +155,20 @@ If you see that, the API is live. 🎉
 
 ### Step 1.6 — Set up the database tables (one time)
 
-The build does **not** create database tables automatically. Run the migration
-once from your own computer (you only need the repo and `uv` installed):
+This step is **required for lead capture** (the form that unlocks each tool) and
+for saved AI results. The build does **not** create database tables
+automatically. Run the migration once from your own computer (you only need the
+repo and `uv` installed):
 
 ```bash
 cd apps/api
 DATABASE_URL="your_neon_connection_string_with_sslmode_require" uv run python -m app.persistence.migrations
 ```
 
-Re-run this only when you add a new Neon database.
+This creates the `sop_review_submissions`, `admissions_predictions`,
+`rate_limit_buckets`, and `tool_leads` tables. It is safe to re-run — already
+applied migrations are skipped — so run it again whenever you pull new
+migrations or point at a new Neon database.
 
 ---
 
@@ -168,12 +201,8 @@ Point the frontend at your API from Part 1:
 NEXT_PUBLIC_STUDY_ABROAD_API_URL = https://your-api-url.vercel.app
 ```
 
-Optional — only if you want the lead-capture form to save leads:
-
-```
-NEXT_PUBLIC_SUPABASE_URL      = https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY = your_supabase_anon_key
-```
+That is the only variable the web project needs — lead capture goes through the
+backend, so no database keys live here.
 
 > Everything starting with `NEXT_PUBLIC_` is visible in the browser. Never put
 > secret keys (DeepSeek, database, salt) here.
@@ -251,8 +280,7 @@ Vercel automatically builds a **Preview** deployment for every branch/PR and a
 **Web project**
 - Root Directory: `apps/web`
 - Include files outside root: **OFF**
-- `NEXT_PUBLIC_STUDY_ABROAD_API_URL=<api url>`
-- Optional: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_STUDY_ABROAD_API_URL=<api url>` (the only web variable)
 
 **Golden rules**
 - Deploy API first, then Web, then set the API's CORS to the Web URL.

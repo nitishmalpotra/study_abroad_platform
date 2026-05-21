@@ -6,8 +6,7 @@
 - Python 3.11
 - `uv`
 - DeepSeek API key for live AI calls
-- Optional Supabase project for lead capture
-- Optional Neon or local Postgres database for API persistence testing
+- Optional Neon or local Postgres database for API persistence and lead capture testing
 
 There is no root workspace command yet. Run each app/package from its own directory.
 
@@ -37,14 +36,12 @@ The frontend runs at `http://localhost:3000`.
 `apps/web/.env`:
 
 ```dotenv
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 NEXT_PUBLIC_STUDY_ABROAD_API_URL=http://localhost:8000
 ```
 
 `NEXT_PUBLIC_STUDY_ABROAD_API_URL` points browser API calls at FastAPI. Do not put backend secrets in `apps/web/.env`; all `NEXT_PUBLIC_` values are visible in the browser.
 
-Supabase values are required for production lead capture. In local development only, the gate unlocks without writing a lead when Supabase values are omitted so mock tool flows remain testable.
+Lead capture is handled by the backend (`POST /api/v1/leads` → Neon `tool_leads`). In local development the tool gate unlocks even if the lead submission fails (e.g. the API or database is not running) so mock tool flows remain testable; in production a successful lead submission is required to unlock.
 
 ## API
 

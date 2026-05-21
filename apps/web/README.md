@@ -19,7 +19,7 @@ This platform provides students with essential tools and resources for studying 
 - **SOP Review Tool**: Live backend SOP review plus deterministic demo mode
 - **Resource Center**: Downloadable guides, checklists, and templates
 - **Blog**: Expert articles on loans, visas, test prep, scholarships, and more
-- **Lead Management**: Integrated lead capture system with Supabase backend
+- **Lead Management**: Lead capture submitted to the FastAPI backend and stored in Neon Postgres
 
 ## Tech Stack
 
@@ -28,7 +28,7 @@ This platform provides students with essential tools and resources for studying 
 - **Routing**: Next.js App Router
 - **Animations**: Framer Motion
 - **Icons**: Lucide React
-- **Database**: Supabase (PostgreSQL)
+- **Backend**: FastAPI (`apps/api`) with Neon Postgres for tool records and lead capture
 - **Type Checking**: TypeScript 5.5
 
 ## Prerequisites
@@ -52,24 +52,16 @@ npm install
 
 3. Set up environment variables:
 
-Create a `.env` file in the root directory with the following variables:
+Create a `.env` file in the root directory with the following variable:
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 NEXT_PUBLIC_STUDY_ABROAD_API_URL=http://localhost:8000
 ```
 
-Replace the Supabase values with your actual project credentials. `NEXT_PUBLIC_STUDY_ABROAD_API_URL` should point at the FastAPI backend; it is not a secret and must never contain the DeepSeek key.
+`NEXT_PUBLIC_STUDY_ABROAD_API_URL` should point at the FastAPI backend; it is not a secret and must never contain the DeepSeek key. The web app needs no database credentials.
 
 ## Database Setup
 
-The project uses Supabase for data persistence. Migration files are located in `supabase/migrations/`:
-
-- `20260214163103_create_tool_leads_table.sql` - Creates the initial tool leads table
-- `20260214163845_add_target_intake_to_tool_leads.sql` - Adds target intake field
-- `20260214170543_add_target_course_to_tool_leads.sql` - Adds target course field
-
-Apply these migrations to your Supabase project before using lead capture.
+The frontend has no database of its own. AI tool records and lead capture are stored in Neon Postgres by the FastAPI backend (`apps/api`); see `apps/api/migrations` and run them with `uv run python -m app.persistence.migrations`.
 
 ## Development
 
@@ -116,8 +108,6 @@ npm run lint
 │   ├── app/             # Next.js App Router entry points
 │   ├── screens/         # Reused page-level components
 │   └── index.css        # Global styles and Tailwind directives
-├── supabase/
-│   └── migrations/      # Database migration files
 ├── .env                 # Environment variables (create this)
 ├── package.json         # Project dependencies
 ├── tailwind.config.js   # Tailwind CSS configuration
@@ -145,7 +135,7 @@ The platform includes a comprehensive lead capture system that triggers at strat
 - Resource downloads
 - General inquiries
 
-All leads are stored in Supabase with proper validation and Row Level Security (RLS) enabled.
+All leads are submitted to the FastAPI backend (`POST /api/v1/leads`), validated server-side, and stored in the Neon `tool_leads` table. The browser never connects to the database directly.
 
 ## Color Scheme
 
@@ -168,7 +158,7 @@ The application supports all modern browsers:
 - Routes are now file-based under `src/app`; public URLs are preserved from the Vite app.
 - `resources` remains at `/tools/resources`, matching the pre-migration implementation.
 - Static assets continue to live in `public/`; `logo.png` remains available at `/logo.png`.
-- Supabase browser variables now use the `NEXT_PUBLIC_` prefix required by Next.js.
+- Lead capture moved from a browser-direct Supabase client to the FastAPI backend (`POST /api/v1/leads` → Neon); the web app no longer needs any database credentials.
 
 ## Monorepo note
 

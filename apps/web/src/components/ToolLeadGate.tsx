@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Mail, MapPin, GraduationCap, ChevronRight, Compass, Lock, Calendar, BookOpen } from 'lucide-react';
-import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
+import { submitLead } from '../lib/leadsApi';
 
 const countryOptions = ['United States', 'United Kingdom', 'Canada', 'Australia', 'Ireland', 'New Zealand', 'Germany', 'Other'];
 const intakeOptions = ['Fall 2026', 'Spring 2027', 'Fall 2027', 'Spring 2028'];
@@ -56,23 +56,23 @@ export default function ToolLeadGate({ toolName, title, description, children }:
     setSubmitting(true);
     setError('');
     try {
-      if (!isSupabaseConfigured() && process.env.NODE_ENV !== 'production') {
-        setUnlocked(true);
-        return;
-      }
-      const { error: dbError } = await getSupabaseClient().from('tool_leads').insert({
+      await submitLead({
+        tool_name: toolName,
         phone,
         email,
         target_country: country,
+        target_intake: intake,
         target_college: college,
         target_course: course,
-        target_intake: intake,
         journey_stage: stage,
-        tool_name: toolName,
       });
-      if (dbError) throw dbError;
       setUnlocked(true);
     } catch {
+      if (process.env.NODE_ENV !== 'production') {
+        // Local dev convenience: unlock even if the API/lead store isn't running.
+        setUnlocked(true);
+        return;
+      }
       setError('Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);

@@ -24,7 +24,12 @@ Never put `DEEPSEEK_API_KEY` in `apps/web/.env`; `NEXT_PUBLIC_` values are brows
 
 - `services/sop_review` stores submission metadata, raw SOP text, and AI feedback JSON in a local SQLite database.
 - `services/admissions` stores submitted profile data and model output in a local SQLite database.
-- `apps/web` uses Supabase for lead capture.
+- Lead capture posts to `apps/api` (`POST /api/v1/leads`), which stores the
+  contact details a user knowingly submits (email, phone, and target
+  preferences) in the Neon `tool_leads` table. This is the one place the platform
+  intentionally stores contact PII; it is kept separate from the AI tool records
+  and exists so submitted leads can be followed up with. The browser never
+  connects to the database directly.
 - `apps/api` can persist production tool records to Neon Postgres when
   `DATABASE_URL` and `API_PERSISTENCE_ENABLED=true` are set.
 - API SOP review persistence stores university, intake, country, SOP word count,

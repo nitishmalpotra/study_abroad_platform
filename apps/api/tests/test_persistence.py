@@ -204,9 +204,11 @@ def test_migration_files_are_versioned_and_create_required_tables() -> None:
     sql = "\n".join(migration.sql for migration in migrations)
 
     assert [migration.version for migration in migrations] == [
-        "001_public_platform_persistence"
+        "001_public_platform_persistence",
+        "002_tool_leads",
     ]
     assert "CREATE TABLE IF NOT EXISTS sop_review_submissions" in sql
     assert "CREATE TABLE IF NOT EXISTS admissions_predictions" in sql
     assert "CREATE TABLE IF NOT EXISTS rate_limit_buckets" in sql
+    assert "CREATE TABLE IF NOT EXISTS tool_leads" in sql
     assert len(migration_statements(sql)) >= 8

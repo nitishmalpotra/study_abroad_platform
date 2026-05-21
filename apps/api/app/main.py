@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import admissions, health, sop
+from app.api.routes import admissions, health, leads, sop
 from app.core.config import load_api_settings
 from app.core.errors import register_error_handlers
 from app.core.logging import RequestLoggingMiddleware
@@ -42,6 +42,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(sop.router)
     app.include_router(admissions.router)
+    app.include_router(leads.router)
     return app
 
 

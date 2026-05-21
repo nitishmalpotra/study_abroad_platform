@@ -156,12 +156,7 @@ Required for frontend-to-backend calls:
 NEXT_PUBLIC_STUDY_ABROAD_API_URL=https://your-api-production-domain.vercel.app
 ```
 
-Required for production lead capture:
-
-```dotenv
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
-```
+That is the only variable the web project needs. Lead capture is handled by the backend (`POST /api/v1/leads` → Neon `tool_leads`), so the web project requires no database credentials.
 
 Do not set `DEEPSEEK_API_KEY`, `DATABASE_URL`, `API_RATE_LIMIT_HASH_SALT`, or `BLOB_READ_WRITE_TOKEN` on the web project. All `NEXT_PUBLIC_` values are browser-visible.
 
@@ -184,8 +179,6 @@ Preview web:
 
 ```dotenv
 NEXT_PUBLIC_STUDY_ABROAD_API_URL=https://your-api-preview-domain.vercel.app
-NEXT_PUBLIC_SUPABASE_URL=https://your-preview-supabase-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_preview_supabase_anon_key
 ```
 
 Production API:
@@ -203,8 +196,6 @@ Production web:
 
 ```dotenv
 NEXT_PUBLIC_STUDY_ABROAD_API_URL=https://your-production-api-domain
-NEXT_PUBLIC_SUPABASE_URL=https://your-production-supabase-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_production_supabase_anon_key
 ```
 
 Use separate Neon branches or databases for preview and production. Do not reuse `API_RATE_LIMIT_HASH_SALT` between environments.
@@ -277,6 +268,6 @@ After each web deploy:
 ## Public-repo safety
 
 - Commit only placeholders and variable names.
-- Keep DeepSeek keys, Neon URLs, Supabase keys, rate-limit salts, and Blob tokens in Vercel environment settings.
+- Keep DeepSeek keys, Neon URLs, rate-limit salts, and Blob tokens in Vercel environment settings.
 - Keep DeepSeek and database credentials backend-only.
 - Keep `NEXT_PUBLIC_STUDY_ABROAD_API_URL` pointed at the matching API environment so deployed frontend requests reach the deployed backend.

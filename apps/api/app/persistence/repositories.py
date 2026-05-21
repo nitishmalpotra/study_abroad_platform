@@ -9,6 +9,40 @@ from .database import Database
 from .privacy import admissions_record, json_dumps, sop_record
 
 
+class PostgresLeadRepository:
+    def __init__(self, database: Database) -> None:
+        self.database = database
+
+    def save_lead(self, lead: dict[str, str]) -> None:
+        with self.database.connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO tool_leads (
+                        tool_name,
+                        phone,
+                        email,
+                        target_country,
+                        target_intake,
+                        target_college,
+                        target_course,
+                        journey_stage
+                    )
+                    VALUES (
+                        %(tool_name)s,
+                        %(phone)s,
+                        %(email)s,
+                        %(target_country)s,
+                        %(target_intake)s,
+                        %(target_college)s,
+                        %(target_course)s,
+                        %(journey_stage)s
+                    )
+                    """,
+                    lead,
+                )
+
+
 class NullSOPSubmissionRepository:
     def save(
         self,
