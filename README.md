@@ -1,76 +1,250 @@
 # Study Abroad Platform
 
-Study Abroad Platform is a public monorepo in transition. It currently contains a KlassFin-themed Next.js frontend, a FastAPI backend, a Streamlit SOP review tool, and a Streamlit admissions predictor. The approved migration target is a cleaner monorepo with a shared backend, a shared AI runtime, reusable task-specific domain modules, and public-repo-grade operations; that work is still in progress.
+Study Abroad Platform is a public monorepo for study-abroad discovery and AI-assisted applicant tools. It combines a KlassFin-themed Next.js marketing site, a FastAPI backend, reusable Python domain services, shared API contracts, and a shared AI runtime that calls DeepSeek for live AI requests.
 
-## Current layout
+The project is for students exploring international study options, counselors or operators who want a reference implementation for education tools, and developers evaluating how the web app, API, contracts, and prompt-heavy Python services fit together.
 
-- `apps/web` — Next.js frontend with static marketing pages, Supabase-backed lead capture, and API-backed live/mock SOP review plus Admit Predictor tools
-- `apps/api` — FastAPI backend exposing health, live SOP/admissions endpoints, deterministic mock endpoints, and optional Neon-backed persistence
-- `services/sop_review` — DeepSeek-backed Streamlit SOP review tool with local SQLite persistence
-- `services/admissions` — DeepSeek-backed Streamlit admissions predictor with local SQLite persistence
-- `docs` — architecture, development, deployment, security, and migration documentation
+## What the tools do
 
-## Architecture
+- SOP Review: reviews a pasted Statement of Purpose against five criteria: Academic Fit, University Specificity, Career Clarity, Narrative Flow, and Language & Tone.
+- Admit Predictor: estimates admissions chances for one to five target programs from an applicant profile.
+- EMI Calculator: frontend-only education-loan EMI calculator.
+- Resources, destinations, universities, and blog pages: code-owned public content inside the web app.
+- Lead capture: browser-side Supabase inserts for consultation/resource interest. The current OTP step is a UI flow only; it does not send or verify a real OTP.
 
-The current architecture is documented in `docs/architecture.md`. The migration target is defined in `docs/MIGRATION_BLUEPRINT.md`.
+## Architecture overview
 
-## Run locally
+```mermaid
+flowchart LR
+  W["apps/web Next.js"] --> A["apps/api FastAPI"]
+  W --> S["Supabase leads"]
+  A --> C["packages/contracts"]
+  A --> SOP["services/sop_review"]
+  A --> ADM["services/admissions"]
+  SOP --> R["packages/ai_runtime"]
+  ADM --> R
+  R --> D["DeepSeek"]
+  A --> N["Optional Neon Postgres"]
+```
 
-See `docs/local-development.md` for setup and commands for each app.
+- `apps/web` is the public Next.js App Router frontend.
+- `apps/api` is the public FastAPI entry point for health, live AI endpoints, deterministic mock endpoints, request guards, rate limits, safe errors, and optional Postgres persistence.
+- `services/sop_review` and `services/admissions` own task-specific domain logic, prompts, schemas, validation, tests, and temporary Streamlit adapters.
+- `packages/ai_runtime` owns shared DeepSeek provider access, retries, timeout handling, JSON parsing helpers, and secret redaction.
+- `packages/contracts` owns canonical Pydantic contracts, JSON Schema snapshots, frontend TypeScript types, and deterministic mock payloads.
 
-## AI provider status
+See `docs/architecture.md` and `docs/MIGRATION_BLUEPRINT.md` for more detail.
 
-- Current services and live API endpoints require a bring-your-own DeepSeek API key via `DEEPSEEK_API_KEY`.
-- The SOP review and Admit Predictor frontend tools now call the FastAPI live and mock endpoints; the DeepSeek key remains server-side only.
-- Mock API endpoints are separate from live endpoints and do not call DeepSeek.
+## Monorepo structure
 
-## Deployment overview
+```text
+apps/
+  api/                 FastAPI backend
+  web/                 Next.js frontend
+docs/                  Public architecture, setup, deployment, security, and AI docs
+infra/                 Placeholder for future deployment/infra assets
+packages/
+  ai_runtime/          Shared Python AI runtime
+  contracts/           Shared API contracts and generated schemas/types
+services/
+  admissions/          Admissions prediction service and Streamlit adapter
+  sop_review/          SOP review service and Streamlit adapter
+tests/                 Root-level placeholder for future integration tests
+```
 
-See `docs/deployment.md`. The API now has Neon Postgres migrations and optional production persistence; a unified deployment pipeline is not implemented yet.
+## Tech stack
 
-## Security and privacy
+- Frontend: Next.js 15, React 18, TypeScript, Tailwind CSS, Framer Motion, Lucide icons, Supabase browser client.
+- API: FastAPI, Pydantic, Uvicorn, Psycopg, Ruff, Mypy, Pytest.
+- AI services: Python 3.11, Streamlit, Pydantic, Plotly, DeepSeek via `packages/ai_runtime`.
+- Tooling: `npm` for the web app, `uv` for Python packages, GitHub Actions CI for the web app and two Streamlit services.
 
-See `SECURITY.md` and `docs/security-and-privacy.md`.
+## Local setup
 
-The public API is anonymous by design. Live AI endpoints enforce backend rate
-limits, JSON/body-size guards, safe structured errors, restricted CORS, and
-secret-redacted structured logging; mock endpoints remain usable without model
-cost.
+Prerequisites:
 
-Public-repo hygiene is mandatory:
+- Node.js 20
+- Python 3.11
+- `uv`
+- A DeepSeek API key for live AI calls
+- Optional Supabase project values for lead capture
+- Optional Neon or local Postgres database for API persistence
 
-- no committed secrets
-- no local databases
-- no raw user documents
-- no personal absolute paths
-- no generated runtime logs
+Install and run each package from its own directory. There is no root package manager command yet.
 
-## Quality commands
+## Create `.env` files
+
+Copy the committed examples and replace placeholder values:
 
 ```bash
-# Frontend
+cp apps/web/.env.example apps/web/.env
+cp apps/api/.env.example apps/api/.env
+cp services/sop_review/.env.example services/sop_review/.env
+cp services/admissions/.env.example services/admissions/.env
+```
+
+Never commit `.env` files.
+
+## Bring your own DeepSeek API key
+
+Live SOP review and admissions prediction require a backend-only DeepSeek key:
+
+```dotenv
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
+DEEPSEEK_MODEL=deepseek-v4-flash
+# DEEPSEEK_MODELS=deepseek-chat,deepseek-reasoner
+# DEEPSEEK_BASE_URL=https://api.deepseek.com
+```
+
+Put these values in `apps/api/.env` for the FastAPI-backed web tools. Put the same values in `services/sop_review/.env` or `services/admissions/.env` only when running the standalone Streamlit apps.
+
+Do not put `DEEPSEEK_API_KEY` in `apps/web/.env`; frontend variables are public in the browser. The web app only needs `NEXT_PUBLIC_STUDY_ABROAD_API_URL`.
+
+## Run the web app
+
+```bash
+cd apps/web
+npm ci
+npm run dev
+```
+
+The web app runs at `http://localhost:3000`.
+
+`apps/web/.env`:
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+NEXT_PUBLIC_STUDY_ABROAD_API_URL=http://localhost:8000
+```
+
+Supabase values are required to unlock the lead-gated tool UI in the browser. The FastAPI endpoints can still be tested directly without Supabase.
+
+## Run the API
+
+```bash
+cd apps/api
+uv sync
+uv run uvicorn app.main:app --reload
+```
+
+The API runs at `http://localhost:8000`.
+
+Useful URLs:
+
+- `GET /health`
+- `POST /api/v1/sop/review`
+- `POST /api/v1/sop/review/mock`
+- `POST /api/v1/admissions/predict`
+- `POST /api/v1/admissions/predict/mock`
+- `/docs` for generated Swagger UI
+- `/openapi.json` for the OpenAPI schema
+
+Local API persistence is off in `apps/api/.env.example` with `API_PERSISTENCE_ENABLED=false` and `API_RATE_LIMIT_STORE=memory`. To test Postgres persistence, set `DATABASE_URL`, set `API_PERSISTENCE_ENABLED=true`, then run:
+
+```bash
+cd apps/api
+uv run python -m app.persistence.migrations
+```
+
+## Mock and demo mode
+
+Mock/demo mode is explicit and deterministic:
+
+- The web app has separate demo buttons for SOP Review and Admit Predictor.
+- Demo buttons call `/mock` API endpoints.
+- Mock endpoints validate request shape but do not instantiate live DeepSeek providers.
+- Mock calls are excluded from live AI rate limits.
+- Mock and live responses share the same contract shape.
+
+Use demo mode for local UI work, screenshots, and testing without model cost. Use live mode only after setting `DEEPSEEK_API_KEY` in the API environment.
+
+## Run tests and checks
+
+Configured checks:
+
+```bash
 cd apps/web
 npm run test
 npm run lint
 npm run typecheck
 npm run build
 
-# Admissions service
-cd services/admissions
+cd ../api
+uv run pytest
+uv run ruff check .
+uv run mypy app
+
+cd ../../packages/contracts
+uv run pytest
+
+cd ../ai_runtime
+uv run pytest
+
+cd ../../services/admissions
 uv run ruff check app.py
 uv run pytest
 uv run python -m py_compile app.py
 
-# SOP review service
-cd services/sop_review
+cd ../sop_review
 uv run python -m unittest discover -s tests
 uv run python -m py_compile app.py
-
-# API
-cd apps/api
-uv run pytest
-uv run ruff check .
-uv run mypy app
 ```
 
-Automated tests now exist for both Python services, the API, shared contracts, and frontend test/build/type/lint checks. End-to-end coverage is still planned later in the migration.
+The current GitHub Actions workflow runs web lint/type/build, admissions checks, and SOP review checks. API, contract, and shared runtime checks are documented but not yet wired into CI.
+
+No dedicated Markdown/documentation linter is configured.
+
+## Deployment overview
+
+The intended production split is:
+
+- Web: deploy `apps/web` as a Next.js app.
+- API: deploy `apps/api` as a FastAPI service.
+- Database: use Neon Postgres for API persistence and Postgres-backed rate limits.
+- AI provider: set `DEEPSEEK_API_KEY` only on backend runtimes.
+- Supabase: keep current lead-capture tables if lead capture remains in scope.
+
+Production API settings should include:
+
+```dotenv
+DATABASE_URL=your_neon_connection_string_with_sslmode_require
+API_PERSISTENCE_ENABLED=true
+API_RATE_LIMIT_STORE=postgres
+API_RATE_LIMIT_HASH_SALT=replace_with_random_secret
+API_CORS_ORIGINS=https://your-web-origin.example
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
+```
+
+There is no unified production deployment pipeline yet. See `docs/deployment.md`.
+
+## Security and privacy notes
+
+- The public API is anonymous; there are no user accounts in the first release.
+- Live AI endpoints enforce backend rate limits, JSON-only requests, request body limits, strict Pydantic validation, safe structured errors, CORS configuration, and secret-redacted logging.
+- API persistence stores summarized tool records only. It does not store raw SOP text, uploaded file bytes, phone numbers, full names, raw provider output, or raw client IP addresses.
+- Streamlit apps are local/temporary adapters and use local SQLite persistence; treat their local databases as sensitive.
+- `x-forwarded-for` is ignored by default. Set `API_TRUST_PROXY_HEADERS=true` only behind a trusted reverse proxy that strips untrusted forwarding headers.
+- Raw user submissions must not be committed as fixtures.
+
+See `SECURITY.md` and `docs/security-and-privacy.md`.
+
+## Known limitations
+
+- The frontend SOP tool accepts pasted SOP text only; upload support exists in the standalone Streamlit SOP app, not the public API flow.
+- Lead-capture OTP is not real verification.
+- Exact retention windows and automated deletion jobs are not implemented yet.
+- No CAPTCHA, WAF, queueing layer, centralized observability, or backup/restore automation is implemented.
+- API, contract, and shared runtime checks are not yet included in GitHub Actions CI.
+- End-to-end browser tests are not established.
+- Static content is still code-owned rather than MDX/CMS-backed.
+
+## Roadmap
+
+- Wire API, contract, and shared runtime checks into CI.
+- Add end-to-end mock-flow coverage for SOP Review and Admit Predictor.
+- Define and implement exact retention/deletion windows.
+- Add production deployment pipeline, observability, and backup/restore docs.
+- Decide whether lead capture keeps the current gated UX, gets real OTP, or is simplified.
+- Add upload support to the public SOP API only if file retention/scanning requirements are resolved.
+- Move static content toward a cleaner content layer when product needs justify it.

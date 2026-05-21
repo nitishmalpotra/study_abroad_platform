@@ -2,73 +2,100 @@
 
 ## Current deployment reality
 
-No single production deployment path is implemented in this monorepo yet.
+The repo does not yet include a unified production deployment pipeline.
 
-Today:
+Deployable units today:
 
-- the frontend can be built as a Next.js app
-- each Python tool can be run independently as a Streamlit app
-- the FastAPI backend can be run independently
-- the SOP service includes a Dockerfile
-- the FastAPI backend includes the first production persistence layer and migrations
-- the FastAPI backend includes public request guards, structured safe errors,
-  CORS configuration, live-only rate limiting, and deterministic mock endpoints
-- the repo does not yet include a unified deploy pipeline
+- `apps/web`: Next.js app that can be built with `npm run build`.
+- `apps/api`: FastAPI app that can run under Uvicorn or another ASGI server.
+- `services/sop_review`: standalone Streamlit app with a Dockerfile.
+- `services/admissions`: standalone Streamlit app package.
 
-## Current build commands
+For the public platform, treat `apps/web` and `apps/api` as the primary deployment units. The Streamlit apps are temporary standalone adapters for local or internal use during migration.
+
+## Build and smoke commands
 
 ```bash
-cd apps/web && npm run build
-cd services/sop_review && docker build -t sop-review-grader .
-cd services/admissions && uv build
+cd apps/web
+npm ci
+npm run build
+
+cd ../api
+uv sync
+uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+cd ../../services/sop_review
+docker build -t sop-review-grader .
 ```
 
-## Planned deployment direction
-
-Per `docs/MIGRATION_BLUEPRINT.md`, the target architecture is expected to move toward:
-
-- frontend deployment for the Next.js app
-- production FastAPI deployment for the public backend
-- environment-specific configuration and CI-backed release checks
-
-## Production database
-
-Neon Postgres is the production relational database target for the FastAPI API.
-Apply migrations before routing production traffic:
+Run API migrations before routing production traffic:
 
 ```bash
 cd apps/api
 uv run python -m app.persistence.migrations
 ```
 
-Required production API values:
+## Web deployment
 
-- `DATABASE_URL`: Neon pooled connection string with SSL, for example `?sslmode=require`
-- `API_PERSISTENCE_ENABLED=true`
-- `API_RATE_LIMIT_STORE=postgres`
-- `API_RATE_LIMIT_HASH_SALT`: high-entropy secret used to hash anonymous rate-limit identifiers
-- `DEEPSEEK_API_KEY`: backend-only model provider key
-- `API_CORS_ORIGINS`: comma-separated production frontend origins
-- `API_MAX_REQUEST_BODY_BYTES`: maximum accepted JSON request body size
-- `API_TRUST_PROXY_HEADERS=false` by default; set true only behind a trusted
-  reverse proxy that strips untrusted `x-forwarded-for` headers
+Deploy `apps/web` as a Next.js app.
 
-The persistence layer stores summarized SOP review submissions, summarized
-admissions prediction records, and hashed rate-limit buckets. It does not store
-raw SOP text, uploaded files, phone numbers, or raw client IP addresses.
+Required browser-safe values:
 
-Use `API_RATE_LIMIT_STORE=postgres` for production. The in-memory limiter is
-process-local and exists for development or single-process smoke tests only.
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+NEXT_PUBLIC_STUDY_ABROAD_API_URL=https://your-api-origin.example
+```
+
+Do not expose DeepSeek or database credentials to the web app.
+
+## API deployment
+
+Deploy `apps/api` as an ASGI service.
+
+Required production values:
+
+```dotenv
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
+DEEPSEEK_MODEL=deepseek-v4-flash
+DATABASE_URL=your_neon_postgres_connection_string_with_sslmode_require
+API_PERSISTENCE_ENABLED=true
+API_RATE_LIMIT_STORE=postgres
+API_RATE_LIMIT_HASH_SALT=replace_with_high_entropy_secret
+API_CORS_ORIGINS=https://your-web-origin.example
+API_LIVE_RATE_LIMIT_COUNT=6
+API_LIVE_RATE_LIMIT_WINDOW_SECONDS=3600
+API_MAX_REQUEST_BODY_BYTES=64000
+API_TRUST_PROXY_HEADERS=false
+```
+
+Set `API_TRUST_PROXY_HEADERS=true` only behind a trusted reverse proxy that strips untrusted forwarding headers. The default avoids trusting spoofable public `x-forwarded-for` values.
+
+## Database
+
+Neon Postgres is the production relational target for API persistence.
+
+The API persistence layer stores:
+
+- summarized SOP review records
+- summarized admissions prediction records
+- salted hash rate-limit buckets
+
+It does not store raw SOP text, uploaded files, phone numbers, full names, raw provider output, or raw client IP addresses.
+
+Use `API_RATE_LIMIT_STORE=postgres` for production. The in-memory limiter is process-local and suitable only for local development or single-process smoke tests.
 
 ## SOP uploads and blob storage
 
-First-release API persistence assumes SOP text is processed transiently and then
-discarded after the response is generated. Original SOP uploads are not persisted,
-so Vercel Blob is not required yet.
+The public API currently accepts pasted SOP text only. It processes text transiently and does not persist original SOP uploads. Vercel Blob or another object store is not required for the current public API.
 
-If product requirements later require retaining original uploaded files, store
-the file in Vercel Blob and store only blob references plus minimal metadata in
-Postgres. Do not store file bytes in Postgres.
+If product requirements later require retaining uploaded files, store file bytes in object storage, keep only references and minimal metadata in Postgres, add scanning/validation, and define deletion rules before launch.
 
-Environment promotion, automated retention jobs, and the unified release pipeline
-remain migration targets.
+## Operational gaps
+
+- No unified deploy workflow is committed.
+- API, contract, and shared runtime checks are not yet in GitHub Actions CI.
+- Retention deletion jobs are not implemented.
+- Backup/restore procedures are not documented.
+- Centralized observability and alerting are not implemented.
+- Stronger bot mitigation such as CAPTCHA, WAF, or queueing is not implemented.

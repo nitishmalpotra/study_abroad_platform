@@ -1,30 +1,56 @@
 # Evaluation strategy
 
-## Current state
+## Current automated coverage
 
-Initial automated evaluation suites now exist for both prompt-heavy services:
+Prompt-heavy services have synthetic regression coverage:
 
-- SOP prompt behavior: sanitized synthetic fixtures plus golden outputs check schema validity, exact rubric ordering, concise output shape, and coarse qualitative tendencies across strong, average, weak/generic, and invalid non-SOP cases.
-- Admissions prompt behavior: sanitized synthetic fixtures plus golden outputs check stable schema usage, prompt version metadata, concise profile-grounded reasons, and broad calibration across strong, borderline, weak, and unrealistic-target profiles.
+- SOP fixtures check schema validity, prompt version metadata, exact rubric ordering, concise output shape, and broad qualitative tendencies across strong, average, weak/generic, and invalid non-SOP cases.
+- Admissions fixtures check stable schema usage, prompt version metadata, concise profile-grounded reasons, and broad calibration across strong, borderline, weak, and unrealistic-target profiles.
 
-Frontend flows and cross-service contract evaluations are still not established.
+Contract tests in `packages/contracts` verify that committed mock payloads conform to the same response models as live API responses. API tests cover mock endpoints, validation errors, live rate-limit behavior with fakes, provider failure handling, and redaction behavior. Frontend tests cover rendered contract assumptions for the SOP and admissions mock payloads.
 
-## What should be evaluated during migration
+## What to run
 
-- schema validity and parser resilience
-- prompt parity when moving from Gemini to DeepSeek
-- admissions post-processing, prompt calibration, and repair behavior
-- SOP grading consistency against approved examples
-- real versus mock/demo switching behavior
-- frontend/backend contract compatibility
-- rate-limit and error-handling behavior once the public API exists
+```bash
+cd services/sop_review
+uv run python -m unittest discover -s tests
 
-## Practical next steps
+cd ../admissions
+uv run pytest
 
-1. Expand sanitized fixtures only when they add distinct failure modes.
-2. Keep deterministic schema and parsing tests as the first regression layer.
-3. Add provider-contract tests before changing vendors.
-4. Expand admissions fixtures only for distinct failure modes rather than fixture volume.
-5. Add periodic human review of live model outputs for judgment quality, calibration, factual restraint, and recommendation usefulness.
+cd ../../packages/contracts
+uv run pytest
 
-Raw user submissions must not be committed as fixtures.
+cd ../ai_runtime
+uv run pytest
+
+cd ../../apps/api
+uv run pytest
+
+cd ../web
+npm run test
+```
+
+## Evaluation principles
+
+- Use sanitized synthetic fixtures only; never commit raw user submissions.
+- Prefer small fixtures that represent distinct failure modes over large fixture volume.
+- Keep schema and parser tests deterministic.
+- Evaluate model/provider changes as behavior changes, not dependency swaps.
+- Mock and live response shapes must remain contract-compatible.
+- Human judgment remains required for admissions counseling and SOP quality assessment.
+
+## Gaps
+
+- No large human-labeled benchmark exists.
+- No periodic production-quality review workflow is implemented.
+- No end-to-end browser test suite exists yet.
+- CI does not yet run API, contract, or shared runtime checks.
+
+## Roadmap
+
+1. Add end-to-end mock-flow coverage for SOP Review and Admit Predictor.
+2. Expand fixtures only for new failure modes.
+3. Add human review of sampled live outputs for quality, calibration, factual restraint, and usefulness.
+4. Track prompt changes by prompt version and fixture diffs.
+5. Add provider-contract tests before any future vendor replacement.

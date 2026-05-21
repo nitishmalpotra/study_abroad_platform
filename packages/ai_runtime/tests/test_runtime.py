@@ -1,6 +1,5 @@
 import logging
 
-import pytest
 from pydantic import BaseModel
 
 from ai_runtime.config import RuntimeSettings
@@ -18,7 +17,13 @@ class FakeProvider:
         self.responses = responses
         self.models: list[str] = []
 
-    def complete(self, messages, *, model, timeout_seconds):
+    def complete(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        model: str,
+        timeout_seconds: float,
+    ) -> object:
         self.models.append(model)
         response = self.responses.pop(0)
         if isinstance(response, Exception):
@@ -26,7 +31,7 @@ class FakeProvider:
         return response
 
 
-def settings(**overrides) -> RuntimeSettings:
+def settings(**overrides: object) -> RuntimeSettings:
     values = {
         "api_key": "placeholder-key",
         "model_candidates": ("deepseek-chat", "deepseek-reasoner"),
@@ -54,4 +59,20 @@ def test_shared_json_helpers_extract_and_validate_payload() -> None:
 
 
 def test_redaction_removes_api_keys() -> None:
-    assert redact_secrets("failure " + "sk-" + "secretvalue123456") == "failure [REDACTED_API_KEY]"
+    assert (
+        redact_secrets("failure " + "sk-" + "secretvalue123456")
+        == "failure [REDACTED_API_KEY]"
+    )
+
+
+def test_redaction_removes_key_value_and_bearer_tokens() -> None:
+    message = redact_secrets(
+        "provider failed with API_KEY=secret123 and Authorization: Bearer token123"
+    )
+
+    assert "secret123" not in message
+    assert "token123" not in message
+    assert message == (
+        "provider failed with API_KEY=[REDACTED_API_KEY] and "
+        "Authorization: [REDACTED_API_KEY]"
+    )

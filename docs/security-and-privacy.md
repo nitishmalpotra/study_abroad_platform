@@ -12,6 +12,14 @@ Do not commit:
 
 The root `.gitignore` intentionally excludes these categories. Example configuration files are safe placeholders only.
 
+DeepSeek keys belong only in backend or standalone-service environments:
+
+- `apps/api/.env` for the public FastAPI-backed tools
+- `services/sop_review/.env` for the standalone SOP Streamlit app
+- `services/admissions/.env` for the standalone admissions Streamlit app
+
+Never put `DEEPSEEK_API_KEY` in `apps/web/.env`; `NEXT_PUBLIC_` values are browser-visible.
+
 ## Current data handling
 
 - `services/sop_review` stores submission metadata, raw SOP text, and AI feedback JSON in a local SQLite database.
@@ -88,6 +96,10 @@ Known residual risks:
   a complete bot mitigation strategy
 - no CAPTCHA, WAF, queueing layer, automated retention job, or centralized abuse
   workflow is implemented yet
+- lead-capture OTP is a UI flow only and does not currently send or verify a
+  real OTP
+- API, contract, and shared runtime checks are documented but not yet included
+  in GitHub Actions CI
 
 ## Planned posture
 

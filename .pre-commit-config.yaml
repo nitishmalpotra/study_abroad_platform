@@ -1,0 +1,38 @@
+repos:
+  - repo: local
+    hooks:
+      - id: api-ruff
+        name: API ruff
+        entry: bash -c 'cd apps/api && uv run ruff check .'
+        language: system
+        pass_filenames: false
+
+      - id: api-mypy
+        name: API mypy
+        entry: bash -c 'cd apps/api && uv run mypy app tests'
+        language: system
+        pass_filenames: false
+
+      - id: api-tests
+        name: API tests
+        entry: bash -c 'cd apps/api && uv run pytest'
+        language: system
+        pass_filenames: false
+
+      - id: web-lint
+        name: Web lint
+        entry: bash -c 'cd apps/web && npm run lint'
+        language: system
+        pass_filenames: false
+
+      - id: web-typecheck
+        name: Web typecheck
+        entry: bash -c 'cd apps/web && npm run typecheck'
+        language: system
+        pass_filenames: false
+
+      - id: web-tests
+        name: Web tests
+        entry: bash -c 'cd apps/web && npm run test'
+        language: system
+        pass_filenames: false

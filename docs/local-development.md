@@ -2,107 +2,154 @@
 
 ## Prerequisites
 
-- Node.js compatible with the Next.js frontend
-- Python 3.11 for the SOP review service
-- Python 3.10-3.12 for the admissions service
-- `uv` for Python dependency management
+- Node.js 20
+- Python 3.11
+- `uv`
+- DeepSeek API key for live AI calls
+- Optional Supabase project for lead capture
+- Optional Neon or local Postgres database for API persistence testing
 
-## Frontend
+There is no root workspace command yet. Run each app/package from its own directory.
+
+## Environment files
+
+Create local env files from the examples:
+
+```bash
+cp apps/web/.env.example apps/web/.env
+cp apps/api/.env.example apps/api/.env
+cp services/sop_review/.env.example services/sop_review/.env
+cp services/admissions/.env.example services/admissions/.env
+```
+
+Do not commit `.env` files.
+
+## Web app
 
 ```bash
 cd apps/web
-cp .env.example .env
 npm ci
 npm run dev
 ```
 
-Required frontend environment values:
+The frontend runs at `http://localhost:3000`.
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+`apps/web/.env`:
 
-The SOP review and Admit Predictor pages support both live and demo mode. Demo
-mode calls mock API endpoints and does not incur model cost.
-
-## SOP review service
-
-```bash
-cd services/sop_review
-cp .env.example .env
-uv sync --locked
-uv run streamlit run app.py
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+NEXT_PUBLIC_STUDY_ABROAD_API_URL=http://localhost:8000
 ```
 
-This service currently requires a DeepSeek key via `DEEPSEEK_API_KEY`.
+`NEXT_PUBLIC_STUDY_ABROAD_API_URL` points browser API calls at FastAPI. Do not put backend secrets in `apps/web/.env`; all `NEXT_PUBLIC_` values are visible in the browser.
 
-## Admissions service
-
-```bash
-cd services/admissions
-cp .env.example .env
-uv sync --locked
-uv run streamlit run app.py
-```
-
-This service currently requires a DeepSeek key via `DEEPSEEK_API_KEY`.
+Supabase values are required to unlock the lead-gated tool UI in the browser. The FastAPI endpoints can still be tested directly without Supabase.
 
 ## API
 
 ```bash
 cd apps/api
-cp .env.example .env
 uv sync
 uv run uvicorn app.main:app --reload
 ```
 
-Generated docs are available at `/docs`; the OpenAPI schema is available at `/openapi.json`.
-Live endpoints require `DEEPSEEK_API_KEY`; mock endpoints do not call DeepSeek.
+The API runs at `http://localhost:8000`.
 
-Local API persistence is optional. By default, `apps/api/.env.example` keeps
-`API_PERSISTENCE_ENABLED=false` and `API_RATE_LIMIT_STORE=memory`, so contributors
-do not need a local database for normal frontend/API work.
+Generated docs are available at `http://localhost:8000/docs`; the OpenAPI schema is available at `http://localhost:8000/openapi.json`.
 
-The API enforces JSON-only requests, a default 64 KB request-body limit, shared
-contract validation, and live-only rate limiting. Configure these with
-`API_MAX_REQUEST_BODY_BYTES`, `API_LIVE_RATE_LIMIT_COUNT`, and
-`API_LIVE_RATE_LIMIT_WINDOW_SECONDS`.
+`apps/api/.env`:
 
-To test against Postgres locally, create a local Postgres database or Neon
-development branch, set `DATABASE_URL`, then run:
+```dotenv
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
+DEEPSEEK_MODEL=deepseek-v4-flash
+# DEEPSEEK_MODELS=deepseek-chat,deepseek-reasoner
+# DEEPSEEK_BASE_URL=https://api.deepseek.com
+
+API_PERSISTENCE_ENABLED=false
+API_CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+API_LIVE_RATE_LIMIT_COUNT=6
+API_LIVE_RATE_LIMIT_WINDOW_SECONDS=3600
+API_MAX_REQUEST_BODY_BYTES=64000
+API_TRUST_PROXY_HEADERS=false
+API_RATE_LIMIT_STORE=memory
+```
+
+Live endpoints require `DEEPSEEK_API_KEY`. Mock endpoints do not call DeepSeek.
+
+Local persistence is optional. To test with Postgres:
 
 ```bash
 cd apps/api
+# set DATABASE_URL and API_PERSISTENCE_ENABLED=true in apps/api/.env first
 uv run python -m app.persistence.migrations
 ```
 
 Use a Neon-style URL with `sslmode=require` for hosted development databases.
-Do not commit `.env` files or local database artifacts.
 
-## Quality commands
+## SOP review Streamlit app
 
 ```bash
-# Frontend
+cd services/sop_review
+uv sync --locked
+uv run streamlit run app.py
+```
+
+Streamlit usually serves at `http://localhost:8501`.
+
+This standalone app requires `DEEPSEEK_API_KEY` for real review and stores local SQLite data at `SOP_DB_PATH` from `services/sop_review/.env`.
+
+## Admissions Streamlit app
+
+```bash
+cd services/admissions
+uv sync --locked
+uv run streamlit run app.py
+```
+
+Streamlit usually serves at `http://localhost:8501`.
+
+This standalone app requires `DEEPSEEK_API_KEY` for real prediction and stores local SQLite data.
+
+## Mock/demo development
+
+Use the web app's demo buttons or call the mock endpoints directly:
+
+```bash
+POST http://localhost:8000/api/v1/sop/review/mock
+POST http://localhost:8000/api/v1/admissions/predict/mock
+```
+
+Mock endpoints validate request shape, return deterministic responses, do not call DeepSeek, and are excluded from live AI quotas.
+
+## Checks
+
+```bash
 cd apps/web
+npm run test
 npm run lint
 npm run typecheck
 npm run build
 
-# Admissions service
-cd services/admissions
+cd ../api
+uv run pytest
+uv run ruff check .
+uv run mypy app
+
+cd ../../packages/contracts
+uv run pytest
+
+cd ../ai_runtime
+uv run pytest
+
+cd ../../services/admissions
 uv run ruff check app.py
 uv run pytest
 uv run python -m py_compile app.py
 
-# SOP review service
-cd services/sop_review
+cd ../sop_review
 uv run python -m unittest discover -s tests
 uv run python -m py_compile app.py
-
-# API
-cd apps/api
-uv run pytest
-uv run ruff check .
-uv run mypy app
 ```
 
-Automated tests now exist for both Python tools, the API, shared contracts, and frontend build/type/lint checks. Integration coverage is still planned later in the migration.
+No dedicated Markdown/documentation linter is configured.

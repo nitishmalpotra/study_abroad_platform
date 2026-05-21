@@ -18,4 +18,18 @@ Use `.env.example` files for documentation and keep real `.env` files local. If 
 
 ## Current security posture
 
-The current repo contains a Next.js frontend, a FastAPI backend, and two Streamlit service adapters. Live AI calls use DeepSeek through the backend and shared AI runtime; the frontend only receives public API URLs and must never expose the DeepSeek key. Server-side live rate limiting now exists in-memory for the first API surface, while production Postgres storage, blob storage, and retention automation remain planned in the migration blueprint.
+The current repo contains a Next.js frontend, a FastAPI backend, and two
+Streamlit service adapters. Live AI calls use DeepSeek through the backend and
+shared AI runtime; the frontend only receives public API URLs and must never
+expose the DeepSeek key. Public live AI endpoints do not require sign-in, so the
+API enforces live-only backend rate limits, JSON/body-size guards, request
+validation, restricted CORS, safe structured errors, and secret-redacted
+structured logs. Mock endpoints are separate from live endpoints and do not call
+DeepSeek.
+
+Production should use `API_RATE_LIMIT_STORE=postgres` with
+`API_RATE_LIMIT_HASH_SALT` so anonymous rate-limit buckets are stored as salted
+hashes rather than raw client identifiers. In-memory rate limiting is only for
+local development or single-process smoke tests. Blob storage and automated
+retention jobs remain planned in the migration blueprint; current public API SOP
+uploads are not accepted or retained.

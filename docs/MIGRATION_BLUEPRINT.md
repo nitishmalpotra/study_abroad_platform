@@ -36,6 +36,7 @@ This document is the authoritative migration plan for the repository.
 | Frontend admissions API integration | Completed | Admit Predictor is now a public Next.js tool backed by the shared admissions contracts and FastAPI live/mock endpoints |
 | Public platform persistence architecture | Completed | FastAPI owns versioned Neon Postgres migrations, modular tool-specific repositories, optional Postgres-backed hashed rate-limit buckets, and env-based persistence configuration |
 | Secure-by-default public AI controls | Completed | Live-only backend rate limits, JSON/body-size guards, stricter validation, safe errors, structured redacted logs, provider failure handling, frontend AI disclaimers, and security docs/tests |
+| Public-facing documentation finalization | Completed | Root README plus architecture, local development, deployment, security/privacy, AI design, and evaluation docs aligned to current scripts, ports, env vars, and known limitations |
 
 ### Current repo reality after prompt fifteen
 
@@ -79,6 +80,12 @@ This document is the authoritative migration plan for the repository.
 - API rate-limit persistence stores salted hashes of anonymous identifiers rather than raw IP addresses.
 - API client identity ignores `x-forwarded-for` by default to avoid trusting spoofable public headers; `API_TRUST_PROXY_HEADERS=true` is only for trusted reverse-proxy deployments.
 - Mock endpoints remain separate from live endpoints and do not instantiate live model providers.
+- Public documentation now describes the current monorepo, BYO DeepSeek workflow,
+  mock/demo mode, local setup, deployment posture, security/privacy posture,
+  known limitations, and roadmap.
+- Current GitHub Actions CI covers the web app, admissions Streamlit service, and
+  SOP review Streamlit service. API, contract, and shared runtime checks are
+  documented but not yet wired into CI.
 
 ## 1. Current-state summary
 
@@ -250,9 +257,10 @@ flowchart LR
 - SOP review and admissions prediction remain separate domain modules that plug into the shared runtime.
 - Frontend supports both:
   - user-visible mock/demo mode
-  - environment-controlled mock/demo mode
 - Mock/demo calls are supported for both SOP review and admit prediction.
-- Real AI calls are rate-limited server-side; exact anonymous policy remains to be finalized during API/security implementation.
+- Real AI calls are rate-limited server-side under the current anonymous
+  client-identifier policy. By default the API ignores spoofable
+  `x-forwarded-for`; trusted proxy headers are opt-in.
 - Mock/demo calls are excluded from live-model quotas.
 - No user accounts or sign-in.
 - Production API persistence uses separate SOP review, admissions prediction, and rate-limit tables rather than a shared tool-submission model.
@@ -441,32 +449,46 @@ Status: Completed.
 
 #### Phase 5 — Rebuild frontend in Next.js
 
-Status: In progress; SOP and admissions frontend API integrations are completed, while content restructuring remains pending.
+Status: In progress; SOP and admissions frontend API integrations are completed,
+while content restructuring remains pending.
 - Completed in the framework-migration slice:
   - Port the current KlassFin pages and theme faithfully.
   - Preserve current public routes, static assets, mock SOP behavior, and lead-capture UX.
 - Still pending in later product-integration work:
   - Port static content into a cleaner code-owned content structure that can later move to MDX/CMS.
-  - Replace the mock-only SOP page with an API-backed SOP feature. Completed in the SOP integration slice.
-  - Add the public Admit Predictor page. Completed in the admissions frontend integration slice.
-  - Expose real AI mode, user-visible demo/mock mode, and environment-driven mode configuration.
+- Completed in previous integration slices:
+  - Replace the mock-only SOP page with an API-backed SOP feature.
+  - Add the public Admit Predictor page.
+  - Expose real AI mode and user-visible demo/mock mode.
 - Keep lead capture in the UX without turning it into account creation.
 
 #### Phase 6 — Production hardening
-- Finalize and enforce the anonymous live-request rate-limit policy across SOP + admissions.
-- Exclude mock/demo calls from quotas.
-- Add:
+
+Status: Partially completed. Public request guards, CORS configuration, safe
+errors, redacted structured logs, live-only backend rate limits, provider failure
+handling, JSON/body-size limits, and frontend AI disclaimers are implemented.
+Follow-up work remains for stronger bot mitigation, retention deletion jobs,
+backup/restore docs, and any future upload-scanning strategy if API uploads are
+added.
+- Completed:
+  - enforce the anonymous live-request rate-limit policy across SOP + admissions
+  - exclude mock/demo calls from quotas
   - CORS policy
-  - request/file validation
+  - request validation
   - secret handling
   - safe error responses
-  - upload scanning/validation strategy
-  - observability
   - health checks
+- Still pending:
+  - upload scanning/validation strategy if uploaded SOP files become part of the public API
+  - centralized observability beyond structured application logs
   - backup/restore docs
   - retention deletion verification
 
 #### Phase 7 — Public release readiness
+Status: Partially completed. Public-facing documentation has been finalized for
+current implementation reality. Screenshots/demo instructions, CI coverage for
+API/contracts/shared runtime, production release operations, and end-to-end
+verification remain pending.
 - Finalize docs.
 - Add screenshots/demo instructions.
 - Verify deployment paths.
@@ -490,13 +512,13 @@ Status: In progress; SOP and admissions frontend API integrations are completed,
 | DeepSeek migration | Legacy prompts and parsing were tuned around Gemini behavior; DeepSeek parity must be validated, not assumed. |
 | Shared AI runtime | SOP and admissions now expose compatible provider boundaries, but shared runtime behavior still needs to be centralized deliberately rather than duplicated across services. |
 | Upload retention | Persisting original SOP files introduces privacy, storage, deletion, and access-control obligations. |
-| Rate limiting | Existing Streamlit per-session rate limit is not sufficient for a public multi-instance service. |
+| Rate limiting | API live endpoints now support Postgres-backed hashed buckets for production; in-memory limits remain local/single-process only. |
 | Device identity | “Per device” without sign-in needs a practical anonymous identifier strategy; it should not rely only on frontend state. |
 | Lead capture | Existing OTP UX is not real verification. Retaining lead capture requires deciding whether OTP becomes real or whether the flow is simplified honestly. |
-| Contract drift | Current frontend/backend disagreement is material; shared contracts are required. |
+| Contract drift | Shared contracts now prevent the earlier frontend/backend rubric and payload drift; keep schema diffs reviewable whenever payloads change. |
 | Testing gap | Service-level, API, contract, and frontend build/type/lint checks now exist, but end-to-end coverage is still pending. |
 | Data model consolidation | SOP, admissions, and leads currently live in different storage models and need a unified schema strategy. |
-| Public repo readiness | Baseline docs now exist, but public-release documentation is not final and must keep evolving with implementation. |
+| Public repo readiness | Public-facing docs now cover setup, architecture, deployment, security/privacy, AI design, evaluations, BYO DeepSeek, mock/demo mode, limitations, and roadmap. Docs must still keep evolving with implementation. |
 | Static content | Content remains code-owned now, so structure it cleanly enough to extract later without rewriting page logic. |
 
 ## 6. KlassFin frontend theme preservation checklist
@@ -581,7 +603,7 @@ Status: In progress; SOP and admissions frontend API integrations are completed,
   - admit predictor flow
   - real/mock switching
 - Integration tests cover API contracts.
-- CI runs linting, type checking, tests, and builds.
+- Target CI runs linting, type checking, tests, and builds across the monorepo.
 
 ### Documentation
 - Root README explains architecture, setup, environment variables, and deployment.
@@ -614,14 +636,16 @@ Status: In progress; SOP and admissions frontend API integrations are completed,
 - Presence of baseline CI
 - Presence of SOP and admissions service tests
 - Prompt layout normalization across both services
+- Public README and supporting docs matched against current scripts, ports,
+  environment variables, API routes, and CI configuration
 
 ### Not verified
 - Runtime behavior of the apps
-- Actual Gemini responses
 - Deployed environments
 - Supabase live data or policies beyond local migration files
 - Performance, accessibility, and browser rendering
-- Live operation of the new extracted service modules inside Streamlit beyond import-level compatibility
+- Live DeepSeek calls
+- End-to-end browser flows
 
 ### Fixed decisions
 - Public monorepo
@@ -632,11 +656,13 @@ Status: In progress; SOP and admissions frontend API integrations are completed,
 - Reusable SOP and admissions domain services
 - Shared AI runtime plus separate task-specific modules for SOP review and admissions prediction
 - No user accounts/sign-in
-- Mock mode both user-visible and environment-driven
+- Mock mode is user-visible for the public tools
 - Public docs and CI are required parts of the product
+- First public API release processes SOP text transiently and does not persist
+  original SOP uploads
 
 ### Open decisions
-- Whether to persist original SOP uploads in the first public release
 - Final retention policy
-- Exact anonymous rate-limit policy and identifier strategy
 - Final lead-capture behavior for the public tools
+- Whether future SOP upload retention is needed after the pasted-text public API
+  flow
