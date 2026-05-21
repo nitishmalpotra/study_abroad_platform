@@ -38,6 +38,7 @@ This document is the authoritative migration plan for the repository.
 | Secure-by-default public AI controls | Completed | Live-only backend rate limits, JSON/body-size guards, stricter validation, safe errors, structured redacted logs, provider failure handling, frontend AI disclaimers, and security docs/tests |
 | Public-facing documentation finalization | Completed | Root README plus architecture, local development, deployment, security/privacy, AI design, release smoke checks, and evaluation docs aligned to current scripts, ports, env vars, and known limitations |
 | Final engineering hardening pass | Completed | CI now includes web tests, API checks, contracts, shared runtime, and both domain services; frontend API-client tests and backend smoke tests cover mock/live-with-fakes, validation, and rate limits |
+| Vercel deployment preparation | Completed | `apps/api` exposes Vercel FastAPI entrypoint metadata and pip requirements; `docs/deployment.md` documents two Vercel projects, build commands, health checks, env vars, preview/production setup, and public-repo-safe secret handling |
 
 ### Current repo reality after prompt fifteen
 
@@ -89,6 +90,11 @@ This document is the authoritative migration plan for the repository.
   shared AI runtime, admissions service, and SOP review service. It now runs
   frontend tests/lint/type/build, API ruff format/lint/mypy/pytest/compile
   checks, contract drift tests, shared runtime tests, and service tests.
+- Vercel deployment is documented as two projects from the same monorepo:
+  `apps/web` as the Next.js project and `apps/api` as the FastAPI project.
+- `apps/api` now includes Vercel FastAPI discovery metadata in `pyproject.toml`
+  and a `requirements.txt` that installs local monorepo packages for Vercel's
+  pip-based Python install path.
 
 ## 1. Current-state summary
 
@@ -158,7 +164,7 @@ This document is the authoritative migration plan for the repository.
 
 | Area | Missing / only implied |
 |---|---|
-| Backend architecture | FastAPI backend exists for the first public release surface; persistence hardening and production deployment work remain |
+| Backend architecture | FastAPI backend exists for the first public release surface; persistence hardening remains, and Vercel deployment preparation is documented but not deployed |
 | AI provider | DeepSeek is active through `packages/ai_runtime`; service-level provider protocols remain in place |
 | Frontend integration | SOP review and Admit Predictor are API-backed public tools with deterministic mock/demo flows; broader frontend content restructuring remains pending |
 | Mocking | SOP review and Admit Predictor frontend flows call their backend mock endpoints |
@@ -489,8 +495,9 @@ added.
 
 #### Phase 7 — Public release readiness
 Status: Partially completed. Public-facing documentation has been finalized for
-current implementation reality, release smoke-test instructions exist, and CI
-coverage now includes API, contracts, and shared runtime checks. Production
+current implementation reality, release smoke-test instructions exist, CI
+coverage now includes API, contracts, and shared runtime checks, and Vercel
+deployment paths for `apps/web` and `apps/api` are documented. Production
 release operations, screenshots, deployed-environment verification, and live
 DeepSeek verification remain pending.
 - Finalize docs.
@@ -523,6 +530,7 @@ DeepSeek verification remain pending.
 | Testing gap | Service-level, API, contract, frontend API-client, frontend build/type/lint, backend smoke, and mock-flow checks now exist. Browser-level end-to-end automation and live DeepSeek verification remain pending. |
 | Data model consolidation | SOP, admissions, and leads currently live in different storage models and need a unified schema strategy. |
 | Public repo readiness | Public-facing docs now cover setup, architecture, deployment, security/privacy, AI design, evaluations, BYO DeepSeek, mock/demo mode, limitations, and roadmap. Docs must still keep evolving with implementation. |
+| Vercel deployment | Web and API deploy as separate Vercel projects from the same monorepo. The API uses `requirements.txt` for Vercel's pip install path and `[project.scripts] app = "app.main:app"` for FastAPI discovery. |
 | Static content | Content remains code-owned now, so structure it cleanly enough to extract later without rewriting page logic. |
 
 ## 6. KlassFin frontend theme preservation checklist
@@ -645,10 +653,13 @@ DeepSeek verification remain pending.
   environment variables, API routes, release smoke checks, and CI configuration
 - API, contract, shared runtime, frontend API client, and backend smoke tests are
   wired into CI
+- Vercel deployment instructions now match the current `apps/web` scripts and
+  `apps/api` FastAPI entrypoint/build metadata
 
 ### Not verified
 - Deployed runtime behavior of the apps
 - Deployed environments
+- Actual Vercel build/runtime execution
 - Supabase live data or policies beyond local migration files
 - Performance, accessibility, and browser rendering
 - Live DeepSeek calls

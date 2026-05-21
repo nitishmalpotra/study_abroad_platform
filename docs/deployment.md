@@ -1,100 +1,259 @@
 # Deployment
 
-## Current deployment reality
+Deploy the public platform as two Vercel projects from the same Git repository:
 
-The repo does not yet include a unified production deployment pipeline.
+- `apps/web`: Next.js frontend.
+- `apps/api`: FastAPI backend.
 
-Deployable units today:
+The internal Streamlit apps under `services/` are not public deployment targets.
 
-- `apps/web`: Next.js app that can be built with `npm run build`.
-- `apps/api`: FastAPI app that can run under Uvicorn or another ASGI server.
-- `services/sop_review`: standalone Streamlit app with a Dockerfile.
-- `services/admissions`: standalone Streamlit app package.
+## Vercel project setup
 
-For the public platform, treat `apps/web` and `apps/api` as the primary deployment units. The Streamlit apps are intentionally retained as internal/local tools for operators and debugging, not as public architecture.
+Create two separate Vercel projects that point at this monorepo.
 
-## Build and smoke commands
+### Web project
 
-```bash
-cd apps/web
-npm ci
-npm run build
+Use these Vercel settings:
 
-cd ../api
-uv sync
-uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
-
-cd ../../services/sop_review
-docker build -t sop-review-grader .
+```text
+Root Directory: apps/web
+Framework Preset: Next.js
+Install Command: npm ci
+Build Command: npm run build
+Output Directory: .next
+Development Command: npm run dev
 ```
 
-Run API migrations before routing production traffic:
+Health/smoke URL:
 
-```bash
-cd apps/api
-uv run python -m app.persistence.migrations
+```text
+/
+/tools/sop-review
+/tools/admit-predictor
 ```
 
-## Web deployment
+### API project
 
-Deploy `apps/web` as a Next.js app.
+Use these Vercel settings:
 
-Required browser-safe values:
-
-```dotenv
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
-NEXT_PUBLIC_STUDY_ABROAD_API_URL=https://your-api-origin.example
+```text
+Root Directory: apps/api
+Framework Preset: FastAPI
+Install Command: pip install -r requirements.txt
+Build Command: python -m py_compile app/main.py
+Development Command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-Do not expose DeepSeek or database credentials to the web app.
+`apps/api/pyproject.toml` exposes the ASGI app through:
 
-## API deployment
+```toml
+[project.scripts]
+app = "app.main:app"
+```
 
-Deploy `apps/api` as an ASGI service.
+`apps/api/requirements.txt` installs the local monorepo packages with relative editable paths, so the API project must be deployed from the full monorepo checkout, not from a copied `apps/api` folder.
 
-Required production values:
+Health check URL:
+
+```text
+/health
+```
+
+Expected response:
+
+```json
+{"status":"ok"}
+```
+
+## API environment variables
+
+Set these on the API Vercel project.
+
+Required for live AI:
 
 ```dotenv
 DEEPSEEK_API_KEY=your_deepseek_api_key_here
 DEEPSEEK_MODEL=deepseek-v4-flash
+```
+
+Optional DeepSeek overrides:
+
+```dotenv
+DEEPSEEK_MODELS=deepseek-chat,deepseek-reasoner
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+```
+
+Required for production persistence and production rate limits:
+
+```dotenv
 DATABASE_URL=your_neon_postgres_connection_string_with_sslmode_require
 API_PERSISTENCE_ENABLED=true
 API_RATE_LIMIT_STORE=postgres
 API_RATE_LIMIT_HASH_SALT=replace_with_high_entropy_secret
-API_CORS_ORIGINS=https://your-web-origin.example
+```
+
+Required CORS setting:
+
+```dotenv
+API_CORS_ORIGINS=https://your-web-production-domain.vercel.app
+```
+
+If the web project has preview deployments, include the exact preview origins you intend to test against:
+
+```dotenv
+API_CORS_ORIGINS=https://your-web-production-domain.vercel.app,https://your-web-git-branch-team.vercel.app
+```
+
+Other API settings:
+
+```dotenv
 API_LIVE_RATE_LIMIT_COUNT=6
 API_LIVE_RATE_LIMIT_WINDOW_SECONDS=3600
 API_MAX_REQUEST_BODY_BYTES=64000
 API_TRUST_PROXY_HEADERS=false
 ```
 
-Set `API_TRUST_PROXY_HEADERS=true` only behind a trusted reverse proxy that strips untrusted forwarding headers. The default avoids trusting spoofable public `x-forwarded-for` values.
+Keep `API_TRUST_PROXY_HEADERS=false` unless the deployment sits behind a trusted proxy that strips untrusted forwarding headers.
 
-## Database
+Optional future Vercel Blob setting:
 
-Neon Postgres is the production relational target for API persistence.
+```dotenv
+BLOB_READ_WRITE_TOKEN=your_vercel_blob_token_here
+```
 
-The API persistence layer stores:
+The current public API accepts pasted SOP text only and does not store original SOP uploads, so Vercel Blob is not required today.
 
-- summarized SOP review records
-- summarized admissions prediction records
-- salted hash rate-limit buckets
+## Web environment variables
 
-It does not store raw SOP text, uploaded files, phone numbers, full names, raw provider output, or raw client IP addresses.
+Set these on the web Vercel project.
 
-Use `API_RATE_LIMIT_STORE=postgres` for production. The in-memory limiter is process-local and suitable only for local development or single-process smoke tests.
+Required for frontend-to-backend calls:
 
-## SOP uploads and blob storage
+```dotenv
+NEXT_PUBLIC_STUDY_ABROAD_API_URL=https://your-api-production-domain.vercel.app
+```
 
-The public API currently accepts pasted SOP text only. It processes text transiently and does not persist original SOP uploads. Vercel Blob or another object store is not required for the current public API.
+Required for production lead capture:
 
-If product requirements later require retaining uploaded files, store file bytes in object storage, keep only references and minimal metadata in Postgres, add scanning/validation, and define deletion rules before launch.
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+```
 
-## Operational gaps
+Do not set `DEEPSEEK_API_KEY`, `DATABASE_URL`, `API_RATE_LIMIT_HASH_SALT`, or `BLOB_READ_WRITE_TOKEN` on the web project. All `NEXT_PUBLIC_` values are browser-visible.
 
-- No unified deploy workflow is committed.
-- Retention deletion jobs are not implemented.
-- Backup/restore procedures are not documented.
-- Centralized observability and alerting are not implemented.
-- Stronger bot mitigation such as CAPTCHA, WAF, or queueing is not implemented.
+## Preview vs production setup
+
+Use separate Vercel environment scopes.
+
+Preview API:
+
+```dotenv
+DEEPSEEK_API_KEY=preview_or_low_quota_deepseek_key
+DATABASE_URL=preview_neon_branch_or_database_url_with_sslmode_require
+API_PERSISTENCE_ENABLED=true
+API_RATE_LIMIT_STORE=postgres
+API_RATE_LIMIT_HASH_SALT=preview_only_random_secret
+API_CORS_ORIGINS=https://your-web-preview-domain.vercel.app
+```
+
+Preview web:
+
+```dotenv
+NEXT_PUBLIC_STUDY_ABROAD_API_URL=https://your-api-preview-domain.vercel.app
+NEXT_PUBLIC_SUPABASE_URL=https://your-preview-supabase-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_preview_supabase_anon_key
+```
+
+Production API:
+
+```dotenv
+DEEPSEEK_API_KEY=production_deepseek_key
+DATABASE_URL=production_neon_database_url_with_sslmode_require
+API_PERSISTENCE_ENABLED=true
+API_RATE_LIMIT_STORE=postgres
+API_RATE_LIMIT_HASH_SALT=production_random_secret
+API_CORS_ORIGINS=https://your-production-web-domain
+```
+
+Production web:
+
+```dotenv
+NEXT_PUBLIC_STUDY_ABROAD_API_URL=https://your-production-api-domain
+NEXT_PUBLIC_SUPABASE_URL=https://your-production-supabase-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_production_supabase_anon_key
+```
+
+Use separate Neon branches or databases for preview and production. Do not reuse `API_RATE_LIMIT_HASH_SALT` between environments.
+
+## Database migrations
+
+Run migrations before routing traffic to a new API database:
+
+```bash
+cd apps/api
+DATABASE_URL=your_neon_postgres_connection_string_with_sslmode_require uv run python -m app.persistence.migrations
+```
+
+Vercel builds should not run migrations automatically because builds can run more than once and against preview environments.
+
+## Local production-like verification
+
+Run the same checks that deployment relies on:
+
+```bash
+cd apps/web
+npm ci
+npm run build
+```
+
+```bash
+cd apps/api
+uv sync --locked
+uv run python -m py_compile app/main.py
+uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+In another terminal:
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+For API tests:
+
+```bash
+cd apps/api
+uv run pytest
+```
+
+For a frontend smoke test against the local API:
+
+```bash
+cd apps/web
+NEXT_PUBLIC_STUDY_ABROAD_API_URL=http://127.0.0.1:8000 npm run build
+```
+
+Then start the API and web app locally and exercise demo mode on `/tools/sop-review` and `/tools/admit-predictor`.
+
+## Post-deploy smoke checks
+
+After each API deploy:
+
+```bash
+curl https://your-api-domain.vercel.app/health
+```
+
+After each web deploy:
+
+- Open `/tools/sop-review`.
+- Open `/tools/admit-predictor`.
+- Submit demo-mode requests for both tools.
+- Submit live-mode requests only when `DEEPSEEK_API_KEY`, `DATABASE_URL`, rate-limit salt, and CORS are configured for that environment.
+
+## Public-repo safety
+
+- Commit only placeholders and variable names.
+- Keep DeepSeek keys, Neon URLs, Supabase keys, rate-limit salts, and Blob tokens in Vercel environment settings.
+- Keep DeepSeek and database credentials backend-only.
+- Keep `NEXT_PUBLIC_STUDY_ABROAD_API_URL` pointed at the matching API environment so deployed frontend requests reach the deployed backend.

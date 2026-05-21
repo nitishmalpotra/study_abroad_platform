@@ -45,7 +45,8 @@ npm run test
 - No large human-labeled benchmark exists.
 - No periodic production-quality review workflow is implemented.
 - No end-to-end browser test suite exists yet.
-- CI does not yet run API, contract, or shared runtime checks.
+- CI runs package-level API, contract, shared runtime, service, and web checks,
+  but it does not yet run browser-level end-to-end mock-flow checks.
 
 ## Roadmap
 
