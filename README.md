@@ -58,7 +58,60 @@ services/
 - AI services: Python 3.11, Pydantic, Streamlit internal/local adapters, Plotly, DeepSeek via `packages/ai_runtime`.
 - Tooling: `npm` for the web app, `uv` for Python packages, GitHub Actions CI for web, API, contracts, shared runtime, and both domain services.
 
-## Local setup
+## Quick start (demo mode, no API keys)
+
+Get the site running locally in two terminals. Demo mode works with **no keys and
+no database**.
+
+Prerequisites:
+
+- [Node.js 20+](https://nodejs.org)
+- [Python 3.11](https://www.python.org/downloads/)
+- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) — install with
+  `curl -LsSf https://astral.sh/uv/install.sh | sh`
+
+```bash
+git clone <your-repo-url>
+cd study_abroad_platform
+```
+
+**Terminal 1 — start the API:**
+
+```bash
+cd apps/api
+uv sync
+uv run uvicorn app.main:app --reload
+```
+
+**Terminal 2 — start the web app:**
+
+```bash
+cd apps/web
+npm ci
+npm run dev
+```
+
+Open <http://localhost:3000/tools/sop-review> and click **Demo Review**, or
+<http://localhost:3000/tools/admit-predictor> and click **Demo Prediction**. No
+`.env` is required for local demo mode — the web app defaults to the API at
+`http://localhost:8000`, and the lead-capture gate unlocks automatically in local
+development.
+
+### Bring your own keys (live AI)
+
+To switch from demo to real AI answers, add your DeepSeek key to the **API** only:
+
+```bash
+cd apps/api
+cp .env.example .env        # then edit .env and set DEEPSEEK_API_KEY
+uv run uvicorn app.main:app --reload   # restart so the key is picked up
+```
+
+Now the **Live Review** / **Live Prediction** buttons call DeepSeek. The key stays
+backend-only and is never exposed to the browser. Persistence and lead capture
+stay optional — see below.
+
+## Local setup (full detail)
 
 Prerequisites:
 

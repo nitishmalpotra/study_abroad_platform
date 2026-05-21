@@ -92,7 +92,9 @@ This document is the authoritative migration plan for the repository.
   frontend tests/lint/type/build, API ruff format/lint/mypy/pytest/compile
   checks, contract drift tests, shared runtime tests, and service tests.
 - Vercel deployment is documented as two projects from the same monorepo:
-  `apps/web` as the Next.js project and `apps/api` as the FastAPI project.
+  `apps/web` as the Next.js project and `apps/api` as the FastAPI project. The
+  technical reference lives in `docs/deployment.md`; a beginner-friendly,
+  dashboard-based walkthrough lives in `docs/vercel-deploy-step-by-step.md`.
 - `apps/api` now includes Vercel FastAPI discovery metadata in `pyproject.toml`
   via `[tool.vercel] entrypoint = "app.main:app"` and `[tool.vercel.scripts]
   build`, plus a `requirements.txt` that installs local monorepo packages for

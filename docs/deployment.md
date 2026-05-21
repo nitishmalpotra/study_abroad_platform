@@ -1,5 +1,9 @@
 # Deployment
 
+> New to Vercel? Follow the beginner-friendly, click-by-click walkthrough in
+> [`vercel-deploy-step-by-step.md`](vercel-deploy-step-by-step.md). This page is
+> the full technical reference.
+
 Deploy the public platform as two Vercel projects from the same Git repository:
 
 - `apps/web`: Next.js frontend.
