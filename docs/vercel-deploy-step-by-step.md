@@ -61,8 +61,12 @@ a password manager). Use a **different** one for preview vs production.
 |---|---|
 | **Project Name** | e.g. `study-abroad-api` |
 | **Root Directory** | `apps/api` (click **Edit** and pick the folder) |
-| **Framework Preset** | Vercel auto-detects **FastAPI** — leave it |
+| **Framework Preset** | **Select `FastAPI` from the dropdown.** Do not leave it on `Other` — auto-detection often picks `Other`, which runs no Python build and makes every route 404. |
 | **Build/Install/Output commands** | Leave on default (the repo already configures them) |
+
+> If the deploy finishes suspiciously fast (a few hundred ms) with no `pip`/`uv`
+> install in the build log, the preset is wrong. It must be `FastAPI`. Change it
+> in **Settings → Build and Deployment → Framework Settings**, then redeploy.
 
 ### Step 1.3 — Turn on "include files outside the root" (important)
 
@@ -237,6 +241,7 @@ Vercel automatically builds a **Preview** deployment for every branch/PR and a
 
 **API project**
 - Root Directory: `apps/api`
+- Framework Preset: **FastAPI** (not `Other`)
 - Include files outside root: **ON**
 - Health check: `GET /health` → `{"status":"ok"}`
 - Secrets: `DEEPSEEK_API_KEY`, `DATABASE_URL`, `API_RATE_LIMIT_HASH_SALT`
@@ -261,6 +266,7 @@ Vercel automatically builds a **Preview** deployment for every branch/PR and a
 
 | Symptom | Likely cause / fix |
 |---|---|
+| Every route 404s (incl. `/health`) and the build finished in a few hundred ms | Framework Preset is `Other`, so no Python build ran. Set it to **FastAPI** in Settings → Build and Deployment, then redeploy without cache |
 | API build fails: "No module named ai_runtime / sop_review" | "Include source files outside of the Root Directory" is OFF — turn it ON, redeploy |
 | `/health` works but live tools fail in the browser console with a CORS error | `API_CORS_ORIGINS` doesn't match the web URL exactly; fix it and **redeploy the API** |
 | Live AI returns an error but demo works | `DEEPSEEK_API_KEY` missing/invalid on the API project |
