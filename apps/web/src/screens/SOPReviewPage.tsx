@@ -122,14 +122,15 @@ function SOPTool() {
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-4 mb-4">
-                  <input value={form.full_name} onChange={(e) => updateField('full_name', e.target.value)} className={inputBase} placeholder="Full name" />
-                  <input value={form.mobile} onChange={(e) => updateField('mobile', e.target.value.replace(/\D/g, '').slice(0, 15))} className={inputBase} placeholder="Mobile number" inputMode="numeric" />
-                  <input value={form.university} onChange={(e) => updateField('university', e.target.value)} className={inputBase} placeholder="Target university" />
-                  <input value={form.intake} onChange={(e) => updateField('intake', e.target.value)} className={inputBase} placeholder="Target intake, e.g. Fall 2026" />
-                  <input value={form.country} onChange={(e) => updateField('country', e.target.value)} className={`${inputBase} sm:col-span-2`} placeholder="Target country" />
+                  <input aria-label="Full name" value={form.full_name} onChange={(e) => updateField('full_name', e.target.value)} className={inputBase} placeholder="Full name" />
+                  <input aria-label="Mobile number" value={form.mobile} onChange={(e) => updateField('mobile', e.target.value.replace(/\D/g, '').slice(0, 15))} className={inputBase} placeholder="Mobile number" inputMode="numeric" />
+                  <input aria-label="Target university" value={form.university} onChange={(e) => updateField('university', e.target.value)} className={inputBase} placeholder="Target university" />
+                  <input aria-label="Target intake" value={form.intake} onChange={(e) => updateField('intake', e.target.value)} className={inputBase} placeholder="Target intake, e.g. Fall 2026" />
+                  <input aria-label="Target country" value={form.country} onChange={(e) => updateField('country', e.target.value)} className={`${inputBase} sm:col-span-2`} placeholder="Target country" />
                 </div>
 
                 <textarea
+                  aria-label="Statement of Purpose text"
                   value={form.sop_text}
                   onChange={(e) => updateField('sop_text', e.target.value)}
                   rows={14}

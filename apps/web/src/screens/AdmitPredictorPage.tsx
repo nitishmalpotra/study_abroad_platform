@@ -223,24 +223,25 @@ function AdmitPredictorTool() {
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
-                  <input value={form.full_name} onChange={(event) => updateField('full_name', event.target.value)} className={inputBase} placeholder="Full name" />
-                  <input value={form.target_intake} onChange={(event) => updateField('target_intake', event.target.value)} className={inputBase} placeholder="Target intake, e.g. Fall 2026" />
-                  <input value={form.target_country} onChange={(event) => updateField('target_country', event.target.value)} className={inputBase} placeholder="Target country" />
-                  <input value={form.undergrad_degree_name} onChange={(event) => updateField('undergrad_degree_name', event.target.value)} className={inputBase} placeholder="Undergraduate degree, e.g. BTech CSE" />
+                  <input aria-label="Full name" value={form.full_name} onChange={(event) => updateField('full_name', event.target.value)} className={inputBase} placeholder="Full name" />
+                  <input aria-label="Target intake" value={form.target_intake} onChange={(event) => updateField('target_intake', event.target.value)} className={inputBase} placeholder="Target intake, e.g. Fall 2026" />
+                  <input aria-label="Target country" value={form.target_country} onChange={(event) => updateField('target_country', event.target.value)} className={inputBase} placeholder="Target country" />
+                  <input aria-label="Undergraduate degree" value={form.undergrad_degree_name} onChange={(event) => updateField('undergrad_degree_name', event.target.value)} className={inputBase} placeholder="Undergraduate degree, e.g. BTech CSE" />
                 </div>
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-                  <input value={form.cgpa || ''} onChange={(event) => updateField('cgpa', numberOrZero(event.target.value))} className={inputBase} placeholder="CGPA" inputMode="decimal" />
-                  <select value={form.cgpa_scale} onChange={(event) => updateField('cgpa_scale', Number(event.target.value) as 4 | 10)} className={inputBase}>
+                  <input aria-label="CGPA" value={form.cgpa || ''} onChange={(event) => updateField('cgpa', numberOrZero(event.target.value))} className={inputBase} placeholder="CGPA" inputMode="decimal" />
+                  <select aria-label="CGPA scale" value={form.cgpa_scale} onChange={(event) => updateField('cgpa_scale', Number(event.target.value) as 4 | 10)} className={inputBase}>
                     <option value={10}>10-point CGPA</option>
                     <option value={4}>4-point GPA</option>
                   </select>
-                  <input value={form.gre_score ?? ''} onChange={(event) => updateField('gre_score', numberOrNull(event.target.value))} className={inputBase} placeholder="GRE score (optional)" inputMode="numeric" />
-                  <input value={form.gmat_score ?? ''} onChange={(event) => updateField('gmat_score', numberOrNull(event.target.value))} className={inputBase} placeholder="GMAT score (optional)" inputMode="numeric" />
+                  <input aria-label="GRE score (optional)" value={form.gre_score ?? ''} onChange={(event) => updateField('gre_score', numberOrNull(event.target.value))} className={inputBase} placeholder="GRE score (optional)" inputMode="numeric" />
+                  <input aria-label="GMAT score (optional)" value={form.gmat_score ?? ''} onChange={(event) => updateField('gmat_score', numberOrNull(event.target.value))} className={inputBase} placeholder="GMAT score (optional)" inputMode="numeric" />
                 </div>
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
                   <select
+                    aria-label="English test"
                     value={form.english_test ?? ''}
                     onChange={(event) => updateField('english_test', event.target.value === '' ? null : event.target.value as 'IELTS' | 'TOEFL')}
                     className={inputBase}
@@ -249,9 +250,9 @@ function AdmitPredictorTool() {
                     <option value="IELTS">IELTS</option>
                     <option value="TOEFL">TOEFL</option>
                   </select>
-                  <input value={form.english_score ?? ''} onChange={(event) => updateField('english_score', numberOrNull(event.target.value))} className={inputBase} placeholder="English score" inputMode="decimal" />
-                  <input value={form.work_experience_months || ''} onChange={(event) => updateField('work_experience_months', numberOrZero(event.target.value))} className={inputBase} placeholder="Work experience months" inputMode="numeric" />
-                  <input value={form.research_publications || ''} onChange={(event) => updateField('research_publications', numberOrZero(event.target.value))} className={inputBase} placeholder="Research publications" inputMode="numeric" />
+                  <input aria-label="English score" value={form.english_score ?? ''} onChange={(event) => updateField('english_score', numberOrNull(event.target.value))} className={inputBase} placeholder="English score" inputMode="decimal" />
+                  <input aria-label="Work experience in months" value={form.work_experience_months || ''} onChange={(event) => updateField('work_experience_months', numberOrZero(event.target.value))} className={inputBase} placeholder="Work experience months" inputMode="numeric" />
+                  <input aria-label="Research publications" value={form.research_publications || ''} onChange={(event) => updateField('research_publications', numberOrZero(event.target.value))} className={inputBase} placeholder="Research publications" inputMode="numeric" />
                 </div>
 
                 <div className="mt-6">
@@ -266,6 +267,7 @@ function AdmitPredictorTool() {
                     {form.target_programs.map((program, index) => (
                       <div key={index} className="flex gap-2">
                         <input
+                          aria-label={`Target program ${index + 1}`}
                           value={program}
                           onChange={(event) => updateProgram(index, event.target.value)}
                           className={inputBase}

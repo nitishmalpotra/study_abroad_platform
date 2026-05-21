@@ -1,28 +1,49 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { test } from 'node:test';
 import vm from 'node:vm';
 import ts from 'typescript';
 
+// Minimal CommonJS loader that transpiles a .ts entry file and resolves its
+// relative .ts imports (e.g. the shared ./apiClient helper), so the clients can
+// share code without a bundler in the test environment.
 function loadClient(relativePath, fetchImpl) {
-  const source = readFileSync(join(process.cwd(), relativePath), 'utf8');
-  const { outputText } = ts.transpileModule(source, {
-    compilerOptions: {
-      module: ts.ModuleKind.CommonJS,
-      target: ts.ScriptTarget.ES2022,
-      esModuleInterop: true,
-    },
-  });
-  const sandbox = {
-    exports: {},
-    module: { exports: {} },
-    process,
-    fetch: fetchImpl,
-  };
-  sandbox.exports = sandbox.module.exports;
-  vm.runInNewContext(outputText, sandbox, { filename: relativePath });
-  return sandbox.module.exports;
+  const cache = new Map();
+
+  function loadModule(absPath) {
+    if (cache.has(absPath)) return cache.get(absPath);
+    const source = readFileSync(absPath, 'utf8');
+    const { outputText } = ts.transpileModule(source, {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2022,
+        esModuleInterop: true,
+      },
+    });
+    const moduleObj = { exports: {} };
+    cache.set(absPath, moduleObj.exports);
+    const baseDir = dirname(absPath);
+    const requireFn = (spec) => {
+      if (!spec.startsWith('.')) {
+        throw new Error(`Unexpected non-relative import in test sandbox: ${spec}`);
+      }
+      const target = spec.endsWith('.ts') ? resolve(baseDir, spec) : `${resolve(baseDir, spec)}.ts`;
+      return loadModule(target);
+    };
+    const sandbox = {
+      exports: moduleObj.exports,
+      module: moduleObj,
+      process,
+      fetch: fetchImpl,
+      require: requireFn,
+    };
+    vm.runInNewContext(outputText, sandbox, { filename: absPath });
+    cache.set(absPath, sandbox.module.exports);
+    return sandbox.module.exports;
+  }
+
+  return loadModule(resolve(process.cwd(), relativePath));
 }
 
 const sopPayload = {

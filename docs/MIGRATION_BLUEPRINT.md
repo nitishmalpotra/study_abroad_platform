@@ -22,7 +22,7 @@ This document is the authoritative migration plan for the repository.
 | Phase | Status | Evidence |
 |---|---|---|
 | Deep audit and migration planning | Completed | Initial audit and this blueprint |
-| Monorepo shell | Completed | Root workspace with `apps`, `services`, `packages`, `docs`, `infra`, and `tests` |
+| Monorepo shell | Completed | Root workspace with `apps`, `services`, `packages`, `docs`, and `infra`; automated tests live per package (web, api, services, runtime, contracts) rather than in a root `tests/` directory |
 | Public-repo baseline docs and CI scaffold | Completed | Root docs, `.editorconfig`, `.github/workflows/ci.yml`, `LICENSE` (Apache-2.0, added during the public-release audit), `README` License section |
 | SOP service extraction | Completed | Reusable modules under `services/sop_review/sop_review` plus tests |
 | Admissions service extraction | Completed | Reusable modules under `services/admissions/admissions` plus tests |
@@ -50,7 +50,6 @@ This document is the authoritative migration plan for the repository.
   - `packages/contracts`
   - `docs`
   - `infra`
-  - `tests`
 - `apps/web` is now a Next.js App Router frontend migrated from the original Vite + React app.
 - The KlassFin `Poppins` typeface is loaded via `next/font/google` in `apps/web/src/app/layout.tsx` and wired into Tailwind `font-sans` through the `--font-poppins` CSS variable. (The framework migration had dropped the original `index.html` Google Fonts link, silently falling back to `system-ui`; this was restored during the public-release audit.)
 - `apps/api` now exposes the first public FastAPI surface for SOP review and admissions prediction, with CORS configuration, JSON-only request guards, body-size limits, safe structured errors, structured redacted request/error logs, backend live AI rate limits, and safe provider-failure responses.
@@ -61,8 +60,9 @@ This document is the authoritative migration plan for the repository.
 - Both Python services use DeepSeek through thin task-specific adapters over the shared AI runtime.
 - Both Python services now expose provider protocols so domain orchestration is no longer inherently tied to Streamlit.
 - Prompt organization is now normalized across both Python services:
-  - SOP: active `services/sop_review/sop_review/prompts/v2.py` with historical `v1.py` retained
-  - Admissions: active `services/admissions/admissions/prompts/v2.py` with historical `v1.py` retained
+  - SOP: active `services/sop_review/sop_review/prompts/v2.py`
+  - Admissions: active `services/admissions/admissions/prompts/v2.py`
+  - The earlier `v1.py` prompt modules were removed during public-release cleanup once `v2` was the only imported version; their history remains recoverable via git.
 - SOP prompt evaluation now has sanitized synthetic fixtures and regression checks for schema validity, rubric order, concise outputs, and broad quality calibration.
 - Admissions prompt evaluation now has sanitized synthetic fixtures and regression checks for schema validity, concise grounded reasoning, and broad category calibration across strong, borderline, weak, and unrealistic-target profiles.
 - Automated tests now exist for both Python services.
