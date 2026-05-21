@@ -38,20 +38,39 @@ Use these Vercel settings:
 
 ```text
 Root Directory: apps/api
-Framework Preset: FastAPI
-Install Command: pip install -r requirements.txt
-Build Command: python -m py_compile app/main.py
-Development Command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+Framework Preset: FastAPI (auto-detected)
+Install Command: (leave default; Vercel installs from requirements.txt)
+Build Command: (leave default; comes from pyproject.toml below)
 ```
 
-`apps/api/pyproject.toml` exposes the ASGI app through:
+Vercel discovers the ASGI app by looking for a `FastAPI` instance named `app` at a
+supported entrypoint. The backend lives at `app/main.py` (a supported `app/`
+location), and `apps/api/pyproject.toml` makes the entrypoint explicit:
 
 ```toml
-[project.scripts]
-app = "app.main:app"
+[tool.vercel]
+entrypoint = "app.main:app"
+
+[tool.vercel.scripts]
+build = "python -m py_compile app/main.py"
 ```
 
-`apps/api/requirements.txt` installs the local monorepo packages with relative editable paths, so the API project must be deployed from the full monorepo checkout, not from a copied `apps/api` folder.
+`[tool.vercel] entrypoint` points Vercel at the `app` instance in `app/main.py`, and
+`[tool.vercel.scripts] build` defines the build step that runs after dependencies
+install. A `vercel.json` is not required.
+
+`apps/api/requirements.txt` installs the local monorepo packages with relative editable paths (`-e ../../packages/...` and `-e ../../services/...`), so the API project must be deployed from the full monorepo checkout, not from a copied `apps/api` folder.
+
+Because those paths point outside `apps/api`, enable this on the API project:
+
+```text
+Settings → Build and Deployment → Root Directory →
+Include source files outside of the Root Directory in the Build Step: ON
+```
+
+Without it, the build only sees files inside `apps/api`, and `pip install -r requirements.txt` fails to resolve the `../../packages` and `../../services` editable installs. The web project keeps this setting OFF; it installs only from inside `apps/web`.
+
+The Streamlit, pandas, plotly, and file-ingestion dependencies live in each service's local-only `local` dependency group, not its core dependencies, so the API's pip install pulls only the runtime domain logic. This keeps the deployed function bundle small (~65 MB installed, well under the Vercel Functions 500 MB limit). Do not move those dependencies back into `[project] dependencies`.
 
 Health check URL:
 

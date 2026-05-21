@@ -277,3 +277,7 @@ See `SECURITY.md` and `docs/security-and-privacy.md`.
 - Decide whether lead capture keeps the current gated UX, gets real OTP, or is simplified.
 - Add upload support to the public SOP API only if file retention/scanning requirements are resolved.
 - Move static content toward a cleaner content layer when product needs justify it.
+
+## License
+
+Licensed under the Apache License, Version 2.0. See [`LICENSE`](LICENSE).

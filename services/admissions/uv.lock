@@ -189,10 +189,7 @@ version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "ai-runtime" },
-    { name = "plotly" },
     { name = "pydantic" },
-    { name = "python-dotenv" },
-    { name = "streamlit" },
 ]
 
 [package.dev-dependencies]
@@ -200,20 +197,27 @@ dev = [
     { name = "pytest" },
     { name = "ruff" },
 ]
+local = [
+    { name = "plotly" },
+    { name = "python-dotenv" },
+    { name = "streamlit" },
+]
 
 [package.metadata]
 requires-dist = [
     { name = "ai-runtime", editable = "../../packages/ai_runtime" },
-    { name = "plotly", specifier = ">=6.0.0,<7.0.0" },
     { name = "pydantic", specifier = ">=2.10.6,<3.0.0" },
-    { name = "python-dotenv", specifier = ">=1.0.1,<2.0.0" },
-    { name = "streamlit", specifier = ">=1.42.0,<2.0.0" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "pytest", specifier = ">=8.3.4,<9.0.0" },
     { name = "ruff", specifier = ">=0.9.4,<1.0.0" },
+]
+local = [
+    { name = "plotly", specifier = ">=6.0.0,<7.0.0" },
+    { name = "python-dotenv", specifier = ">=1.0.1,<2.0.0" },
+    { name = "streamlit", specifier = ">=1.42.0,<2.0.0" },
 ]
 
 [[package]]

@@ -9,10 +9,7 @@ authors = [
 ]
 dependencies = [
   "ai-runtime",
-  "streamlit>=1.42.0,<2.0.0",
-  "python-dotenv>=1.0.1,<2.0.0",
   "pydantic>=2.10.6,<3.0.0",
-  "plotly>=6.0.0,<7.0.0",
 ]
 
 [tool.uv.sources]
@@ -23,6 +20,13 @@ dev = [
   "pytest>=8.3.4,<9.0.0",
   "ruff>=0.9.4,<1.0.0",
 ]
+# Local-only Streamlit adapter. The FastAPI backend never imports these, so they
+# stay out of the API's Vercel function bundle.
+local = [
+  "streamlit>=1.42.0,<2.0.0",
+  "python-dotenv>=1.0.1,<2.0.0",
+  "plotly>=6.0.0,<7.0.0",
+]
 
 [build-system]
 requires = ["setuptools>=69.5.1", "wheel>=0.45.1"]
@@ -32,7 +36,7 @@ build-backend = "setuptools.build_meta"
 packages = ["admissions", "admissions.prompts"]
 
 [tool.uv]
-default-groups = ["dev"]
+default-groups = ["dev", "local"]
 
 [tool.ruff.lint]
 ignore = ["E402"]

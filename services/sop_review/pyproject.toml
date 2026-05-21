@@ -6,14 +6,23 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "ai-runtime",
+    "pydantic>=2.10.4,<3.0.0",
+]
+
+[dependency-groups]
+# Local-only Streamlit adapter and file ingestion. The FastAPI backend never
+# imports these, so they stay out of the API's Vercel function bundle.
+local = [
     "streamlit>=1.41.1,<2.0.0",
     "python-dotenv>=1.0.1,<2.0.0",
     "pypdf>=5.1.0,<6.0.0",
     "python-docx>=1.1.2,<2.0.0",
     "pandas>=2.2.3,<3.0.0",
     "plotly>=6.0.0,<7.0.0",
-    "pydantic>=2.10.4,<3.0.0",
 ]
+
+[tool.uv]
+default-groups = ["local"]
 
 [tool.uv.sources]
 ai-runtime = { path = "../../packages/ai_runtime", editable = true }

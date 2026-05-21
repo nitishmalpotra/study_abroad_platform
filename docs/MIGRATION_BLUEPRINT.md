@@ -23,7 +23,7 @@ This document is the authoritative migration plan for the repository.
 |---|---|---|
 | Deep audit and migration planning | Completed | Initial audit and this blueprint |
 | Monorepo shell | Completed | Root workspace with `apps`, `services`, `packages`, `docs`, `infra`, and `tests` |
-| Public-repo baseline docs and CI scaffold | Completed | Root docs, `.editorconfig`, `.github/workflows/ci.yml` |
+| Public-repo baseline docs and CI scaffold | Completed | Root docs, `.editorconfig`, `.github/workflows/ci.yml`, `LICENSE` (Apache-2.0, added during the public-release audit), `README` License section |
 | SOP service extraction | Completed | Reusable modules under `services/sop_review/sop_review` plus tests |
 | Admissions service extraction | Completed | Reusable modules under `services/admissions/admissions` plus tests |
 | Shared AI runtime and DeepSeek migration | Completed | `packages/ai_runtime` plus DeepSeek-backed SOP/admissions adapters and tests |
@@ -38,7 +38,7 @@ This document is the authoritative migration plan for the repository.
 | Secure-by-default public AI controls | Completed | Live-only backend rate limits, JSON/body-size guards, stricter validation, safe errors, structured redacted logs, provider failure handling, frontend AI disclaimers, and security docs/tests |
 | Public-facing documentation finalization | Completed | Root README plus architecture, local development, deployment, security/privacy, AI design, release smoke checks, and evaluation docs aligned to current scripts, ports, env vars, and known limitations |
 | Final engineering hardening pass | Completed | CI now includes web tests, API checks, contracts, shared runtime, and both domain services; frontend API-client tests and backend smoke tests cover mock/live-with-fakes, validation, and rate limits |
-| Vercel deployment preparation | Completed | `apps/api` exposes Vercel FastAPI entrypoint metadata and pip requirements; `docs/deployment.md` documents two Vercel projects, build commands, health checks, env vars, preview/production setup, and public-repo-safe secret handling |
+| Vercel deployment preparation | Completed | `apps/api` declares the FastAPI app via `[tool.vercel] entrypoint`/`[tool.vercel.scripts] build` plus pip requirements; service Streamlit/viz deps are isolated in local-only uv groups so the API bundle stays ~65 MB; `docs/deployment.md` documents two Vercel projects, the "include files outside root" setting, build commands, health checks, env vars, preview/production setup, local production-like builds, and public-repo-safe secret handling. Local builds verified for both apps. |
 
 ### Current repo reality after prompt fifteen
 
@@ -52,6 +52,7 @@ This document is the authoritative migration plan for the repository.
   - `infra`
   - `tests`
 - `apps/web` is now a Next.js App Router frontend migrated from the original Vite + React app.
+- The KlassFin `Poppins` typeface is loaded via `next/font/google` in `apps/web/src/app/layout.tsx` and wired into Tailwind `font-sans` through the `--font-poppins` CSS variable. (The framework migration had dropped the original `index.html` Google Fonts link, silently falling back to `system-ui`; this was restored during the public-release audit.)
 - `apps/api` now exposes the first public FastAPI surface for SOP review and admissions prediction, with CORS configuration, JSON-only request guards, body-size limits, safe structured errors, structured redacted request/error logs, backend live AI rate limits, and safe provider-failure responses.
 - `services/sop_review` now contains reusable service modules plus an intentionally retained internal/local Streamlit adapter.
 - `services/admissions` now contains reusable service modules plus an intentionally retained internal/local Streamlit adapter.
@@ -93,8 +94,19 @@ This document is the authoritative migration plan for the repository.
 - Vercel deployment is documented as two projects from the same monorepo:
   `apps/web` as the Next.js project and `apps/api` as the FastAPI project.
 - `apps/api` now includes Vercel FastAPI discovery metadata in `pyproject.toml`
-  and a `requirements.txt` that installs local monorepo packages for Vercel's
-  pip-based Python install path.
+  via `[tool.vercel] entrypoint = "app.main:app"` and `[tool.vercel.scripts]
+  build`, plus a `requirements.txt` that installs local monorepo packages for
+  Vercel's pip-based Python install path. The relative editable paths require the
+  API project to enable "Include source files outside of the Root Directory in
+  the Build Step".
+- Both domain services now declare Streamlit, pandas, plotly, and file-ingestion
+  (`pypdf`, `python-docx`) dependencies in a local-only `local` uv dependency
+  group rather than in `[project] dependencies`. The FastAPI backend never
+  imports these, so the API's pip/Vercel install pulls only `ai-runtime` and
+  `pydantic` from each service. This keeps the deployed function bundle small
+  (~65 MB installed) and well under the Vercel Functions 500 MB limit. Local
+  Streamlit usage is unchanged because each service sets `[tool.uv]
+  default-groups` to include `local`.
 
 ## 1. Current-state summary
 
@@ -530,7 +542,7 @@ DeepSeek verification remain pending.
 | Testing gap | Service-level, API, contract, frontend API-client, frontend build/type/lint, backend smoke, and mock-flow checks now exist. Browser-level end-to-end automation and live DeepSeek verification remain pending. |
 | Data model consolidation | SOP, admissions, and leads currently live in different storage models and need a unified schema strategy. |
 | Public repo readiness | Public-facing docs now cover setup, architecture, deployment, security/privacy, AI design, evaluations, BYO DeepSeek, mock/demo mode, limitations, and roadmap. Docs must still keep evolving with implementation. |
-| Vercel deployment | Web and API deploy as separate Vercel projects from the same monorepo. The API uses `requirements.txt` for Vercel's pip install path and `[project.scripts] app = "app.main:app"` for FastAPI discovery. |
+| Vercel deployment | Web and API deploy as separate Vercel projects from the same monorepo. The API uses `requirements.txt` for Vercel's pip install path and `[tool.vercel] entrypoint = "app.main:app"` for FastAPI app discovery. Because `requirements.txt` uses `../../` editable paths, the API project must enable "Include source files outside of the Root Directory in the Build Step". |
 | Static content | Content remains code-owned now, so structure it cleanly enough to extract later without rewriting page logic. |
 
 ## 6. KlassFin frontend theme preservation checklist

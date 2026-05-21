@@ -1133,9 +1133,13 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "ai-runtime" },
+    { name = "pydantic" },
+]
+
+[package.dev-dependencies]
+local = [
     { name = "pandas" },
     { name = "plotly" },
-    { name = "pydantic" },
     { name = "pypdf" },
     { name = "python-docx" },
     { name = "python-dotenv" },
@@ -1145,9 +1149,13 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "ai-runtime", editable = "../../packages/ai_runtime" },
+    { name = "pydantic", specifier = ">=2.10.4,<3.0.0" },
+]
+
+[package.metadata.requires-dev]
+local = [
     { name = "pandas", specifier = ">=2.2.3,<3.0.0" },
     { name = "plotly", specifier = ">=6.0.0,<7.0.0" },
-    { name = "pydantic", specifier = ">=2.10.4,<3.0.0" },
     { name = "pypdf", specifier = ">=5.1.0,<6.0.0" },
     { name = "python-docx", specifier = ">=1.1.2,<2.0.0" },
     { name = "python-dotenv", specifier = ">=1.0.1,<2.0.0" },
