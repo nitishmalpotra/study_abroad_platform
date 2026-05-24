@@ -2,6 +2,8 @@
 
 Use these prompts in order. Each prompt is intentionally scoped so the repo stays reviewable and verifiable after every step.
 
+This pack has been reconciled with the shipped implementation. Where the original prompts proposed something that was later adapted, the text reflects the final outcome: automated tests live per package (there is no root `tests/` directory), the shared `packages/ai_runtime` was introduced in Prompt 6, and Vercel Blob was deferred for the first release (SOP uploads are processed transiently rather than stored). See `docs/MIGRATION_BLUEPRINT.md` §0 for the authoritative current state.
+
 Global rules for every prompt:
 - inspect before editing
 - before making changes, read `docs/MIGRATION_BLUEPRINT.md` and treat it as the authoritative migration plan
@@ -30,7 +32,7 @@ Your task is to perform a deep repo audit and produce a migration blueprint for 
 - no user accounts/sign-in
 - sensible public rate limits
 - Neon Postgres as the production database target
-- Vercel Blob for SOP uploads if persisted
+- Vercel Blob for SOP uploads only if upload retention is later required (deferred for the first release; uploads are processed transiently)
 - public-repo-grade documentation, security hygiene, testing, CI, and deployment readiness
 - frontend support for both real AI calls and mock/demo calls
 
@@ -87,7 +89,6 @@ Target high-level layout:
 - services/admissions
 - docs
 - infra
-- tests
 
 Requirements:
 - Move the existing frontend into apps/web without changing its visual theme or app behavior yet.

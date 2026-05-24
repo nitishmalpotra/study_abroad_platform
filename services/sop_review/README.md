@@ -97,7 +97,7 @@ docker build -t sop-review-grader .
 Supported environment variables:
 
 - `DEEPSEEK_API_KEY` (required)
-- `DEEPSEEK_MODEL` (default `deepseek-chat`)
+- `DEEPSEEK_MODEL` (default `deepseek-v4-flash`)
 - `DEEPSEEK_MODELS` (optional comma-separated fallback order)
 - `DEEPSEEK_BASE_URL` (default `https://api.deepseek.com`)
 - `APP_ENV` (`prod` or `dev`; default `prod`)

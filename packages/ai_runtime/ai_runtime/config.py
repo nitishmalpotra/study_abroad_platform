@@ -2,7 +2,7 @@ import os
 from dataclasses import dataclass
 
 
-DEFAULT_MODEL = "deepseek-chat"
+DEFAULT_MODEL = "deepseek-v4-flash"
 
 
 @dataclass(frozen=True)

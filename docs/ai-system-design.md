@@ -9,7 +9,7 @@ Backend-only environment:
 ```dotenv
 DEEPSEEK_API_KEY=your_deepseek_api_key_here
 DEEPSEEK_MODEL=deepseek-v4-flash
-# DEEPSEEK_MODELS=deepseek-chat,deepseek-reasoner
+# DEEPSEEK_MODELS=deepseek-v4-flash,deepseek-v4-pro
 # DEEPSEEK_BASE_URL=https://api.deepseek.com
 ```
 
@@ -61,12 +61,10 @@ Live endpoints call DeepSeek through the shared runtime and are backend-rate-lim
 
 Prompt code is versioned in each service:
 
-- `services/sop_review/sop_review/prompts/v1.py`
 - `services/sop_review/sop_review/prompts/v2.py`
-- `services/admissions/admissions/prompts/v1.py`
 - `services/admissions/admissions/prompts/v2.py`
 
-The active prompt version is imported through each service's prompt package. Historical prompt files are retained for migration context and regression comparison.
+The active prompt version is imported through each service's prompt package. The earlier `v1.py` modules were removed once `v2` became the only imported version; their history remains recoverable via git.
 
 ## Guardrails
 

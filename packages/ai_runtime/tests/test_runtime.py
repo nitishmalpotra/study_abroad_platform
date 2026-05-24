@@ -34,7 +34,7 @@ class FakeProvider:
 def settings(**overrides: object) -> RuntimeSettings:
     values = {
         "api_key": "placeholder-key",
-        "model_candidates": ("deepseek-chat", "deepseek-reasoner"),
+        "model_candidates": ("deepseek-v4-flash", "deepseek-v4-pro"),
         "base_url": "https://api.deepseek.com",
         "timeout_seconds": 1.0,
         "retry_attempts": 0,
@@ -48,8 +48,8 @@ def test_runtime_falls_back_to_next_model() -> None:
     provider = FakeProvider([RuntimeError("boom"), {"text": "ok"}])
     result = AIRuntime(settings(), provider, logging.getLogger("test")).complete([], "req")
     assert result.text == "ok"
-    assert result.model == "deepseek-reasoner"
-    assert provider.models == ["deepseek-chat", "deepseek-reasoner"]
+    assert result.model == "deepseek-v4-pro"
+    assert provider.models == ["deepseek-v4-flash", "deepseek-v4-pro"]
 
 
 def test_shared_json_helpers_extract_and_validate_payload() -> None:

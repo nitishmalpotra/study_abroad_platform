@@ -25,7 +25,7 @@ npm run build
 # Admissions service
 cd services/admissions
 uv sync --locked
-uv run ruff check app.py
+uv run ruff check .
 uv run pytest
 uv run python -m py_compile app.py
 
@@ -36,7 +36,7 @@ uv run python -m unittest discover -s tests
 uv run python -m py_compile app.py
 ```
 
-Automated service tests now exist for both Python tools. API, frontend, contract, and end-to-end coverage are still planned later in the migration.
+Automated tests now exist across the monorepo: both Python services, the FastAPI backend (`apps/api`), the frontend (`apps/web`), and the shared contracts (`packages/contracts`), all wired into CI. Browser-level end-to-end coverage is still planned later in the migration.
 
 ## Pull requests
 

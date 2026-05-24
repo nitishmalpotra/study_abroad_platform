@@ -142,7 +142,7 @@ Live SOP review and admissions prediction require a backend-only DeepSeek key:
 ```dotenv
 DEEPSEEK_API_KEY=your_deepseek_api_key_here
 DEEPSEEK_MODEL=deepseek-v4-flash
-# DEEPSEEK_MODELS=deepseek-chat,deepseek-reasoner
+# DEEPSEEK_MODELS=deepseek-v4-flash,deepseek-v4-pro
 # DEEPSEEK_BASE_URL=https://api.deepseek.com
 ```
 

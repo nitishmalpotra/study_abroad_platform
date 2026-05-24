@@ -34,7 +34,7 @@ def profile() -> StudentProfile:
 def test_runtime_provider_repairs_invalid_prediction_output() -> None:
     runtime = FakeRuntime(
         [
-            CompletionResult("not-json", "deepseek-chat"),
+            CompletionResult("not-json", "deepseek-v4-flash"),
             CompletionResult(
                 """
                 {
@@ -50,7 +50,7 @@ def test_runtime_provider_repairs_invalid_prediction_output() -> None:
                   "recommended_universities": ["A", "B", "C"]
                 }
                 """,
-                "deepseek-chat",
+                "deepseek-v4-flash",
             ),
         ]
     )
@@ -79,7 +79,7 @@ def test_runtime_provider_uses_openai_compatible_roles_for_active_prompt() -> No
                   "recommended_universities": ["A", "B", "C"]
                 }
                 """,
-                "deepseek-chat",
+                "deepseek-v4-flash",
             )
         ]
     )

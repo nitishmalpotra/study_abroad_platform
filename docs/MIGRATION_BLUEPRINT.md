@@ -292,105 +292,83 @@ flowchart LR
 - Production database target is Neon Postgres.
 - Static content remains code-owned for now, but should be structured so it can later move cleanly into a content layer such as MDX or a CMS.
 
-## 3. Proposed folder tree
+## 3. Folder tree (as built)
+
+This is the shipped layout. The original proposal differed in places — for
+example a single `apps/api/app/providers/` package and an `alembic/` migrations
+folder were proposed, but the build instead centralizes provider access in
+`packages/ai_runtime` and uses a custom SQL migration runner; root
+`pyproject.toml`/`package.json`/`pnpm-workspace.yaml` were never added (each
+package is run from its own directory); and Vercel Blob was deferred. See §0 for
+the authoritative status.
 
 ```text
-study-abroad-platform/
+study_abroad_platform/
 ├── apps/
-│   ├── web/
-│   │   ├── app/
-│   │   │   ├── (marketing)/
-│   │   │   ├── tools/
-│   │   │   │   ├── sop-review/
-│   │   │   │   └── admit-predictor/
-│   │   │   └── api-health/
-│   │   ├── components/
-│   │   ├── features/
-│   │   │   ├── sop-review/
-│   │   │   └── admit-predictor/
-│   │   ├── content/
-│   │   │   ├── blog/
-│   │   │   ├── countries/
-│   │   │   └── universities/
-│   │   ├── lib/
-│   │   │   ├── api-client/
-│   │   │   └── mode/
-│   │   ├── public/
-│   │   ├── styles/
+│   ├── web/                          # Next.js App Router frontend
+│   │   ├── src/
+│   │   │   ├── app/                   # file-based routes (blog, destinations,
+│   │   │   │                         #   universities, tools/{sop-review,
+│   │   │   │                         #   admit-predictor,emi-calculator,resources})
+│   │   │   ├── components/
+│   │   │   ├── context/
+│   │   │   ├── contracts/            # re-exported TypeScript contracts
+│   │   │   ├── data/                 # code-owned static content
+│   │   │   ├── lib/                  # API clients
+│   │   │   └── screens/
 │   │   ├── tests/
 │   │   └── package.json
-│   └── api/
+│   └── api/                          # FastAPI backend
 │       ├── app/
 │       │   ├── main.py
 │       │   ├── api/
-│       │   │   ├── routes/
-│       │   │   │   ├── health.py
-│       │   │   │   ├── sop.py
-│       │   │   │   └── admissions.py
-│       │   │   └── deps.py
-│       │   ├── core/
-│       │   │   ├── config.py
-│       │   │   ├── rate_limits.py
-│       │   │   └── security.py
-│       │   ├── persistence/
-│       │   │   ├── models.py
-│       │   │   ├── repositories.py
-│       │   │   └── retention.py
-│       │   ├── storage/
-│       │   │   └── blob_store.py
-│       │   └── providers/
-│       │       ├── ai_base.py
-│       │       ├── deepseek.py
-│       │       └── mock.py
-│       ├── alembic/
+│       │   │   ├── deps.py
+│       │   │   └── routes/           # health, sop, admissions, leads
+│       │   ├── core/                 # config, errors, logging, middleware,
+│       │   │                         #   rate_limits
+│       │   └── persistence/          # database, migrations, privacy,
+│       │                             #   repositories
+│       ├── migrations/               # 001_public_platform_persistence.sql,
+│       │                             #   002_tool_leads.sql
 │       ├── tests/
-│       └── pyproject.toml
+│       ├── pyproject.toml
+│       └── requirements.txt
 ├── packages/
 │   ├── ai_runtime/
-│   │   ├── providers/
-│   │   ├── parsing.py
-│   │   ├── retry.py
-│   │   └── redaction.py
+│   │   ├── ai_runtime/               # config, parsing, providers, runtime,
+│   │   │                             #   security
+│   │   └── tests/
 │   └── contracts/
-│       ├── openapi/
-│       ├── examples/
-│       └── generated/
+│       ├── study_abroad_contracts/   # api, examples, schema_export
+│       ├── schemas/                  # committed JSON Schemas
+│       ├── ts/api.ts                 # frontend TypeScript types
+│       └── tests/
 ├── services/
 │   ├── sop_review/
-│   │   ├── sop_review/
-│   │   │   ├── service.py
-│   │   │   ├── prompts/
-│   │   │   ├── schemas.py
-│   │   │   └── validation.py
-│   │   └── tests/
+│   │   ├── sop_review/               # service, prompts/v2.py, schemas,
+│   │   │                             #   validation, ingestion, catalog,
+│   │   │                             #   persistence, providers
+│   │   ├── app.py                    # internal/local Streamlit adapter
+│   │   ├── evals/
+│   │   ├── tests/
+│   │   └── Dockerfile
 │   └── admissions/
-│       ├── admissions/
-│       │   ├── service.py
-│       │   ├── prompts/
-│       │   ├── schemas.py
-│       │   └── validation.py
+│       ├── admissions/               # service, prompts/v2.py, schemas,
+│       │                             #   validation, postprocessing,
+│       │                             #   persistence, providers, utils
+│       ├── app.py                    # internal/local Streamlit adapter
+│       ├── evals/
 │       └── tests/
 ├── docs/
-│   ├── architecture.md
-│   ├── api.md
-│   ├── deployment.md
-│   ├── security.md
-│   ├── local-development.md
-│   └── data-retention.md
-├── infra/
-│   ├── env/
-│   └── deployment/
+├── infra/                            # placeholder (.gitkeep)
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml
-│       └── deploy-checks.yml
+│       └── ci.yml
 ├── README.md
 ├── CONTRIBUTING.md
 ├── SECURITY.md
-├── LICENSE
-├── pyproject.toml
-├── package.json
-└── pnpm-workspace.yaml
+├── CODE_OF_CONDUCT.md
+└── LICENSE
 ```
 
 ## 4. Phased migration plan
@@ -432,7 +410,7 @@ study-abroad-platform/
   - admissions post-processing and repair behavior
   - university catalog behavior
 - Remove Gemini-specific assumptions from domain code.
-- Normalize prompt modules under `prompts/v1.py` before provider migration.
+- Normalize prompt modules under a versioned `prompts/` package before provider migration. (The initial `v1.py` modules were later superseded and removed once `v2` became the only active version; see §0.)
 
 #### Phase 3 — Build FastAPI backend
 

@@ -107,7 +107,7 @@ Expected:
 - App remains responsive.
 
 ## 6. Operational Notes
-- Default model: `deepseek-chat`.
+- Default model: `deepseek-v4-flash`.
 - Override model using `.env` with any model your API key can access:
-  - `DEEPSEEK_MODEL=deepseek-reasoner`
+  - `DEEPSEEK_MODEL=deepseek-v4-pro`
 - SQLite DB is local and suitable for single-instance deployment.

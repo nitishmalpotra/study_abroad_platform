@@ -102,7 +102,7 @@ DEEPSEEK_MODEL=deepseek-v4-flash
 Optional DeepSeek overrides:
 
 ```dotenv
-DEEPSEEK_MODELS=deepseek-chat,deepseek-reasoner
+DEEPSEEK_MODELS=deepseek-v4-flash,deepseek-v4-pro
 DEEPSEEK_BASE_URL=https://api.deepseek.com
 ```
 

@@ -15,7 +15,7 @@ def test_runtime_provider_uses_shared_runtime_for_both_sop_steps() -> None:
     provider = RuntimeReviewProvider(
         FakeRuntime(
             [
-                CompletionResult('{"is_valid": true, "reason": "ok"}', "deepseek-chat"),
+                CompletionResult('{"is_valid": true, "reason": "ok"}', "deepseek-v4-flash"),
                 CompletionResult(
                     """
                     {
@@ -30,7 +30,7 @@ def test_runtime_provider_uses_shared_runtime_for_both_sop_steps() -> None:
                       "summary": "Good SOP"
                     }
                     """,
-                    "deepseek-chat",
+                    "deepseek-v4-flash",
                 ),
             ]
         )
@@ -38,5 +38,5 @@ def test_runtime_provider_uses_shared_runtime_for_both_sop_steps() -> None:
     gatekeeper, gatekeeper_model = provider.gatekeep("sop", "req")
     grade, _, grading_model = provider.grade("sop", "Example University", "UK", "req")
     assert gatekeeper.is_valid is True
-    assert gatekeeper_model == grading_model == "deepseek-chat"
+    assert gatekeeper_model == grading_model == "deepseek-v4-flash"
     assert grade.overall_score == 8
